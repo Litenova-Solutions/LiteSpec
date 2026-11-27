@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Readers.Suppressions;
 ///     statement is the map. Empty when no LiteSpec release is found, or when its
 ///     rule pages cannot be read.
 /// </summary>
-/// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
+/// <follows>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</follows>
 static class AnalyzerRuleProvisions
 {
     /// <summary>The provision identifier stated in backticks on a rule page.</summary>

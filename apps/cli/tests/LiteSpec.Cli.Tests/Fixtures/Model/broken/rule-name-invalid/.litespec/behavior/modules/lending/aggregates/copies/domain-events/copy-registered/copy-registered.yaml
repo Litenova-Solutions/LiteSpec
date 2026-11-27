@@ -1,0 +1,9 @@
+type: domain-event
+id: domain-event/copy.copy-registered
+title: Copy registered
+meaning: A copy was registered.
+fields:
+  - name: copyId
+    type: text
+  - name: shelf
+    type: text

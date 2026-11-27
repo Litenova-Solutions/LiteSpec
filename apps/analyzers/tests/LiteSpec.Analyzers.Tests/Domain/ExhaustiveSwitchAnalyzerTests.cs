@@ -8,7 +8,7 @@ public sealed class ExhaustiveSwitchAnalyzerTests
 {
     /// <summary>LS1013 reports a state case left to the discard arm.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 reports a state case left to the discard arm")]
     public Task ReportsAStateCaseLeftToTheDiscardArm() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -31,11 +31,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     {|LS1013:_|} => "other",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 reports every case left to the discard arm as one finding.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 reports every case left to the discard arm as one finding")]
     public Task ReportsEveryCaseLeftToTheDiscardArmOnce() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -57,11 +57,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     {|LS1013:_|} => "other",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 accepts a switch that handles every sealed case.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 accepts a switch that handles every sealed case")]
     public Task AcceptsASwitchThatHandlesEverySealedCase() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -85,11 +85,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     _ => "other",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 reports a closed set case left to the discard arm.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1013 reports a closed set case left to the discard arm")]
     public Task ReportsAClosedSetCaseLeftToTheDiscardArm() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -112,11 +112,96 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     {|LS1013:_|} => "other",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
+
+    /// <summary>LS1013 accepts nested cases named by type plus a discard arm.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    [Fact(DisplayName = "LS1013 accepts nested cases named by type plus a discard arm")]
+    public Task AcceptsNestedCasesNamedByTypePlusADiscard() =>
+        Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
+            namespace Shop.Orders;
+
+            public abstract record EntryKind
+            {
+                public sealed record Asset : EntryKind;
+
+                public sealed record Closing : EntryKind;
+
+                public sealed record Cost : EntryKind;
+            }
+
+            public sealed class EntryRouter
+            {
+                public string Describe(EntryKind kind) => kind switch
+                {
+                    EntryKind.Asset => "asset",
+                    EntryKind.Closing => "closing",
+                    EntryKind.Cost => "cost",
+                    _ => throw new System.InvalidOperationException(),
+                };
+            }
+            """, path: "Shop.Spending/Domain/Source.cs");
+
+    /// <summary>LS1013 reports a nested case missing from type-only arms.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    [Fact(DisplayName = "LS1013 reports a nested case missing from type-only arms")]
+    public Task ReportsANestedCaseMissingFromTypeOnlyArms() =>
+        Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
+            namespace Shop.Orders;
+
+            public abstract record EntryKind
+            {
+                public sealed record Asset : EntryKind;
+
+                public sealed record Closing : EntryKind;
+
+                public sealed record Cost : EntryKind;
+            }
+
+            public sealed class EntryRouter
+            {
+                public string Describe(EntryKind kind) => kind switch
+                {
+                    EntryKind.Asset => "asset",
+                    EntryKind.Closing => "closing",
+                    {|LS1013:_|} => throw new System.InvalidOperationException(),
+                };
+            }
+            """, path: "Shop.Spending/Domain/Source.cs");
+
+    /// <summary>LS1013 accepts nested cases grouped with or.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    [Fact(DisplayName = "LS1013 accepts nested cases grouped with or")]
+    public Task AcceptsNestedCasesGroupedWithOr() =>
+        Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
+            namespace Shop.Orders;
+
+            public abstract record EntryKind
+            {
+                public sealed record Asset : EntryKind;
+
+                public sealed record Closing : EntryKind;
+
+                public sealed record Cost : EntryKind;
+            }
+
+            public sealed class EntryRouter
+            {
+                public string Describe(EntryKind kind) => kind switch
+                {
+                    EntryKind.Asset or EntryKind.Closing => "grouped",
+                    EntryKind.Cost => "cost",
+                    _ => throw new System.InvalidOperationException(),
+                };
+            }
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 accepts a case handled through an abstract intermediate.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 accepts a case handled through an abstract intermediate")]
     public Task AcceptsACaseHandledThroughAnAbstractIntermediate() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -139,11 +224,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     _ => "other",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 reports a case handled only by a guarded arm.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 reports a case handled only by a guarded arm")]
     public Task ReportsACaseHandledOnlyByAGuardedArm() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -164,11 +249,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     {|LS1013:_|} => "other",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 reports a state case left to the default label.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 reports a state case left to the default label")]
     public Task ReportsAStateCaseLeftToTheDefaultLabel() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -199,11 +284,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     return "other";
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 accepts a switch statement that handles every sealed case.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 accepts a switch statement that handles every sealed case")]
     public Task AcceptsASwitchStatementThatHandlesEverySealedCase() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -236,11 +321,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     return "other";
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 ignores a switch without a discard arm.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 ignores a switch without a discard arm")]
     public Task IgnoresASwitchWithoutADiscardArm() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -262,11 +347,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     OrderPlacedState placed => "placed",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 ignores a switch over a type that is not a record hierarchy.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</proves>
     [Fact(DisplayName = "LS1013 ignores a switch over a type that is not a record hierarchy")]
     public Task IgnoresASwitchOverATypeThatIsNotARecordHierarchy() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -280,11 +365,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     _ => 0,
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 ignores an open hierarchy with an unsealed case.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 ignores an open hierarchy with an unsealed case")]
     public Task IgnoresAnOpenHierarchyWithAnUnsealedCase() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -304,11 +389,11 @@ public sealed class ExhaustiveSwitchAnalyzerTests
                     _ => "other",
                 };
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
     /// <summary>LS1013 ignores a switch outside Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
+    /// <proves>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
     [Fact(DisplayName = "LS1013 ignores a switch outside Domain")]
     public Task IgnoresASwitchOutsideDomain() =>
         Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
@@ -330,27 +415,4 @@ public sealed class ExhaustiveSwitchAnalyzerTests
             }
             """, assemblyName: "Shop.WebApi");
 
-    /// <summary>LS1013 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</proves>
-    [Fact(DisplayName = "LS1013 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<ExhaustiveSwitchAnalyzer>("""
-            namespace Shop.Orders;
-
-            public abstract record OrderState;
-
-            public sealed record OrderDraftState : OrderState;
-
-            public sealed record OrderPlacedState : OrderState;
-
-            public sealed class OrderRouter
-            {
-                public string Describe(OrderState state) => state switch
-                {
-                    OrderDraftState draft => "draft",
-                    {|LS1013:_|} => "other",
-                };
-            }
-            """, assemblyName: "Shop.Core", layer: "Domain");
 }

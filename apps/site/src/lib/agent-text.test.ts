@@ -1,5 +1,5 @@
 // Tests for the agent-facing text: page descriptions keep the first sentence
-// of the Intent with page links rewritten, the agent protocol region loads
+// of the lead with page links rewritten, the agent protocol region loads
 // from the consumer template and fills every placeholder, the root index
 // embeds the filled block with each placeholder explained, no llms.txt
 // output keeps a relative link, and every selection index leaves out the
@@ -24,15 +24,17 @@ import { SITE_ORIGIN } from "./origin.ts";
 import { pageByFile, selectionKey, selections, version, type Page } from "./spec.ts";
 
 describe("page description", () => {
-  it("keeps only the first sentence of the Intent", () => {
-    const page = pageByFile("docs/core/authoring.md")!;
-    assert.strictEqual(
-      describePage(page),
-      "Every page in LiteSpec shares one shape: a fixed style, testable rules called provisions, stable identifiers for those rules, and a table naming the evidence each rule needs.",
-    );
+  it("keeps only the first sentence of the lead", () => {
+    const page = {
+      file: "docs/core/sample.md",
+      title: "Sample",
+      style: "standard",
+      intent: "First sentence states the subject. Second sentence gives detail.",
+    } as Page;
+    assert.strictEqual(describePage(page), "First sentence states the subject.");
   });
 
-  it("cuts a synthetic intent at its first sentence and rewrites its links", () => {
+  it("cuts a synthetic lead at its first sentence and rewrites its links", () => {
     const page = {
       file: "docs/core/sample.md",
       title: "Sample",
@@ -43,25 +45,38 @@ describe("page description", () => {
   });
 
   it("rewrites relative page links to absolute raw URLs", () => {
-    const page = pageByFile("docs/frontend/web/patterns.md")!;
+    const page = {
+      file: "docs/packs/svelte/sample.md",
+      title: "Sample",
+      style: "standard",
+      intent: "See [Components](components.md) and the [Svelte Stack](stack.md).",
+    } as Page;
     assert.strictEqual(
       describePage(page),
-      `The web mechanism for UI patterns lives in [Web UI](${SITE_ORIGIN}/${version}/frontend/web/ui.md), which states the pattern implementation for the [React Stack](${SITE_ORIGIN}/${version}/frontend/web/react/stack.md) and [Svelte Stack](${SITE_ORIGIN}/${version}/frontend/web/svelte/stack.md) together with the other shared UI rules.`,
+      `See [Components](${SITE_ORIGIN}/${version}/packs/svelte/components.md) and the [Svelte Stack](${SITE_ORIGIN}/${version}/packs/svelte/stack.md).`,
     );
   });
 
   it("leaves external links alone", () => {
-    const page = pageByFile("docs/guide/install-the-cli.md")!;
-    assert.ok(describePage(page).includes("https://github.com/Litenova-Solutions/LiteSpec/releases"));
+    const page = {
+      file: "docs/guide/sample.md",
+      title: "Sample",
+      style: "how-to",
+      intent: "Fetch the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) archives.",
+    } as Page;
+    assert.strictEqual(
+      describePage(page),
+      "Fetch the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) archives.",
+    );
   });
 
   it("falls back for the glossary", () => {
     assert.strictEqual(describePage(pageByFile("docs/reference/glossary.md")!), "One heading per term, in alphabetical order.");
   });
 
-  it("falls back for a page with no intent", () => {
-    const page = pageByFile("docs/intent/decisions/0001-keep-release-reasoning-as-records/0001-keep-release-reasoning-as-records.md")!;
-    assert.strictEqual(describePage(page), `The ${page.title} page of the LiteSpec ${version} release.`);
+  it("falls back for a page with no lead", () => {
+    const page = { title: "Sample", style: "standard", intent: "" } as Page;
+    assert.strictEqual(describePage(page), `The Sample page of the LiteSpec ${version} release.`);
   });
 });
 
@@ -81,7 +96,7 @@ describe("agent protocol region", () => {
     assert.strictEqual(lines[1], precedenceSentence("__LITESPEC_COMMAND__"));
   });
 
-  it("holds exactly the nine known placeholders", () => {
+  it("holds exactly the eight known placeholders", () => {
     const found = [...new Set(loadAgentProtocolRegion().match(/__[A-Z0-9_]+__/g) ?? [])].sort();
     assert.deepStrictEqual(
       found,
@@ -96,13 +111,13 @@ describe("agent protocol region", () => {
       packageVersion: "$&1.0-rc.1",
       size: "large",
       shape: "server",
-      stacks: "dotnet, react",
-      extensions: "audit",
+      stacks: "dotnet, svelte",
+      extensions: "delivery",
       layers: "intent and behavior: litespec, implementation and proof: own",
-      selectionKey: "server.dotnet.react",
+      docs: "https://litespec.dev/7.0.0/select/server.dotnet.svelte/llms.txt",
       command: "litespec",
     });
-    assert.ok(out.includes("$&1.0=$&1.0"), out);
+    assert.ok(out.includes("$&1.0-rc.1=$&1.0-rc.1"), out);
     assert.ok(!/__[A-Z0-9_]+__/.test(out), out);
   });
 
@@ -116,12 +131,12 @@ describe("agent protocol region", () => {
     const filled = selectionValues({
       size: "large",
       shape: "server",
-      stacks: ["dotnet", "react"],
-      extensions: ["audit", "cache"],
-      selectionKey: "server.dotnet.react",
+      stacks: ["dotnet", "svelte"],
+      extensions: ["delivery", "ai-mcp"],
+      selectionKey: "server.dotnet.svelte",
     });
-    assert.strictEqual(filled.stacks, "dotnet, react");
-    assert.strictEqual(filled.extensions, "audit, cache");
+    assert.strictEqual(filled.stacks, "dotnet, svelte");
+    assert.strictEqual(filled.extensions, "delivery, ai-mcp");
     const bare = selectionValues({ size: "small", shape: "server", stacks: ["dotnet"], extensions: [], selectionKey: "server.dotnet" });
     assert.strictEqual(bare.extensions, "none");
   });
@@ -132,7 +147,7 @@ describe("agent protocol region", () => {
   });
 
   it("joins a selection key from its shape and stacks", () => {
-    assert.strictEqual(formatSelectionKey("server", ["dotnet", "react"]), "server.dotnet.react");
+    assert.strictEqual(formatSelectionKey("server", ["dotnet", "svelte"]), "server.dotnet.svelte");
     assert.strictEqual(formatSelectionKey("server", []), "server");
   });
 });
@@ -198,7 +213,7 @@ describe("selection index", () => {
   });
 
   it("groups the selection pages by artifact kind", () => {
-    const selection = selections().find((entry) => selectionKey(entry) === "server.dotnet.react")!;
+    const selection = selections().find((entry) => selectionKey(entry) === "server.dotnet.svelte")!;
     const text = selectionLlmsText(selection);
     assert.ok(text.includes("## By Artifact"), text);
     assert.ok(!text.includes("- any:"), "an any line is listed");

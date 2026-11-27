@@ -19,16 +19,3 @@ records:
     basedOn: []
     fulfills:
       - requirement/borrowing.copy-shelf-home
-  - type: event
-    id: event/copy.copy-registered
-    title: Copy registered
-    meaning: A copy was registered.
-    carries:
-      - copyId
-      - shelf
-  - type: event
-    id: event/copy.copy-retired
-    title: Copy retired
-    meaning: A copy was retired.
-    carries:
-      - copyId

@@ -4,6 +4,7 @@ using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Cli.Model.Tests;
@@ -49,6 +50,15 @@ sealed partial class ProjectModel
     public IReadOnlySet<string> AppliedProvisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     /// <summary>Gets or sets what the backend source says: handlers, events and marked elements.</summary>
     public CodeFacts Code { get; set; } = new();
+
+    /// <summary>Gets or sets the compilation the backend read was built from, or null when the syntax-only path ran.</summary>
+    public BackendSemantics? BackendSemantics { get; set; }
+
+    /// <summary>Gets or sets why semantic mode was unavailable, or null when syntax was not a fallback.</summary>
+    public string? SemanticUnavailableReason { get; set; }
+
+    /// <summary>Gets which backend reader mode ran: semantic when a compilation was built, else syntax.</summary>
+    public string BackendReaderMode => BackendSemantics is null ? BackendSemantics.SyntaxMode : BackendSemantics.SemanticMode;
     /// <summary>Gets the route screens the frontend readers found.</summary>
     public List<CodeScreen> Screens { get; } = [];
     /// <summary>Gets the acceptance scenarios the test readers found.</summary>
@@ -60,7 +70,7 @@ sealed partial class ProjectModel
     /// <summary>Gets or sets a value indicating whether whether the TypeScript reader's handshake matched, so it is qualified.</summary>
     public bool TypeScriptQualified { get; set; }
 
-    /// <summary>Gets the journey steps a passing test exercised, as <c>journey/&lt;name&gt;#&lt;step&gt;</c> ids.</summary>
+    /// <summary>Gets the flow steps a passing test exercised, as <c>step/&lt;flow&gt;.&lt;act&gt;</c> ids.</summary>
     public SortedSet<string> ExercisedSteps { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets or sets the generated-client operations each steps method calls, keyed by class and method.</summary>
@@ -91,7 +101,7 @@ sealed partial class ProjectModel
     /// <summary>Gets refusal codes by the class whose literal carries them.</summary>
     public Dictionary<string, HashSet<string>> RefusalCodes { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Gets per requirement, use case, journey, feature and goal, by id: the computed completion stage, proof state, holding children and counts.</summary>
+    /// <summary>Gets per requirement, use case, flow, feature and goal, by id: the computed completion stage, proof state, holding children and counts.</summary>
     public Dictionary<string, Completion> Completion { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets per screen record, by id: the screenshot captures the gallery holds for its route.</summary>
@@ -107,7 +117,16 @@ sealed partial class ProjectModel
     public Dictionary<string, IReadOnlySet<string>> ReachableStates { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets per aggregate, by id, plus <c>kernel</c>: the unmarked Domain types its folder holds, as <c>path:name</c>.</summary>
-    public Dictionary<string, List<string>> Constituents { get; } = new(StringComparer.Ordinal);
+    public Dictionary<string, List<string>> Parts { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets the requirement identifiers each flow carries, computed as the union of its steps' citations, by flow id.</summary>
+    public Dictionary<string, List<string>> FlowCitations { get; } = new(StringComparer.Ordinal);
+
+    /// <summary>Gets the refusal codes every module declares in its refusals.yaml, in module order.</summary>
+    public List<LiteSpec.Cli.Model.Refusals.RefusalEntry> RefusalSets { get; } = [];
+
+    /// <summary>Gets the generic refusal codes derived for each use case, by use case id; never written in a file.</summary>
+    public Dictionary<string, IReadOnlyList<string>> DerivedRefusals { get; } = new(StringComparer.Ordinal);
 
     /// <summary>Gets results of measured checks read from tool result files.</summary>
     public List<MeasureResult> Measures { get; } = [];
@@ -116,14 +135,30 @@ sealed partial class ProjectModel
     public List<UnmatchedCall> UnmatchedCalls { get; } = [];
 
     /// <summary>Gets records by id.</summary>
-    public IReadOnlyDictionary<string, Record> ById =>
-        _byId ??= Records
-            .Where(record => record.Id.Length > 0)
-            .GroupBy(record => record.Id, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, Record> ById
+    {
+        get
+        {
+            // The builder adds records after a reader may already have asked for the index, so the index
+            // is rebuilt whenever the record count it was built from no longer matches.
+            if (_byId is null || _byIdCount != Records.Count)
+            {
+                _byId = Records
+                    .Where(record => record.Id.Length > 0)
+                    .GroupBy(record => record.Id, StringComparer.Ordinal)
+                    .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+                _byIdCount = Records.Count;
+            }
+
+            return _byId;
+        }
+    }
 
     /// <summary>The cached records-by-id index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _byId;
+
+    /// <summary>The record count the cached index was built from.</summary>
+    private int _byIdCount = -1;
 
 
     /// <summary>Gets use-case records by the name their identifier ends in, the first one when names repeat.</summary>

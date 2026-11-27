@@ -1,0 +1,18 @@
+type: setting
+id: setting/<module>.<name>
+title: <Title in Title Case>
+terms:
+  - <term id, or remove this line>
+value:
+  type: text
+  default: <default value>
+  range: <accepted bounds, or remove this line>
+  unit: <unit, or remove this line>
+  outOfRange: <refuse|truncate|degrade, or remove this line>
+dated: <true|false, or remove this line>
+setBy: <product|operator|tenant>
+configurationPath: <Section:Key, or remove this line>
+meaning: <what the setting tunes, or remove this line>
+secret: <true|false, or remove this line>
+fulfills:
+  - requirement/<feature>.<name, or remove this line>

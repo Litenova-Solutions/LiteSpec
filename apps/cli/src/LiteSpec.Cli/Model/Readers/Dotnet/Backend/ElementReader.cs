@@ -29,6 +29,8 @@ static class ElementReader
     /// <param name="aggregateRoots">The simple names of known aggregate roots.</param>
     /// <param name="holders">The classes whose constructor takes a repository.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     public static void ReadElements(
         string file,
         SyntaxTree tree,
@@ -39,7 +41,9 @@ static class ElementReader
         Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
-        QualifiedKinds qualified)
+        QualifiedKinds qualified,
+        IReadOnlyDictionary<string, string> constants,
+        BackendSemantics? semantics)
     {
         foreach (var element in elements)
         {
@@ -67,25 +71,25 @@ static class ElementReader
 
                 model.Elements.Add(new MarkedElement(
                     kind, element.Name, null, file, element.Line, marks, false,
-                    RuntimeValueOf(declared, kind)));
+                    RuntimeValueOf(declared, kind, constants, tree, semantics)));
 
                 switch (kind)
                 {
                     case CodeKind.Handler:
-                        HandlerReader.ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, qualified);
+                        HandlerReader.ReadHandler(file, tree, declared, marks, model, helpers, aggregateRoots, holders, qualified, constants, semantics);
                         break;
                     case CodeKind.EventHandler:
-                        HandlerReader.ReadReaction(file, tree, declared, marks, model, helpers, holders, qualified);
+                        HandlerReader.ReadReaction(file, tree, declared, marks, model, helpers, holders, qualified, constants, semantics);
                         break;
                     case CodeKind.Job:
-                        HandlerReader.ReadJob(file, tree, declared, marks, model, helpers, holders, qualified);
+                        HandlerReader.ReadJob(file, tree, declared, marks, model, helpers, holders, qualified, constants, semantics);
                         break;
                     case CodeKind.DomainEvent:
                         model.Events.Add(new CodeDomainEvent(
                             element.Name,
                             file,
                             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
-                            SingleMark(marks, "event/")));
+                            SingleMark(marks, "domain-event/")));
                         break;
                     case CodeKind.Endpoint:
                         EndpointReader.ReadEndpoint(file, tree, declared, marks, model);
@@ -185,22 +189,26 @@ static class ElementReader
     }
 
     /// <summary>
-    ///     The hand-written runtime value the type declares: an event's Classification
-    ///     literal or a rule exception's Code literal. Null when the type declares none.
+    ///     The hand-written runtime value the type declares: an event's Classification, or a
+    ///     rule exception's Code, held in a literal or a generated constant, or passed
+    ///     straight to its base. Null when the type declares none.
     /// </summary>
     /// <param name="declared">The type declaration.</param>
     /// <param name="kind">The code kind of the type.</param>
+    /// <param name="constants">The constant string value by declaring type and member.</param>
+    /// <param name="tree">The parsed syntax tree.</param>
+    /// <param name="semantics">The read semantics, or null when the syntax-only path runs.</param>
     /// <returns>The hand-written runtime value the type declares, or null when it declares none.</returns>
-    public static string? RuntimeValueOf(TypeDeclarationSyntax declared, CodeKind kind)
+    public static string? RuntimeValueOf(TypeDeclarationSyntax declared, CodeKind kind, IReadOnlyDictionary<string, string> constants, SyntaxTree tree, BackendSemantics? semantics)
     {
-        var wanted = kind switch
+        string[] wanted = kind switch
         {
-            CodeKind.DomainEvent => "Classification",
-            CodeKind.RuleException => "Code",
-            _ => null,
+            CodeKind.DomainEvent => ["Classification"],
+            CodeKind.RuleException => ["Code", "RefusalCode"],
+            _ => [],
         };
 
-        if (wanted is null)
+        if (wanted.Length == 0)
         {
             return null;
         }
@@ -212,7 +220,7 @@ static class ElementReader
                 case FieldDeclarationSyntax field:
                     foreach (var variable in field.Declaration.Variables)
                     {
-                        if (variable.Identifier.ValueText == wanted
+                        if (wanted.Contains(variable.Identifier.ValueText, StringComparer.Ordinal)
                             && ValueOf(variable.Initializer?.Value) is { } fieldValue)
                         {
                             return fieldValue;
@@ -220,7 +228,7 @@ static class ElementReader
                     }
 
                     break;
-                case PropertyDeclarationSyntax property when property.Identifier.ValueText == wanted:
+                case PropertyDeclarationSyntax property when wanted.Contains(property.Identifier.ValueText, StringComparer.Ordinal):
                     if (ValueOf(property.ExpressionBody?.Expression) is { } body)
                     {
                         return body;
@@ -246,11 +254,37 @@ static class ElementReader
             }
         }
 
+        // A rule exception passing its code straight to its base carries no Code
+        // member: the first base argument holds it when the call passes at least
+        // a code and a message.
+        if (kind == CodeKind.RuleException)
+        {
+            foreach (var constructor in declared.Members.OfType<ConstructorDeclarationSyntax>())
+            {
+                if (constructor.Initializer?.ArgumentList.Arguments is { Count: >= 2 } arguments
+                    && ValueOf(arguments[0].Expression) is { } code)
+                {
+                    return code;
+                }
+            }
+        }
+
         return null;
 
-        static string? ValueOf(ExpressionSyntax? expression) =>
-            expression is LiteralExpressionSyntax literal && literal.Token.Value is string text
-                ? text
-                : null;
+        string? ValueOf(ExpressionSyntax? expression)
+        {
+            if (expression is LiteralExpressionSyntax literal && literal.Token.Value is string text)
+            {
+                return text;
+            }
+
+            if (expression is null)
+            {
+                return null;
+            }
+
+            return ConstRefusalCodes.Lookup(expression, declared.Identifier.ValueText, constants)
+                ?? (semantics?.ModelFor(tree) is { } model ? ConstRefusalCodes.LookupSemantic(model, expression) : null);
+        }
     }
 }

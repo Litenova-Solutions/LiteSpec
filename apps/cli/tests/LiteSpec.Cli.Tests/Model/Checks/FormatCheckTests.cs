@@ -19,10 +19,10 @@ public sealed class FormatCheckTests
         File.WriteAllText(file, "title: Loan\ntype: aggregate\nid: aggregate/lending.loan\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"kind": "entity"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "format-drift");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Run 'litespec model format'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
@@ -37,10 +37,10 @@ public sealed class FormatCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, ".litespec", "loan.yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-        File.WriteAllText(file, RecordFile.Write(JsonNode.Parse("""{"type": "aggregate", "id": "aggregate/lending.loan", "title": "Loan", "kind": "entity"}""")!));
+        File.WriteAllText(file, RecordFile.Write(JsonNode.Parse("""{"type": "aggregate", "id": "aggregate/lending.loan", "title": "Loan"}""")!));
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"kind": "entity"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{}"""));
 
         Assert.DoesNotContain("format-drift", TestModel.Codes(model));
     }
@@ -56,7 +56,7 @@ public sealed class FormatCheckTests
         File.WriteAllText(file, "type: [unclosed\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{"kind": "entity"}"""));
+            TestModel.Record("aggregate", "aggregate/lending.loan", file, """{}"""));
 
         Assert.DoesNotContain("format-drift", TestModel.Codes(model));
     }

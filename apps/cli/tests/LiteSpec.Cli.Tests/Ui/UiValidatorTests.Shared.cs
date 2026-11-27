@@ -7,10 +7,10 @@ namespace LiteSpec.Cli.Tests.Ui;
 /// </summary>
 public sealed partial class UiValidatorTests
 {
-    // Source boundary (litespec/frontend/ui#select-one-visual-authority).
+    // Source boundary (litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives).
 
     /// <summary>Second Visual System In The Workspace Root.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void SecondVisualSystemInTheWorkspaceRoot()
     {
@@ -22,7 +22,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Visual System In OptionalDependencies.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void SecondVisualSystemInOptionalDependencies()
     {
@@ -34,7 +34,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Visual System Pinned Through Pnpm Overrides.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void SecondVisualSystemPinnedThroughPnpmOverrides()
     {
@@ -49,7 +49,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Visual System Pinned Through Resolutions.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void SecondVisualSystemPinnedThroughResolutions()
     {
@@ -61,34 +61,34 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>UI Exception With An Expired Date.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void UIExceptionWithAnExpiredDate()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteWaiver("ui-authority", "litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the departure or close the gap");
+            "[litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives] expiresOn 2020-01-01 has passed; renew the waiver or close the gap");
     }
 
     /// <summary>UI Exception With A Live Date.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void UIExceptionWithALiveDate()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
+        fixture.WriteWaiver("ui-authority", "litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>Exception Against Another Area Stays Unread By The UI Validator.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void ExceptionAgainstAnotherAreaStaysUnreadByTheUIValidator()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteDeparture("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
+        fixture.WriteWaiver("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
         var problems = UiFixture.Problems(fixture.Run());
 
         // The model check owns the expiry of every exception, so it reports this
@@ -99,10 +99,10 @@ public sealed partial class UiValidatorTests
             problem => problem.Contains("[litespec/core/agent#select-task-context]", StringComparison.Ordinal));
     }
 
-    // Shared package (litespec/frontend/ui#pin-the-baseline-in-the-shared-package).
+    // Shared package (litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream).
 
     /// <summary>A Controlled Frontend With No Shared Package.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void AControlledFrontendWithNoSharedPackage()
     {
@@ -112,7 +112,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Shared Package Declaring The Same Export Twice.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ASharedPackageDeclaringTheSameExportTwice()
     {
@@ -126,7 +126,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Source Lock Outside The Package Root.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ASourceLockOutsideThePackageRoot()
     {
@@ -139,7 +139,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Components Json Naming An Icon Library The Baseline Does Not Pin.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ComponentsJsonNamingAnIconLibraryTheBaselineDoesNotPin()
     {
@@ -151,7 +151,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Source Lock Describing A Preset The Manifest Does Not Pin.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void SourceLockDescribingAPresetTheManifestDoesNotPin()
     {
@@ -160,21 +160,21 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "preset.style does not match the manifest baseline");
     }
 
-    // Additional registries (litespec/frontend/ui#pin-the-baseline-in-the-shared-package).
+    // Additional registries (litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream).
 
     /// <summary>An Additional Registry With The Exception Passes Both Gates.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void AnAdditionalRegistryWithTheExceptionPassesBothGates()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
-        fixture.WriteDeparture("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteWaiver("extra-registry", "litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>The Configuration Gate Refuses Without The Exception.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void TheConfigurationGateRefusesWithoutTheException()
     {
@@ -182,11 +182,11 @@ public sealed partial class UiValidatorTests
         fixture.AddAdditionalRegistry();
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] an additional registry requires an exception");
+            "[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] registry 'https://blocks.fixture.test/r' is not the built-in shadcn-svelte registry; an additional registry requires an exception");
     }
 
     /// <summary>The Source Lock Gate Refuses Without The Exception.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void TheSourceLockGateRefusesWithoutTheException()
     {
@@ -194,23 +194,23 @@ public sealed partial class UiValidatorTests
         fixture.AddAdditionalRegistry();
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] registry 'fixture' is not the built-in shadcn registry");
+            "[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] registry 'fixture' is not the built-in shadcn-svelte registry");
     }
 
-    // Source lock (litespec/frontend/web/ui#track-source-changes).
+    // Source lock (litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream).
 
     /// <summary>Changed Copied Source Without A Fork Record.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ChangedCopiedSourceWithoutAForkRecord()
     {
         using var fixture = UiFixture.Create();
-        File.AppendAllText(fixture.ButtonFile, "// local change\n");
+        File.AppendAllText(fixture.ButtonFile, "<!-- local change -->\n");
         UiFixture.AssertProblem(fixture.Run(), "no longer matches the recorded digest");
     }
 
     /// <summary>A Dependency The Manifest Does Not Pin.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ADependencyTheManifestDoesNotPin()
     {
@@ -226,7 +226,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Path Escaping The Package Root.</summary>
-    /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void APathEscapingThePackageRoot()
     {
@@ -240,7 +240,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Findings Carry Their Code And Level.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void FindingsCarryTheirCodeAndLevel()
     {

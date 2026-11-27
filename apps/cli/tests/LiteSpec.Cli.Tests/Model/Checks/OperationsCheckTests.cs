@@ -139,7 +139,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert carrying its measure's numbers reports no drift.</summary>
-    /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
+    /// <proves>litespec/ext/delivery#tie-alert-thresholds-to-requirement-measures</proves>
     [Fact]
     public void ThresholdCarryingMeasureNumbersPasses()
     {
@@ -152,20 +152,20 @@ public sealed class OperationsCheckTests
         Assert.DoesNotContain("alert-threshold-drift", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>An alert carrying none of its measure's numbers reports advisory drift.</summary>
-    /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
+    /// <summary>An alert carrying none of its measure's numbers reports blocking drift.</summary>
+    /// <proves>litespec/ext/delivery#tie-alert-thresholds-to-requirement-measures</proves>
     [Fact]
     public void ThresholdMissingMeasureNumbersReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("histogram_quantile(0.99, rate(list_loans_seconds_bucket[5m])) > 0.3", "up == 0"));
 
-        var check = TestCli.Run("model", "check", "--root", temp.Path, "--all");
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var drift = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-threshold-drift]", StringComparison.Ordinal));
 
-        Assert.True(check.Status == 0, check.Output);
-        Assert.Contains("[A]", drift, StringComparison.Ordinal);
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[G]", drift, StringComparison.Ordinal);
         Assert.Contains("listing-latency-high", drift, StringComparison.Ordinal);
         Assert.Contains("requirement/performance.list-loans-latency", drift, StringComparison.Ordinal);
     }
@@ -207,16 +207,16 @@ public sealed class OperationsCheckTests
         Assert.DoesNotContain("quality-alert-missing", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>A quality requirement a live departure covers reports as known.</summary>
+    /// <summary>A quality requirement a live waiver covers reports as known.</summary>
     /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void QualityCoveredByDepartureReportsCovered()
+    public void QualityCoveredByWaiverReportsCovered()
     {
         using var temp = ModelFixture.Prepare("small");
         SelectDelivery(temp.Path);
         WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
-        WriteRecord(temp.Path, DepartureFile, DepartureJson, DepartureExplanation);
+        WriteRecord(temp.Path, WaiverFile, WaiverJson, WaiverExplanation);
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -285,7 +285,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file pointing at its decision reports nothing and follows it.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void OperationsFileWithFollowsPasses()
     {
@@ -303,7 +303,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file with no follows mark reports.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void OperationsFileWithoutMarkReports()
     {
@@ -323,7 +323,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations mark naming no decision reports.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void OperationsMarkNamingNothingReports()
     {
@@ -339,11 +339,11 @@ public sealed class OperationsCheckTests
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unresolved, StringComparison.Ordinal);
         Assert.Contains("decision/0099-no-such-thing", unresolved, StringComparison.Ordinal);
-        Assert.Contains("matches no decision or departure", unresolved, StringComparison.Ordinal);
+        Assert.Contains("matches no decision or waiver", unresolved, StringComparison.Ordinal);
     }
 
     /// <summary>A technical decision with no follower anywhere is still unfollowed.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void DecisionWithNoFollowerReportsUnfollowed()
     {
@@ -377,10 +377,11 @@ public sealed class OperationsCheckTests
         Assert.Contains("deploy/alerts/lending.yaml", limits, StringComparison.Ordinal);
     }
 
-    // The latency requirement, the decision that decides it, and the list-loans use case that
+    // The latency requirement, the decision it names in basedOn, and the list-loans use case that
     // fulfills it, so the requirement reaches Behavior as every Intent record must.
     static void WriteLatencyRequirement(string root)
     {
+        WriteRecord(root, ProblemFile, ProblemJson);
         WriteRecord(root, FeatureFile, FeatureJson, RequirementExplanation);
         WriteRecord(root, RequirementFile, RequirementJson);
         WriteRecord(root, OriginFile, OriginJson, OriginExplanation);
@@ -453,6 +454,7 @@ public sealed class OperationsCheckTests
         }
     }
 
+    const string ProblemFile = ".litespec/intent/problems/slow-desk-loans/slow-desk-loans.yaml";
     const string FeatureFile = ".litespec/intent/problems/slow-desk-loans/features/performance/performance.yaml";
     const string RequirementFile = ".litespec/intent/problems/slow-desk-loans/features/performance/requirements/list-loans-latency/list-loans-latency.yaml";
     const string ListLoansFile = ".litespec/behavior/modules/lending/aggregates/loans/use-cases/list-loans/list-loans.yaml";
@@ -466,14 +468,49 @@ public sealed class OperationsCheckTests
     const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
-    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
+    const string WaiverFile = ".litespec/governance/waivers/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
+
+    const string ProblemJson = """
+        {
+          "type": "problem",
+          "id": "problem/slow-desk-loans",
+          "title": "Slow desk loans",
+          "summary": "Readers wait at the desk while listings load.",
+          "statement": "Readers wait too long for loan listings.",
+          "affects": [
+            "actor/reader"
+          ],
+          "failureCases": [
+            "A reader waits past a minute for the loan listing at term start."
+          ],
+          "workaround": "Readers queue at the desk and staff read the loans aloud.",
+          "cost": "Each slow listing costs the desk a queue of waiting readers.",
+          "resolutionCriteria": [
+            "Loan listings answer within 300 milliseconds at p95 during term start."
+          ],
+          "evidence": [
+            {
+              "claim": "Readers wait past a minute for the loan listing at term start.",
+              "source": "https://example.org/library/desk-log",
+              "readOn": "2026-10-01",
+              "kind": "reported"
+            }
+          ]
+        }
+        """;
 
     const string FeatureJson = """
         {
           "type": "feature",
           "id": "feature/performance",
           "title": "Performance",
-          "offering": "Loan listings answer within 300 milliseconds at p95 during term start."
+          "offering": "Loan listings answer within 300 milliseconds at p95 during term start.",
+          "successCriteria": [
+            "Readers list loans within 300 milliseconds at p95 during term start."
+          ],
+          "excludes": [
+            "The feature lists loans only, and holds no checkout."
+          ]
         }
         """;
 
@@ -489,7 +526,11 @@ public sealed class OperationsCheckTests
           "environment": "Normal operation, the search index warm.",
           "response": "Each listing answers from the index.",
           "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
-          "check": "list-loans-load"
+          "check": "list-loans-load",
+          "basedOn": [
+            "decision/0003-term-start-listing",
+            "problem/slow-desk-loans"
+          ]
         }
         """;
 
@@ -514,7 +555,7 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    // The product decision that decides the latency requirement.
+    // The product decision the latency requirement names in basedOn.
     const string OriginJson = """
         {
           "type": "decision",
@@ -530,9 +571,7 @@ public sealed class OperationsCheckTests
           "choice": "Answer within 300 milliseconds",
           "consequences": "The listing reads from an index.",
           "reopenedWhen": "Term start load changes.",
-          "decides": [
-            "requirement/performance.list-loans-latency"
-          ]
+          "context": "Term start floods the loan listing."
         }
         """;
 
@@ -571,6 +610,7 @@ public sealed class OperationsCheckTests
           "type": "decision",
           "id": "decision/0002-loan-index",
           "title": "Loan Index",
+          "kind": "package",
           "options": [
             {
               "name": "Search index",
@@ -581,6 +621,7 @@ public sealed class OperationsCheckTests
           "choice": "Search index",
           "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
+          "context": "Listings read loans one by one today.",
           "basedOn": [
             "requirement/performance.list-loans-latency"
           ]
@@ -592,6 +633,7 @@ public sealed class OperationsCheckTests
           "type": "decision",
           "id": "decision/0002-loan-index",
           "title": "Loan Index",
+          "kind": "package",
           "options": [
             {
               "name": "Search index",
@@ -602,6 +644,7 @@ public sealed class OperationsCheckTests
           "choice": "Search index",
           "consequences": "The index needs warming after deploys.",
           "reopenedWhen": "Listing load changes shape.",
+          "context": "Listings read loans one by one today.",
           "basedOn": [
             "requirement/borrowing.max-active-loans"
           ]
@@ -696,24 +739,28 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string DepartureJson = """
+    const string WaiverJson = """
         {
-          "type": "departure",
-          "id": "departure/list-loans-latency-unwatched",
+          "type": "waiver",
+          "id": "waiver/list-loans-latency-unwatched",
           "title": "List loans latency unwatched",
-          "covers": [
+          "kind": "gap",
+          "waives": [
             "quality-alert-missing"
           ],
-          "subject": [
+          "appliesTo": [
+            "requirement/performance.list-loans-latency"
+          ],
+          "closedBy": [
             "requirement/performance.list-loans-latency"
           ],
           "expiresOn": "2027-06-01",
           "reason": "The listing alert ships with the search index.",
-          "exit": "The listing-latency-high alert ships and watches the requirement."
+          "exitWhen": "The listing-latency-high alert ships and watches the requirement."
         }
         """;
 
-    const string DepartureExplanation = """
+    const string WaiverExplanation = """
         # List loans latency unwatched
 
         Listing latency has no alert yet.

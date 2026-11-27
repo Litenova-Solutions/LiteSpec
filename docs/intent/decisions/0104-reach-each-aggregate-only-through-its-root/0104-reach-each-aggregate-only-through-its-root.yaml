@@ -1,0 +1,14 @@
+type: decision
+id: decision/0104-reach-each-aggregate-only-through-its-root
+title: Reach Each Aggregate Only Through Its Root
+context: "LiteSpec stated parts of the aggregate entry rule, such as named factories, one repository per aggregate, and invariants in Domain, but never the rule itself: callers reach an aggregate only through its root. The domain service text invited the opposite, with Application calling a service and passing its result into aggregate behavior. Without the rule, handlers build aggregate parts and choose rule order, and a large root has no sanctioned shape."
+options:
+  - name: "State the root-only entry rule, narrow domain services to ownerless calculations, and split large roots into one file per action"
+    pros: "Every caller passes plain inputs to the root, which owns validation, order, and events; a large root splits into partial files without opening a second entry point."
+    cons: "Three new analyzers and a narrowed service provision to keep, and existing callers that build aggregate parts move that work into the root."
+  - name: "Keep the entry rule unstated and let callers combine services with aggregate behavior"
+    pros: "No new provisions and no analyzer work."
+    cons: "Invariants hold only when every caller follows the same steps, and a new caller can skip one."
+choice: "State the root-only entry rule, narrow domain services to ownerless calculations, and split large roots into one file per action"
+consequences: "Code outside an aggregate reaches it only through its root's named factories and methods under `litespec/core/backend-domain#reach-an-aggregate-only-through-its-root`, with the .NET construction check in `litespec/packs/dotnet/domain#construct-aggregate-parts-only-inside-the-root` (LS1014). A child entity carries no public setter, mutating method, or constructor (LS1015), and an aggregate references another only through its typed identifier (LS1016, `litespec/packs/dotnet/domain#reference-other-aggregates-by-typed-identifier`). A domain service holds only a calculation that spans aggregates with no owning aggregate; the root calls it inside its own method, or Application passes its plain result in as an input. A root past 500 lines splits into one partial file per business action under `litespec/packs/dotnet/domain#split-a-large-root-into-one-file-per-action`."
+reopenedWhen: "A caller needs a shape the root cannot own, or the construction check reports calls that pass only plain inputs."

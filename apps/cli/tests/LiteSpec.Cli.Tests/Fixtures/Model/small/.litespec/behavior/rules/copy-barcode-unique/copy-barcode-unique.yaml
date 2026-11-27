@@ -1,0 +1,10 @@
+type: rule
+id: rule/lending.copy-barcode-unique
+title: Copy barcode unique
+kind: invariant
+statement: A copy barcode names one copy across the library.
+governs:
+- aggregate/lending.copy
+basedOn: []
+fulfills:
+- requirement/borrowing.copy-shelf-home

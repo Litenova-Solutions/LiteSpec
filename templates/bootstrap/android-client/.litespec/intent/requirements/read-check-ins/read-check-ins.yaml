@@ -1,0 +1,9 @@
+type: requirement
+id: requirement/read-check-ins
+title: Read check-ins
+kind: functional
+statement: Visitors read their recorded check-ins on the phone.
+rationale: Visitors check what was recorded for them without asking anyone else.
+basedOn:
+- goal/readable-check-ins
+- decision/0001-check-in-cache

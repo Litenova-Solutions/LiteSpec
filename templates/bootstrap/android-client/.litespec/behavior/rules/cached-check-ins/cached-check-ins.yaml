@@ -1,0 +1,11 @@
+type: rule
+id: rule/health.cached-check-ins
+title: Cached check-ins
+kind: invariant
+statement: The app keeps the last loaded check-ins in app-private storage.
+governs:
+- aggregate/health.check-in
+basedOn:
+- decision/0001-check-in-cache
+fulfills:
+- requirement/read-check-ins

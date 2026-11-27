@@ -30,7 +30,7 @@ public sealed class RenameHomesTests
     {
         using var consumer = Consumer();
 
-        var result = TestCli.Run("rename", "aggregate/spending.expenses", "aggregate/spending.claims", "--root", consumer.Path);
+        var result = TestCli.Run("rename", "aggregate/spending.expense", "aggregate/spending.claim", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
         var aggregates = Path.Combine(consumer.Path, ".litespec/behavior/modules/spending/aggregates");
@@ -39,20 +39,54 @@ public sealed class RenameHomesTests
         Assert.False(Directory.Exists(Path.Combine(aggregates, "expenses")));
     }
 
-    /// <summary>A plain rename keeps a journey in its folder beside the other journeys, with its explanation beside it.</summary>
+    /// <summary>A plain rename keeps a flow in its folder beside the other flows, with its explanation beside it.</summary>
     /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
-    [Fact(DisplayName = "rename keeps a journey in its folder and moves its explanation with it")]
-    public void RenameKeepsAJourneyAndItsExplanation()
+    [Fact(DisplayName = "rename keeps a flow in its folder and moves its explanation with it")]
+    public void RenameKeepsAFlowAndItsExplanation()
     {
         using var consumer = Consumer();
 
-        var result = TestCli.Run("rename", "journey/close-the-year", "journey/year-end", "--root", consumer.Path);
+        var result = TestCli.Run("rename", "flow/close-the-year", "flow/year-end", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var journeys = Path.Combine(consumer.Path, ".litespec/intent/journeys");
-        Assert.True(File.Exists(Path.Combine(journeys, "year-end", "year-end.yaml")), result.Output);
-        Assert.True(File.Exists(Path.Combine(journeys, "year-end", "year-end.md")));
-        Assert.False(Directory.Exists(Path.Combine(journeys, "close-the-year")));
+        var flows = Path.Combine(consumer.Path, ".litespec/intent/flows");
+        Assert.True(File.Exists(Path.Combine(flows, "year-end", "year-end.yaml")), result.Output);
+        Assert.True(File.Exists(Path.Combine(flows, "year-end", "year-end.md")));
+        Assert.False(Directory.Exists(Path.Combine(flows, "close-the-year")));
+    }
+
+    /// <summary>A flow rename carries the step ids in its file and every citation of them.</summary>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
+    [Fact(DisplayName = "rename carries a flow's step ids and their citations")]
+    public void RenameCarriesAFlowsStepIds()
+    {
+        using var consumer = Consumer();
+        TestRecords.Write(consumer.Path, ".litespec/intent/flows/close-the-year/close-the-year.yaml", """
+            {
+              "type": "flow",
+              "id": "flow/close-the-year",
+              "title": "Close the Year",
+              "steps": [
+                {"id": "step/close-the-year.close-ledger", "title": "Close Ledger", "statement": "The reader closes the ledger."}
+              ]
+            }
+            """);
+        TestRecords.Write(consumer.Path, $"{Expenses}/use-cases/submit-expense/submit-expense.yaml", """
+            {
+              "type": "use-case",
+              "id": "use-case/spending.submit-expense",
+              "title": "Submit Expense",
+              "serves": ["step/close-the-year.close-ledger"]
+            }
+            """);
+
+        var result = TestCli.Run("rename", "flow/close-the-year", "flow/year-end", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var moved = Path.Combine(consumer.Path, ".litespec/intent/flows/year-end/year-end.yaml");
+        Assert.Contains("step/year-end.close-ledger", File.ReadAllText(moved));
+        var useCase = Path.Combine(consumer.Path, Expenses, "use-cases", "submit-expense", "submit-expense.yaml");
+        Assert.Contains("step/year-end.close-ledger", File.ReadAllText(useCase));
     }
 
     /// <summary>A rename that names another owner refuses without --move and changes nothing.</summary>
@@ -90,13 +124,13 @@ public sealed class RenameHomesTests
     public void RenameMovesTheWholeRecordFolder()
     {
         using var consumer = Consumer();
-        var folder = Path.Combine(consumer.Path, ".litespec/intent/journeys/close-the-year");
+        var folder = Path.Combine(consumer.Path, ".litespec/intent/flows/close-the-year");
         File.WriteAllText(Path.Combine(folder, "fixtures.csv"), "reader,fare\n");
 
-        var result = TestCli.Run("rename", "journey/close-the-year", "journey/year-end", "--root", consumer.Path);
+        var result = TestCli.Run("rename", "flow/close-the-year", "flow/year-end", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec/intent/journeys/year-end/fixtures.csv")), result.Output);
+        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec/intent/flows/year-end/fixtures.csv")), result.Output);
     }
 
     /// <summary>A destination folder that already exists refuses the move before anything changes.</summary>
@@ -105,17 +139,17 @@ public sealed class RenameHomesTests
     public void RenameRefusesATakenFolderBeforeItMoves()
     {
         using var consumer = Consumer();
-        Directory.CreateDirectory(Path.Combine(consumer.Path, ".litespec/intent/journeys/year-end"));
+        Directory.CreateDirectory(Path.Combine(consumer.Path, ".litespec/intent/flows/year-end"));
 
-        var result = TestCli.Run("rename", "journey/close-the-year", "journey/year-end", "--root", consumer.Path);
+        var result = TestCli.Run("rename", "flow/close-the-year", "flow/year-end", "--root", consumer.Path);
 
         Assert.Equal(1, result.Status);
         Assert.Contains("already exists", result.Stderr);
-        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec/intent/journeys/close-the-year/close-the-year.yaml")));
-        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec/intent/journeys/close-the-year/close-the-year.md")));
+        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec/intent/flows/close-the-year/close-the-year.yaml")));
+        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec/intent/flows/close-the-year/close-the-year.md")));
     }
 
-    /// <summary>A consumer holding one use case in an aggregate, one aggregate, and one journey with its explanation.</summary>
+    /// <summary>A consumer holding one use case in an aggregate, one aggregate, and one flow with its explanation.</summary>
     /// <returns>The temporary consumer folder.</returns>
     static TempFolder Consumer()
     {
@@ -124,8 +158,8 @@ public sealed class RenameHomesTests
         TestRecords.Write(temp.Path, $"{Expenses}/aggregate.yaml", """
             {
               "type": "aggregate",
-              "id": "aggregate/spending.expenses",
-              "title": "Expenses"
+              "id": "aggregate/spending.expense",
+              "title": "Expense"
             }
             """);
         TestRecords.Write(temp.Path, $"{Expenses}/use-cases/submit-expense/submit-expense.yaml", """
@@ -135,14 +169,14 @@ public sealed class RenameHomesTests
               "title": "Submit Expense"
             }
             """);
-        TestRecords.Write(temp.Path, ".litespec/intent/journeys/close-the-year/close-the-year.yaml", """
+        TestRecords.Write(temp.Path, ".litespec/intent/flows/close-the-year/close-the-year.yaml", """
             {
-              "type": "journey",
-              "id": "journey/close-the-year",
+              "type": "flow",
+              "id": "flow/close-the-year",
               "title": "Close the Year"
             }
             """);
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec/intent/journeys/close-the-year/close-the-year.md"), "# Close the Year\n\nA reader closes the year.\n");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/intent/flows/close-the-year/close-the-year.md"), "# Close the Year\n\nA reader closes the year.\n");
         return temp;
     }
 }

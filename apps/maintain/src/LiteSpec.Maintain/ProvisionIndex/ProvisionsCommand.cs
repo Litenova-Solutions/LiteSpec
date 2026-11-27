@@ -20,9 +20,9 @@ static class ProvisionsCommand
         index docs/reference/pages.json from the active standards in root, which defaults to the
         LiteSpec checkout this tool belongs to. Each provision carries its record layer, trace,
         and applicability condition, and the index states the checked share of rules for each page.
-        It also writes the finding
-        code table docs/reference/finding-codes.md, the record folder table docs/reference/folders.md,
-        and the pin table inside docs/reference/manifest.md.
+        It also writes the finding code table docs/reference/finding-codes.md, the record folder
+        table docs/reference/folders.md, the pin table inside docs/reference/manifest.md, and the
+        Links table between the generated markers of docs/core/model.md.
 
           --root    The repository root. Defaults to the LiteSpec checkout.
           --check   Compare the tracked files with the generated ones and write nothing.
@@ -89,16 +89,10 @@ static class ProvisionsCommand
             return 2;
         }
 
-        (string Path, string Text)[] files;
+        List<(string Path, string Text)> files;
         try
         {
-            files =
-            [
-                (Provisions.IndexPath, Provisions.BuildIndex(root) + "\n"),
-                (Provisions.JsonPath, Provisions.BuildJson(root) + "\n"),
-                (Provisions.PagesPath, Provisions.BuildPages(root) + "\n"),
-                .. ReferenceTables.Outputs(root),
-            ];
+            files = Build(root);
         }
         catch (InvalidOperationException exception)
         {
@@ -127,14 +121,70 @@ static class ProvisionsCommand
             return stale ? 1 : 0;
         }
 
-        foreach (var (path, text) in files)
+        // The outputs read pages that other outputs write, such as the manifest page the index parses, so a
+        // pass can change what the next pass builds. Each pass writes, then rebuilds; the write stops once
+        // a rebuild matches what was written, so a later --check sees the same text.
+        for (var pass = 1; ; pass++)
         {
-            var file = Path.Combine(root, path.Replace('/', Path.DirectorySeparatorChar));
-            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
-            File.WriteAllText(file, text);
+            foreach (var (path, text) in files)
+            {
+                var file = Path.Combine(root, path.Replace('/', Path.DirectorySeparatorChar));
+                Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+                File.WriteAllText(file, text);
+            }
+
+            List<(string Path, string Text)> next;
+            try
+            {
+                next = Build(root);
+            }
+            catch (InvalidOperationException exception)
+            {
+                Console.Error.WriteLine(exception.Message);
+                return 2;
+            }
+
+            if (next.SequenceEqual(files))
+            {
+                break;
+            }
+
+            if (pass == MaxPasses)
+            {
+                Console.Error.WriteLine($"The generated files do not settle after {MaxPasses} passes; check the pages they read.");
+                return 2;
+            }
+
+            files = next;
         }
 
         Console.WriteLine($"Wrote {string.Join(", ", files.Select(file => file.Path))}.");
         return 0;
+    }
+
+    /// <summary>The most passes the write takes before it reports files that do not settle.</summary>
+    const int MaxPasses = 3;
+
+    /// <summary>Builds the expected text of every generated file of the command.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>Each file's path and expected text.</returns>
+    /// <exception cref="InvalidOperationException">A generated file's source cannot be read.</exception>
+    static List<(string Path, string Text)> Build(string root)
+    {
+        var files = new List<(string Path, string Text)>
+        {
+            (Provisions.IndexPath, Provisions.BuildIndex(root) + "\n"),
+            (Provisions.JsonPath, Provisions.BuildJson(root) + "\n"),
+            (Provisions.PagesPath, Provisions.BuildPages(root) + "\n"),
+        };
+        files.AddRange(ReferenceTables.Outputs(root));
+
+        // A repository without a record schema has no Links table to generate.
+        if (LinkTable.Output(root) is { } links)
+        {
+            files.Add(links);
+        }
+
+        return files;
     }
 }

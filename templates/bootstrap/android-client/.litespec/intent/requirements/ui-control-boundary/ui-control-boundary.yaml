@@ -1,0 +1,14 @@
+type: requirement
+id: requirement/ui-control-boundary
+title: UI Control Boundary Contrast
+kind: quality
+statement: Each field, select, checkbox, radio, and switch boundary reaches 3:1 against its surface.
+rationale: A reader finds a field by its edge, so a faint boundary stalls every form the reader fills.
+stimulus: A reader opens any screen carrying an input in any declared color scheme
+environment: Normal operation on a phone or desktop display
+response: Every control boundary meets its contrast limit against its surface
+measure: Lowest contrast ratio of a control boundary against its surface, per declared scheme
+target: At least 3:1
+check: token-limits
+basedOn:
+- goal/readable-check-ins

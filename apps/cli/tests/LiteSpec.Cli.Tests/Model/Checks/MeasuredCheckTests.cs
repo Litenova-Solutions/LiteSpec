@@ -89,18 +89,18 @@ public sealed class MeasuredCheckTests
         Assert.DoesNotContain("requirement-measure-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Statement Naming Number Without Measure Reports At Tier A.</summary>
+    /// <summary>Statement Naming Number Without Measure Reports At Tier R.</summary>
     /// <proves>litespec/core/intent#state-the-measure-on-a-counted-requirement</proves>
     [Fact]
-    public void StatementNamingNumberWithoutMeasureReportsAtTierA()
+    public void StatementNamingNumberWithoutMeasureReportsAtTierR()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""));
 
-        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "requirement-measure-missing");
-        Assert.Equal("A", finding.Tier);
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "statement-measure-missing");
+        Assert.Equal("R", finding.Tier);
         Assert.Equal("Requirement 'requirement/borrowing.max-active-loans' names a number with no measure.", finding.Message);
         Assert.Equal("requirement/borrowing.max-active-loans", finding.Subject);
     }
@@ -115,7 +115,7 @@ public sealed class MeasuredCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
 
-        Assert.DoesNotContain("requirement-measure-missing", TestModel.Codes(model));
+        Assert.DoesNotContain("statement-measure-missing", TestModel.Codes(model));
     }
 
     /// <summary>Statement Naming Only A Citation Passes.</summary>
@@ -126,10 +126,10 @@ public sealed class MeasuredCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "cites": ["decision/0001-loan-period"]}"""),
+            TestModel.Record("requirement", "requirement/borrowing.loan-period-days", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "Loans run as decision/0001-loan-period decides.", "basedOn": ["decision/0001-loan-period"]}"""),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days", "reopenedWhen": "Queues pass one hundred a day."}"""));
 
-        Assert.DoesNotContain("requirement-measure-missing", TestModel.Codes(model));
+        Assert.DoesNotContain("statement-measure-missing", TestModel.Codes(model));
     }
 
     static Record Measured(string root, string check = "p95<200") =>

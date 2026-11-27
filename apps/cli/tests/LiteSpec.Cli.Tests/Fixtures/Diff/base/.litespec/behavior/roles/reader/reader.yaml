@@ -3,4 +3,6 @@ id: role/reader
 title: Reader
 scope: self
 allows:
-  - permission/borrow-copy
+- permission/borrow-copy
+limits:
+- The reader acts only on their own loans.

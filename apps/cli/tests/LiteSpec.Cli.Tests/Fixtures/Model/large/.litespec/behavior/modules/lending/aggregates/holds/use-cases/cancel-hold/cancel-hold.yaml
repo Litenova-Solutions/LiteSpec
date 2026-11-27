@@ -6,35 +6,50 @@ access:
   grant: permission/place-hold
   tenant: own
 serves:
-- journey/borrow-and-return#s7
+- step/borrow-and-return.cancel-hold
 fulfills:
 - requirement/borrowing.hold-pickup-window
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
-- event/hold.hold-canceled
+- domain-event/hold.hold-canceled
+inputs:
+- name: holdId
+  meaning: The waiting hold the reader cancels.
+  type: id
+  identifies: aggregate/lending.hold
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call cancels its own hold, and canceling an ended hold is refused.
 audit:
-  level: none
-  target: No audit trail; the hold record shows each cancellation.
-records:
-- type: result
-  id: result/cancel-hold.canceled
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader cancels the waiting hold.
+results:
+- id: result/cancel-hold.canceled
   title: Canceled
   outcome: success
   meaning: The hold is canceled.
-- type: result
-  id: result/cancel-hold.hold-ended
+- id: result/cancel-hold.hold-ended
   title: Hold ended
   outcome: refusal
-  code: lending.hold-not-waiting
-  meaning: The hold already left the queue.
-- type: scenario
-  id: scenario/cancel-hold.canceling-a-waiting-hold-succeeds
+  refusal: refusal/lending.hold-not-waiting
+  message: This hold has already left the queue, so there is nothing to cancel.
+scenarios:
+- id: scenario/cancel-hold.canceling-a-waiting-hold-succeeds
   title: Canceling a waiting hold succeeds
   given: A reader holds a waiting hold.
   when: The reader cancels the hold.
   then: The hold is canceled.
   result: result/cancel-hold.canceled
+- id: scenario/cancel-hold.canceling-an-ended-hold-is-refused
+  title: Canceling an ended hold is refused
+  given: A hold already left the queue.
+  when: The reader cancels the hold.
+  then: The cancellation is refused because the hold already left the queue.
+  result: result/cancel-hold.hold-ended
+  exercises:
+  - rule/hold.waiting-before-cancel

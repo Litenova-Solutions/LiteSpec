@@ -29,9 +29,9 @@ export function secIntro(r: BookRecord) {
   return r.sections?.intro ?? "";
 }
 
-const STATEMENT_FIELDS = ["statement", "meaning", "summary", "description", "offering"];
+const STATEMENT_FIELDS = ["summary", "statement", "meaning", "description", "offering"];
 
-/** A record's one-line statement: the first lead field it carries. */
+/** A record's one-line preview: its summary, else the first lead field it carries. */
 export function statementOf(fields: RecordFields): string | null {
   for (const name of STATEMENT_FIELDS) {
     const v = fields[name];
@@ -41,9 +41,9 @@ export function statementOf(fields: RecordFields): string | null {
 }
 
 const LEAD_FIELDS = [
-  "description",
-  "statement",
   "summary",
+  "statement",
+  "description",
   "offering",
   "purpose",
   "goal",
@@ -53,7 +53,7 @@ const LEAD_FIELDS = [
   "reason",
 ];
 
-/** The lead field a record page shows first: the first lead field it carries. */
+/** The lead field a record page shows first: the summary, else the statement, else the first lead field it carries. */
 export function leadFieldOf(fields: RecordFields): string | null {
   for (const name of LEAD_FIELDS) {
     const v = fields[name];
@@ -92,11 +92,11 @@ export function bodySectionsOf(r: BookRecord): BodySectionView[] {
     .filter((s) => (s.html || "").trim())
     .map((s) => ({
       ...s,
-      kind: /^Limits$/.test(s.h) ? "risk" : /^Example$/.test(s.h) ? "example" : /^Open Points$/.test(s.h) ? "questions" : "default",
+      kind: /^(Excludes|Boundaries)$/.test(s.h) ? "risk" : /^Example$/.test(s.h) ? "example" : /^Open Points$/.test(s.h) ? "questions" : "default",
     }));
 }
 
-/** The Why rows: the reason fields a record states. */
+/** The Why rows: the reason fields a record states, rendered by the CLI when it sends them. */
 export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
   const f: RecordFields = r.fields ?? {};
   const parts: WhyPart[] = [];
@@ -105,13 +105,18 @@ export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
     ["rationale", "Rationale"],
     ["appliesBecause", "Applies because"],
   ];
-  for (const [field, label] of rows) if (f[field]) parts.push({ label, html: inline(book, String(f[field]), r.src ?? null) });
+  for (const [field, label] of rows) {
+    const rendered = r.fieldsHtml?.[field];
+    if (rendered) parts.push({ label, html: rendered });
+    else if (f[field]) parts.push({ label, html: inline(book, String(f[field]), r.src ?? null) });
+  }
   return parts;
 }
 
 /** The prose fields a type without its own renderer shows, in display order. */
 export const PROSE_ORDER = [
   "summary", "purpose", "whatHappens", "offering", "position", "refusals", "situation", "whyItMatters",
-  "consequences", "delivery", "exposure", "exit", "impact", "prerequisites", "procedure",
+  "consequences", "delivery", "exitWhen", "impact", "prerequisites", "procedure",
   "verification", "recovery", "escalation",
+  "workaround", "cost", "scope", "productEffect", "context", "compatibility", "job",
 ];

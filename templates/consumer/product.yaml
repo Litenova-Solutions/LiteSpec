@@ -1,12 +1,26 @@
 type: product
-id: product/claimwick
-title: Claimwick
-summary: |-
-  The company submits work expenses with receipts.
-
-  Employees submit and attach. Managers approve and reject. Finance reimburses.
-boundary: Claimwick submits, approves, and reimburses work expenses with receipts.
-addresses:
-- actor/employee
-- actor/manager
-- actor/finance
+id: product/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what the product is, who it is for, and what it never does, in one paragraph>
+boundary: <what the product does, in one sentence>
+users:
+- actor/<name>
+excludes:
+- <what the product never does, or remove this block>
+brand:
+  reader: <who reads the screens and where>
+  accountableFor: <what every screen shows>
+  is:
+  - first-word
+  - second-word
+  - third-word
+  isNot:
+  - fourth-word
+  - fifth-word
+  - sixth-word
+  do:
+  - <what every screen does>
+  doNot:
+  - <what no screen does>

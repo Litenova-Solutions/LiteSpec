@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Operations;
 namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2004: a command handler writes only through repositories.</summary>
-/// <follows>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</follows>
+/// <follows>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class CommandPipelineAnalyzer : LayerAnalyzer
 {

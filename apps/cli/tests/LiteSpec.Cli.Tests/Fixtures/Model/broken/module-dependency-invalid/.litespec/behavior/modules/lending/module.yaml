@@ -3,3 +3,7 @@ id: module/lending
 title: Lending
 dependsOn:
   - module/finance
+responsibilities:
+  - Lending lends copies to readers and tracks loans.
+excludes:
+  - Lending tracks no fines.

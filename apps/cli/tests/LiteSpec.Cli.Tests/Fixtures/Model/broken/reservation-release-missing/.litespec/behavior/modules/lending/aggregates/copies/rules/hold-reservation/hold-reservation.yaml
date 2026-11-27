@@ -1,0 +1,10 @@
+type: rule
+id: rule/copy.hold-reservation
+title: Hold reservation
+kind: reservation
+statement: A placed hold reserves its copy.
+governs:
+- aggregate/lending.copy
+basedOn: []
+fulfills:
+- requirement/borrowing.hold-pickup-window

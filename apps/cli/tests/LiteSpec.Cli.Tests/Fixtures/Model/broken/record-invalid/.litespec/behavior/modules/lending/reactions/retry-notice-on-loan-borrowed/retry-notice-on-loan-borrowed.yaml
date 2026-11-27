@@ -2,7 +2,7 @@ type: reaction
 id: reaction/lending.retry-notice-on-loan-borrowed
 title: Sloppy retry
 triggeredBy:
-  - event/loan.loan-borrowed
+  - domain-event/loan.loan-borrowed
 fulfills:
   - requirement/borrowing.loan-period-days
 onFailure: Retry a few times, then give up.

@@ -1,0 +1,260 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Claimwick API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/expenses": {
+      "get": {
+        "summary": "List the expenses the actor may read.",
+        "operationId": "listExpenses",
+        "x-litespec-use-case": "use-case/spending.list-expenses",
+        "responses": {
+          "200": {
+            "description": "The expenses the actor may read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListExpensesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Submit an expense.",
+        "operationId": "submitExpense",
+        "x-litespec-use-case": "use-case/spending.submit-expense",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitExpenseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The submitted expense.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitExpenseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/expenses/{expenseId}:approve": {
+      "parameters": [
+        {
+          "name": "expenseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Approve an expense.",
+        "operationId": "approveExpense",
+        "x-litespec-use-case": "use-case/spending.approve-expense",
+        "responses": {
+          "200": {
+            "description": "The expense was approved."
+          }
+        }
+      }
+    },
+    "/api/expenses/{expenseId}:refuse": {
+      "parameters": [
+        {
+          "name": "expenseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Refuse an expense.",
+        "operationId": "refuseExpense",
+        "x-litespec-use-case": "use-case/spending.refuse-expense",
+        "parameters": [
+          {
+            "name": "reason",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The expense was refused."
+          }
+        }
+      }
+    },
+    "/api/expenses/{expenseId}:reimburse": {
+      "parameters": [
+        {
+          "name": "expenseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Reimburse an expense.",
+        "operationId": "reimburseExpense",
+        "x-litespec-use-case": "use-case/spending.reimburse-expense",
+        "responses": {
+          "200": {
+            "description": "The expense was reimbursed."
+          }
+        }
+      }
+    },
+    "/api/expenses/{expenseId}:erase": {
+      "parameters": [
+        {
+          "name": "expenseId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "summary": "Erase an expense's personal data.",
+        "operationId": "erasePersonalData",
+        "x-litespec-use-case": "use-case/spending.erase-personal-data",
+        "responses": {
+          "200": {
+            "description": "The expense's personal data was erased."
+          }
+        }
+      }
+    },
+    "/api/receipts": {
+      "post": {
+        "summary": "Attach a receipt to an expense.",
+        "operationId": "attachReceipt",
+        "x-litespec-use-case": "use-case/spending.attach-receipt",
+        "parameters": [
+          {
+            "name": "receiptId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expenseId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The receipt was attached."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubmitExpenseRequest": {
+        "type": "object",
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "receiptId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "SubmitExpenseResponse": {
+        "type": "object",
+        "required": [
+          "expenseId"
+        ],
+        "properties": {
+          "expenseId": {
+            "type": "string"
+          }
+        }
+      },
+      "ExpenseRow": {
+        "type": "object",
+        "required": [
+          "expenseId",
+          "amount",
+          "currency",
+          "state",
+          "submittedAt"
+        ],
+        "properties": {
+          "expenseId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "submittedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "ListExpensesResponse": {
+        "type": "object",
+        "required": [
+          "expenses"
+        ],
+        "properties": {
+          "expenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExpenseRow"
+            }
+          }
+        }
+      }
+    }
+  }
+}

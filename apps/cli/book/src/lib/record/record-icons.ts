@@ -2,7 +2,7 @@ import type { Component } from "svelte";
 import {
   Activity, ArrowRight, ArrowUp, Bell, BookA, BookOpen, Boxes, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown,
   Circle, CircleAlert, CircleCheck, CircleDot, CircleQuestionMark, CircleSlash, CircleX, Clock, Compass,
-  Code, Copy, DoorOpen, ExternalLink, Fence, FileCheck, FlaskConical, Folder, Funnel, Gauge, Globe, Hourglass, IdCard, Info,
+  Code, Copy, Database, DoorOpen, Eye, ExternalLink, Fence, FileCheck, FlaskConical, Folder, Funnel, Gauge, GitBranch, Globe, Hourglass, IdCard, Info,
   KeyRound, Keyboard, Layers, Link, ListChecks, ListTree, LocateFixed, Lock, Menu, Microscope, Minus, Monitor, Moon, Network, Package,
   Plug, Plus, Quote, Radio, Route, Scale, Search, Server, Settings, Shield, ShieldOff, Signpost, Sun, Table2, Target,
   Timer, TriangleAlert, User, Waypoints, Workflow, X, Zap,
@@ -10,12 +10,12 @@ import {
 
 // One icon per record type and per mark.
 const ICONS: Record<string, Component> = {
-  product: Package, problem: TriangleAlert, goal: Target, vision: Compass, feature: Boxes, requirement: FileCheck, decision: Scale,
-  constraint: Fence, research: Microscope, journey: Route, actor: User, module: Folder,
-  aggregate: Table2, rule: Shield, event: Activity, "integration-event": Radio, "use-case": Zap, scenario: ListChecks,
+  product: Package, problem: TriangleAlert, goal: Target, direction: Compass, feature: Boxes, requirement: FileCheck, decision: Scale,
+  constraint: Fence, research: Microscope, flow: Route, step: ArrowRight, actor: User, module: Folder,
+  aggregate: Table2, rule: Shield, "domain-event": Activity, "module-event": Network, "integration-event": Radio, "read-model": Eye, "reference-data": Database, "use-case": Zap, scenario: ListChecks,
   result: CircleDot, reaction: Workflow, job: Timer, notification: Bell, setting: Settings, screen: Monitor,
   role: IdCard, permission: KeyRound, "entry-point": DoorOpen, "external-system": Plug, limit: Gauge, runbook: BookOpen,
-  departure: ShieldOff, term: BookA, code: Code, test: FlaskConical, route: Signpost, layer: Layers,
+  waiver: ShieldOff, term: BookA, code: Code, test: FlaskConical, route: Signpost, layer: Layers,
   // layers and marks
   core: Layers, folder: Folder, shield: Shield, server: Server, book: BookOpen, chev: ChevronRight, sun: Sun, moon: Moon,
   done: CircleCheck, question: CircleQuestionMark, link: Link, flask: FlaskConical, passing: CircleCheck, failing: CircleX,
@@ -23,7 +23,7 @@ const ICONS: Record<string, Component> = {
   up: ArrowUp, back: ChevronLeft, ext: ExternalLink, alert: TriangleAlert, info: Info, clock: Clock, quote: Quote, lock: Lock,
   globe: Globe, missing: CircleAlert, tree: ListTree, expand: ChevronsUpDown, collapse: ChevronsDownUp,
   copy: Copy, filter: Funnel, search: Search, keyboard: Keyboard, locate: LocateFixed, trace: Waypoints,
-  network: Network, menu: Menu,
+  network: Network, menu: Menu, branch: GitBranch,
 } satisfies Record<string, Component>;
 
 // The icon for a record type or mark. A name the table does not hold reads

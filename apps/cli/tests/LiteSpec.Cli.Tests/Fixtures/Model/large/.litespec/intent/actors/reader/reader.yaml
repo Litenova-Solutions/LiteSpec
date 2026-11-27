@@ -6,3 +6,10 @@ kind: person
 belongsToTeam: false
 holds:
 - role/reader
+responsibilities:
+- The reader borrows copies from the shelf.
+- The reader returns loans to the desk.
+- The reader places and cancels holds.
+knowledge:
+- The product assumes the reader knows the loans on their card.
+- The product assumes the reader knows the due date of each loan.

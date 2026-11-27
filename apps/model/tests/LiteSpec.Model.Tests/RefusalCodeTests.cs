@@ -7,32 +7,14 @@ namespace LiteSpec.Model.Tests;
 /// <summary>Tests for the shared refusal-code rule every host calls.</summary>
 public sealed class RefusalCodeTests
 {
-    /// <summary>A refusal naming a refusal result returns its code.</summary>
+    /// <summary>A rule naming a refusal code returns that code as written.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
-    [Fact(DisplayName = "A refusal naming a refusal result returns its code")]
-    public void ResultRefusalWithCodeReturnsCode()
-    {
-        var rule = Rule("result/submit-expense.receipt-missing");
-        var result = new FakeRecord(
-            "result",
-            "result/submit-expense.receipt-missing",
-            fields: new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["outcome"] = "refusal",
-                ["code"] = "spending.receipt-missing",
-            });
-
-        Assert.Equal("spending.receipt-missing", RefusalCode.Of(rule, ById(result)));
-    }
-
-    /// <summary>A bare refusal code returns as is.</summary>
-    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
-    [Fact(DisplayName = "A bare refusal code returns as is")]
-    public void BareCodeReturnsAsIs()
+    [Fact(DisplayName = "A rule naming a refusal code returns that code")]
+    public void NamedRefusalCodeIsReturned()
     {
         var rule = Rule("spending.receipt-missing");
 
-        Assert.Equal("spending.receipt-missing", RefusalCode.Of(rule, ById()));
+        Assert.Equal("spending.receipt-missing", RefusalCode.Of(rule));
     }
 
     /// <summary>A rule with no refusal returns null.</summary>
@@ -42,7 +24,7 @@ public sealed class RefusalCodeTests
     {
         var rule = new FakeRecord("rule", "rule/spending.receipt-required");
 
-        Assert.Null(RefusalCode.Of(rule, ById()));
+        Assert.Null(RefusalCode.Of(rule));
     }
 
     /// <summary>A rule with an empty refusal returns null.</summary>
@@ -52,83 +34,14 @@ public sealed class RefusalCodeTests
     {
         var rule = Rule(string.Empty);
 
-        Assert.Null(RefusalCode.Of(rule, ById()));
-    }
-
-    /// <summary>A refusal naming no record returns null.</summary>
-    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
-    [Fact(DisplayName = "A refusal naming no record returns null")]
-    public void UnresolvedRefusalReturnsNull()
-    {
-        var rule = Rule("result/submit-expense.ghost");
-
-        Assert.Null(RefusalCode.Of(rule, ById()));
-    }
-
-    /// <summary>A refusal naming a record of another type returns null.</summary>
-    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
-    [Fact(DisplayName = "A refusal naming a record of another type returns null")]
-    public void RefusalToNonResultReturnsNull()
-    {
-        var rule = Rule("result/submit-expense.receipt-missing");
-        var other = new FakeRecord(
-            "use-case",
-            "result/submit-expense.receipt-missing",
-            fields: new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["outcome"] = "refusal",
-                ["code"] = "spending.receipt-missing",
-            });
-
-        Assert.Null(RefusalCode.Of(rule, ById(other)));
-    }
-
-    /// <summary>A refusal naming a success result with a code returns null.</summary>
-    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
-    [Fact(DisplayName = "A refusal naming a success result with a code returns null")]
-    public void RefusalToSuccessResultReturnsNull()
-    {
-        var rule = Rule("result/submit-expense.receipt-missing");
-        var result = new FakeRecord(
-            "result",
-            "result/submit-expense.receipt-missing",
-            fields: new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["outcome"] = "success",
-                ["code"] = "spending.receipt-missing",
-            });
-
-        Assert.Null(RefusalCode.Of(rule, ById(result)));
-    }
-
-    /// <summary>A refusal naming a refusal result without a code returns null.</summary>
-    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
-    [Fact(DisplayName = "A refusal naming a refusal result without a code returns null")]
-    public void RefusalToResultWithoutCodeReturnsNull()
-    {
-        var rule = Rule("result/submit-expense.receipt-missing");
-        var result = new FakeRecord(
-            "result",
-            "result/submit-expense.receipt-missing",
-            fields: new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["outcome"] = "refusal",
-            });
-
-        Assert.Null(RefusalCode.Of(rule, ById(result)));
+        Assert.Null(RefusalCode.Of(rule));
     }
 
     /// <summary>Of rejects a null rule.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact(DisplayName = "Of rejects a null rule")]
     public void OfRejectsNullRule() =>
-        Assert.Throws<ArgumentNullException>(() => RefusalCode.Of(null!, ById()));
-
-    /// <summary>Of rejects a null lookup.</summary>
-    /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
-    [Fact(DisplayName = "Of rejects a null lookup")]
-    public void OfRejectsNullLookup() =>
-        Assert.Throws<ArgumentNullException>(() => RefusalCode.Of(Rule("spending.receipt-missing"), null!));
+        Assert.Throws<ArgumentNullException>(() => RefusalCode.Of(null!));
 
     private static FakeRecord Rule(string refusal) =>
         new FakeRecord(
@@ -138,18 +51,4 @@ public sealed class RefusalCodeTests
             {
                 ["refusal"] = refusal,
             });
-
-    private static Func<string, IRecordFields?> ById(params FakeRecord[] records) =>
-        id =>
-        {
-            foreach (var record in records)
-            {
-                if (record.Id == id)
-                {
-                    return record;
-                }
-            }
-
-            return null;
-        };
 }

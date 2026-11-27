@@ -27,15 +27,16 @@ static partial class ProvisionDiff
         "<!-- generated:" + Regex.Escape(RegionName) + " -->.*?<!-- /generated:" + Regex.Escape(RegionName) + " -->",
         RegexOptions.Singleline);
 
-    /// <summary>One provision identity: the three fields the comparison reads from the provision data.</summary>
+    /// <summary>One provision identity: the fields the comparison reads from the provision data.</summary>
     /// <param name="Id">The provision identifier.</param>
     /// <param name="Page">The owning page, relative to the repository root.</param>
     /// <param name="Statement">The assertive line: the Statement, or the Default of a convention or pattern.</param>
-    public sealed record Row(string Id, string Page, string Statement);
+    /// <param name="Heading">The provision heading, or empty when the data carries none.</param>
+    public sealed record Row(string Id, string Page, string Statement, string Heading = "");
 
     /// <summary>One renamed provision: the retired identifier and the identifier that replaces it.</summary>
     /// <param name="From">The removed identifier.</param>
-    /// <param name="To">The added identifier on the same page with the same statement.</param>
+    /// <param name="To">The added identifier on the same page with the same statement or the same heading.</param>
     public sealed record Rename(string From, string To);
 
     /// <summary>The comparison of the provision index and the extensions at a git ref with the current ones.</summary>
@@ -77,7 +78,7 @@ static partial class ProvisionDiff
                 System.IO.Compression.ZipFile.ExtractToDirectory(archive, folder);
 
                 return Provisions.Collect(folder)
-                    .Select(row => new Row(row.Id, row.Page, row.Statement))
+                    .Select(row => new Row(row.Id, row.Page, row.Statement, row.Heading))
                     .ToList();
             }
             finally
@@ -232,7 +233,7 @@ static partial class ProvisionDiff
                     continue;
                 }
 
-                rows.Add(new Row(id, Text(item, "page"), Text(item, "statement")));
+                rows.Add(new Row(id, Text(item, "page"), Text(item, "statement"), Text(item, "heading")));
             }
 
             return rows;
@@ -291,28 +292,18 @@ static partial class ProvisionDiff
         var removed = oldById.Keys.Where(id => !newById.ContainsKey(id)).ToList();
         var added = newById.Keys.Where(id => !oldById.ContainsKey(id)).ToList();
 
-        // A rename is a removed identifier and an added identifier that share one page
-        // and one statement: the assertion stayed and only its name changed. Keys with
-        // several identifiers pair in identifier order, so the pairing is stable.
-        var removedByKey = removed.GroupBy(id => KeyOf(oldById[id])).ToDictionary(group => group.Key, group => group.OrderBy(id => id, StringComparer.Ordinal).ToList());
-        var addedByKey = added.GroupBy(id => KeyOf(newById[id])).ToDictionary(group => group.Key, group => group.OrderBy(id => id, StringComparer.Ordinal).ToList());
-        var renames = new List<Rename>();
-
-        foreach (var key in removedByKey.Keys.OrderBy(key => key, KeyComparer))
-        {
-            if (!addedByKey.TryGetValue(key, out var targets))
-            {
-                continue;
-            }
-
-            var sources = removedByKey[key];
-            var pairs = Math.Min(sources.Count, targets.Count);
-
-            for (var index = 0; index < pairs; index++)
-            {
-                renames.Add(new Rename(sources[index], targets[index]));
-            }
-        }
+        // A rename is a removed identifier and an added identifier on one page that either
+        // share one statement (the assertion stayed and only its name changed) or share one
+        // heading at the ref (the name stayed and the identifier moved). Statement pairs come
+        // first, so a heading pairs only the identifiers left over.
+        var renames = Pair(removed, added, id => StatementKey(oldById[id]), id => StatementKey(newById[id]));
+        var paired = renames.Select(rename => rename.From).ToHashSet(StringComparer.Ordinal);
+        var pairedTo = renames.Select(rename => rename.To).ToHashSet(StringComparer.Ordinal);
+        renames.AddRange(Pair(
+            removed.Where(id => !paired.Contains(id)).ToList(),
+            added.Where(id => !pairedTo.Contains(id)).ToList(),
+            id => HeadingKey(oldById[id]),
+            id => HeadingKey(newById[id])));
 
         var renamedFrom = renames.Select(rename => rename.From).ToHashSet(StringComparer.Ordinal);
         var renamedTo = renames.Select(rename => rename.To).ToHashSet(StringComparer.Ordinal);
@@ -398,14 +389,78 @@ static partial class ProvisionDiff
         return result + "\n";
     }
 
-    /// <summary>The rename key of one provision identity: its page with its statement.</summary>
-    /// <param name="row">The provision identity.</param>
-    /// <returns>The page with the statement.</returns>
-    static (string Page, string Statement) KeyOf(Row row) => (row.Page, row.Statement);
+    /// <summary>Pairs removed and added identifiers that share a key, one for one, in identifier order.</summary>
+    /// <param name="removed">The removed identifiers.</param>
+    /// <param name="added">The added identifiers.</param>
+    /// <param name="keyOfRemoved">The key of a removed identifier, or null when it cannot pair.</param>
+    /// <param name="keyOfAdded">The key of an added identifier, or null when it cannot pair.</param>
+    /// <returns>The renames the shared keys produce, in no particular order.</returns>
+    static List<Rename> Pair(
+        IReadOnlyList<string> removed,
+        IReadOnlyList<string> added,
+        Func<string, string?> keyOfRemoved,
+        Func<string, string?> keyOfAdded)
+    {
+        var removedByKey = GroupByKey(removed, keyOfRemoved);
+        var addedByKey = GroupByKey(added, keyOfAdded);
+        var renames = new List<Rename>();
 
-    /// <summary>Orders rename keys by page, then by statement.</summary>
-    static readonly Comparer<(string Page, string Statement)> KeyComparer = Comparer<(string Page, string Statement)>.Create((left, right) =>
-        string.CompareOrdinal(left.Page, right.Page) is var order && order != 0 ? order : string.CompareOrdinal(left.Statement, right.Statement));
+        foreach (var (key, sources) in removedByKey)
+        {
+            if (!addedByKey.TryGetValue(key, out var targets))
+            {
+                continue;
+            }
+
+            var pairs = Math.Min(sources.Count, targets.Count);
+
+            for (var index = 0; index < pairs; index++)
+            {
+                renames.Add(new Rename(sources[index], targets[index]));
+            }
+        }
+
+        return renames;
+    }
+
+    /// <summary>Groups identifiers by key, each group in identifier order.</summary>
+    /// <param name="ids">The identifiers.</param>
+    /// <param name="keyOf">The key of an identifier, or null to leave it out.</param>
+    /// <returns>The identifiers of each key.</returns>
+    static Dictionary<string, List<string>> GroupByKey(IEnumerable<string> ids, Func<string, string?> keyOf)
+    {
+        var groups = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+        foreach (var id in ids.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            var key = keyOf(id);
+
+            if (key is null)
+            {
+                continue;
+            }
+
+            if (!groups.TryGetValue(key, out var members))
+            {
+                members = [];
+                groups.Add(key, members);
+            }
+
+            members.Add(id);
+        }
+
+        return groups;
+    }
+
+    /// <summary>The statement rename key of one provision identity: its page with its statement.</summary>
+    /// <param name="row">The provision identity.</param>
+    /// <returns>The key.</returns>
+    static string StatementKey(Row row) => string.Join('\u001f', row.Page, row.Statement);
+
+    /// <summary>The heading rename key of one provision identity: its page with its heading, or null when it has no heading.</summary>
+    /// <param name="row">The provision identity.</param>
+    /// <returns>The key, or null.</returns>
+    static string? HeadingKey(Row row) => row.Heading.Length == 0 ? null : string.Join('\u001f', row.Page, row.Heading);
 
     /// <summary>Appends one rendered group: its counted heading with its bullets, or <c>None.</c> when empty.</summary>
     /// <param name="lines">The rendered lines.</param>

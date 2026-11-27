@@ -11,8 +11,11 @@ namespace LiteSpec.Cli.Init;
 /// <summary>
 ///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.yaml</c>
 ///     from one of the ready-made presets in <c>templates/presets/</c>, copies the
-///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>,
-///     and inserts the agent-protocol region into an existing <c>AGENTS.md</c> that holds none.
+///     starting agent context, glossary, and cast from <c>templates/consumer/</c>,
+///     writes the UI quality requirements from <c>templates/consumer/requirements/</c>
+///     as product-level requirements, and inserts the agent-protocol region into an
+///     existing <c>AGENTS.md</c> that holds none, and optionally copies the runnable
+///     starter from <c>templates/bootstrap/dotnet-svelte/</c>.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
 /// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
@@ -20,7 +23,7 @@ namespace LiteSpec.Cli.Init;
 static class InitCommand
 {
     /// <summary>The preset names <c>litespec init</c> accepts, in list order.</summary>
-    static readonly string[] Presets = ["android-client", "blazor-client", "dotnet-react", "dotnet-svelte", "records"];
+    static readonly string[] Presets = ["android-client", "dotnet-svelte", "records"];
 
     /// <summary>
     ///     The ways a project installs the LiteSpec command line, with the command that runs it:
@@ -38,16 +41,32 @@ static class InitCommand
     [
         ("project-agents.md", "AGENTS.md"),
         ("glossary.yaml", ".litespec/glossary.yaml"),
-        ("example-cast.md", ".litespec/example-cast.md"),
+        ("cast.yaml", ".litespec/cast.yaml"),
+    ];
+
+    /// <summary>The UI quality requirements <c>litespec init</c> writes as product-level requirements, by file stem.</summary>
+    static readonly string[] UiRequirements =
+    [
+        "ui-text-contrast", "ui-control-boundary", "ui-focus-indicator",
+        "ui-chart-series", "ui-reflow", "ui-target-size",
+    ];
+
+    /// <summary>The UI quality requirements <c>litespec init</c> writes for the Android preset: the token limit ones, with no browser route suite.</summary>
+    static readonly string[] AndroidUiRequirements =
+    [
+        "ui-text-contrast", "ui-control-boundary", "ui-focus-indicator",
+        "ui-chart-series",
     ];
 
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--help]
+        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--bootstrap] [--help]
 
         Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
-        glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the
+        glossary, and cast into .litespec/ beside it. It writes the UI quality
+        requirements from templates/consumer/requirements/ as product-level requirements
+        under .litespec/intent/requirements/, leaving existing files alone. A fresh AGENTS.md carries the
         agent-protocol region filled with the release, size, shape, stacks, layers,
         extensions, and selection index of the new project, and names the command that
         runs the CLI. An existing AGENTS.md that holds no region gains the region after
@@ -69,25 +88,36 @@ static class InitCommand
         no release. Without --skill and without --skill-global, the command prints the
         skill add command as its last line instead of installing. When the root holds
         a CLAUDE.md that does not import AGENTS.md, the command prints a line saying so.
+        With --bootstrap, valid only with a preset that carries a runnable starter
+        (android-client, dotnet-svelte), the command also copies
+        templates/bootstrap/<preset>/ from the carried release into the root after
+        writing the project file, filling __PROJECT__, __NAMESPACE__ (the PascalCase name
+        with letters and digits only) and __SCOPE__ (the lowercase package scope) in file
+        contents and path segments, and copying binary files unchanged. The template file
+        .litespec/project.bootstrap.yaml is not copied: its top-level keys (such as verify)
+        are merged into the written project file after filling the tokens. The command
+        refuses with exit 1 before writing anything when any bootstrap target file already
+        exists; --bootstrap with a preset with no starter is a usage error.
 
-          --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte, records.
+          --preset   One of: android-client, dotnet-svelte, records.
           --size     The project size: small or large.
           --install  How the project installs the CLI: tool, a local .NET tool (the default), or standalone, the native binary.
           --root     The consumer repository to write into. Defaults to the working directory.
           --name     The project name. Defaults to the root folder's name.
           --skill    The agents to install the skill for at project scope: one or more of claude, opencode, agents, comma separated. With --skill-global the copies are written at global scope instead.
           --skill-global  Write the skill copies under the user's home instead of the consumer. Without --skill it installs the default agents.
+          --bootstrap  Copy the runnable starter of the preset from the carried release into the root. Valid only with a preset that carries one.
           --help     Print this text and exit.
 
-        Exit codes: 0 written, 1 the release's template, preset, scaffold, or skill file is unreadable or a skill target holds a folder this tool did not write, 2 the project file exists or an option or agent is invalid.
+        Exit codes: 0 written, 1 the release's template, preset, scaffold, requirement, bootstrap, or skill file is unreadable, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, 2 the project file exists, an option or agent is invalid, or --bootstrap names a preset with no starter.
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
-    /// <param name="args">The arguments after the init command name, holding the preset, size, root, project name and skill options.</param>
-    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written or a skill target holds a folder this tool did not write, and 2 when the project file exists or an option or agent is invalid.</returns>
+    /// <param name="args">The arguments after the init command name, holding the preset, size, root, project name, skill and bootstrap options.</param>
+    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, a skill target holds a folder this tool did not write, or a bootstrap target file already exists, and 2 when the project file exists, an option or agent is invalid, or --bootstrap names a preset with no starter.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, ["--skill-global"], ["--preset", "--size", "--install", "--root", "--name", "--skill"]);
+        var parsed = CliArgs.Parse(args, ["--skill-global", "--bootstrap"], ["--preset", "--size", "--install", "--root", "--name", "--skill"]);
 
         if (parsed.Help)
         {
@@ -112,6 +142,32 @@ static class InitCommand
         if (preset is null || !Presets.Contains(preset))
         {
             return CommandFailure.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
+        }
+
+        string home;
+
+        try
+        {
+            home = LiteSpecHome.RequireRoot();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return CommandFailure.UsageError(exception.Message, Usage, json: false);
+        }
+
+        var bootstrap = parsed.Has("--bootstrap");
+
+        if (bootstrap)
+        {
+            // The template folder decides which presets can bootstrap: a preset
+            // bootstraps when the release carries its starter folder or archive.
+            var starters = StarterFiles.Presets(home);
+
+            if (!starters.Contains(preset))
+            {
+                var known = starters.Count > 0 ? string.Join(", ", starters) : "none yet";
+                return CommandFailure.UsageError($"--bootstrap needs a preset with a runnable starter; presets with one: {known}. Preset '{preset}' cannot bootstrap.", Usage, json: false);
+            }
         }
 
         var install = parsed.Value("--install") ?? "tool";
@@ -176,17 +232,6 @@ static class InitCommand
             return 2;
         }
 
-        string home;
-
-        try
-        {
-            home = LiteSpecHome.RequireRoot();
-        }
-        catch (InvalidOperationException exception)
-        {
-            return CommandFailure.UsageError(exception.Message, Usage, json: false);
-        }
-
         var release = LiteSpecHome.Version;
 
         if (release is null)
@@ -202,6 +247,7 @@ static class InitCommand
         JsonObject project;
         JsonObject overlay;
         Dictionary<string, string> scaffold;
+        List<(string Stem, string Yaml, string? Md)> requirements;
 
         try
         {
@@ -233,6 +279,31 @@ static class InitCommand
                 }
 
                 scaffold[file] = File.ReadAllText(source);
+            }
+
+            // The UI quality requirements are read the same way. A release without
+            // the requirements folder writes no requirements. The Android preset
+            // has no browser routes, so its requirements stop at the token limits.
+            requirements = [];
+
+            var wanted = preset == "android-client" ? AndroidUiRequirements : UiRequirements;
+            var requirementsDir = Path.Combine(home, "templates", "consumer", "requirements");
+
+            if (Directory.Exists(requirementsDir))
+            {
+                foreach (var stem in wanted)
+                {
+                    var yamlSource = Path.Combine(requirementsDir, stem + ".yaml");
+
+                    if (!File.Exists(yamlSource))
+                    {
+                        CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/requirements/{stem}.yaml.");
+                        return 1;
+                    }
+
+                    var mdSource = Path.Combine(requirementsDir, stem + ".md");
+                    requirements.Add((stem, File.ReadAllText(yamlSource), File.Exists(mdSource) ? File.ReadAllText(mdSource) : null));
+                }
             }
 
             project = template;
@@ -285,15 +356,14 @@ static class InitCommand
             project.Remove("frontends");
         }
 
-        // The shared UI package and its pattern catalog belong to the controlled web
-        // frontends; a preset without one would declare a package no frontend uses.
+        // The shared UI package belongs to the controlled web frontend; a preset
+        // without one would declare a package no frontend uses.
         var controlled = (project["frontends"] as JsonArray)?
-            .Any(frontend => (string?)frontend?["platform"] is "react" or "svelte") ?? false;
+            .Any(frontend => (string?)frontend?["platform"] is "svelte") ?? false;
 
         if (!controlled)
         {
             project.Remove("ui");
-            paths.Remove("uiPatterns");
         }
 
         var record = project["project"] as JsonObject;
@@ -314,6 +384,73 @@ static class InitCommand
         // kebab case: Team Expenses becomes @team-expenses/ui.
         Fill(project, "@__PROJECT__/", $"@{PackageScope(name)}/");
         Fill(project, "__PROJECT__", name);
+
+        var bootstrapPlan = new List<(string Source, string Target, byte[] Bytes)>();
+
+        if (bootstrap)
+        {
+            var namespaceName = ToNamespace(name);
+            var scopeName = PackageScope(name);
+            if (StarterFiles.Read(home, preset, out var starterError) is not { } starter)
+            {
+                CliHost.Error.WriteLine(starterError);
+                return 1;
+            }
+
+            string? overlayText = null;
+
+            foreach (var (relative, bytes) in starter)
+            {
+                if (relative == ".litespec/project.bootstrap.yaml")
+                {
+                    overlayText = System.Text.Encoding.UTF8.GetString(bytes);
+                    continue;
+                }
+
+                // A template file ending in .template, such as a project file, is written without the suffix,
+                // so the release tree holds no file a build tool would treat as its own project.
+                var filledRelative = FillBootstrapText(relative, name, namespaceName, scopeName);
+                filledRelative = filledRelative.EndsWith(TemplateSuffix, StringComparison.Ordinal) ? filledRelative[..^TemplateSuffix.Length] : filledRelative;
+                bootstrapPlan.Add((relative, Path.Combine(root, filledRelative), bytes));
+            }
+
+            // A bootstrap target that already exists refuses the run before anything is written.
+            foreach (var (_, destination, _) in bootstrapPlan)
+            {
+                if (File.Exists(destination) || Directory.Exists(destination))
+                {
+                    CliHost.Error.WriteLine($"'{destination}' already exists; litespec init --bootstrap never overwrites it.");
+                    return 1;
+                }
+            }
+
+            if (overlayText is not null)
+            {
+                JsonNode? overlayNode;
+
+                try
+                {
+                    overlayNode = RecordText.Parse(FillBootstrapText(overlayText, name, namespaceName, scopeName), yaml: true);
+                }
+                catch (JsonTextException exception)
+                {
+                    CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/bootstrap/{preset}/.litespec/project.bootstrap.yaml: {exception.Message}");
+                    return 1;
+                }
+
+                if (overlayNode is not JsonObject overlayObject)
+                {
+                    CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/bootstrap/{preset}/.litespec/project.bootstrap.yaml.");
+                    return 1;
+                }
+
+                foreach (var property in overlayObject)
+                {
+                    project[property.Key] = property.Value?.DeepClone();
+                }
+            }
+        }
+
         var unfilled = Placeholders(project).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
 
         try
@@ -333,6 +470,36 @@ static class InitCommand
 
         CliHost.Out.WriteLine($"Wrote {target}.");
 
+        if (bootstrapPlan.Count > 0)
+        {
+            var namespaceName = ToNamespace(name);
+            var scopeName = PackageScope(name);
+
+            foreach (var (_, destination, bytes) in bootstrapPlan)
+            {
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+
+                    if (TryDecodeText(bytes, out var decoded))
+                    {
+                        File.WriteAllText(destination, FillBootstrapText(decoded, name, namespaceName, scopeName));
+                    }
+                    else
+                    {
+                        File.WriteAllBytes(destination, bytes);
+                    }
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                    CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+                    return 1;
+                }
+
+                CliHost.Out.WriteLine($"Wrote {destination}.");
+            }
+        }
+
         var copied = 0;
         var shapeText = (string?)project["shape"] ?? "server";
         var stackNames = (project["stacks"] as JsonArray)?
@@ -350,7 +517,7 @@ static class InitCommand
             AgentProtocol.FormatStacks(stackNames),
             AgentProtocol.FormatExtensions(extensionNames),
             AgentProtocol.FormatLayers(layerClaims),
-            AgentProtocol.SelectionKey(shapeText, stackNames),
+            AgentProtocol.DocsFor(Path.Combine(home, "docs"), root),
             command);
 
         foreach (var (file, relative) in Scaffold)
@@ -393,6 +560,21 @@ static class InitCommand
             copied += 1;
         }
 
+        foreach (var (stem, yaml, md) in requirements)
+        {
+            var folder = Path.Combine(root, ".litespec", "intent", "requirements", stem);
+
+            if (WriteFreshFile(Path.Combine(folder, stem + ".yaml"), yaml, ref copied) != 0)
+            {
+                return 1;
+            }
+
+            if (md is not null && WriteFreshFile(Path.Combine(folder, stem + ".md"), md, ref copied) != 0)
+            {
+                return 1;
+            }
+        }
+
         var gitignore = Path.Combine(root, ".litespec", ".gitignore");
 
         if (File.Exists(gitignore))
@@ -404,7 +586,7 @@ static class InitCommand
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(gitignore)!);
-                File.WriteAllText(gitignore, "model/\nbook/\n");
+                File.WriteAllText(gitignore, "model/\nbook/\nverify/\naudit/\nexplore/\n");
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
@@ -469,6 +651,35 @@ static class InitCommand
             CliHost.Out.WriteLine($"To install the LiteSpec skill, run: {command} skill add");
         }
 
+        return 0;
+    }
+
+    /// <summary>Writes one release file unless it exists, naming what happened.</summary>
+    /// <param name="destination">The absolute path to write.</param>
+    /// <param name="contents">The file text.</param>
+    /// <param name="copied">The count of files written this run, raised when the file is written.</param>
+    /// <returns>0 when the file was written or already existed, 1 when it cannot be written.</returns>
+    static int WriteFreshFile(string destination, string contents, ref int copied)
+    {
+        if (File.Exists(destination))
+        {
+            CliHost.Out.WriteLine($"'{destination}' already exists; left alone.");
+            return 0;
+        }
+
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+            File.WriteAllText(destination, contents);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+            return 1;
+        }
+
+        CliHost.Out.WriteLine($"Wrote {destination}.");
+        copied += 1;
         return 0;
     }
 
@@ -686,6 +897,74 @@ static class InitCommand
     /// <returns>The lowercase kebab-case scope form of the name.</returns>
     static string PackageScope(string name) =>
         System.Text.RegularExpressions.Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9._-]+", "-").Trim('-');
+
+    /// <summary>The project name as a C# namespace stem: each letter-or-digit run capitalized and joined, with no separators.</summary>
+    /// <param name="name">The project name to convert into a namespace stem.</param>
+    /// <returns>The PascalCase namespace form of the name with letters and digits only.</returns>
+    static string ToNamespace(string name)
+    {
+        var builder = new System.Text.StringBuilder();
+
+        foreach (var part in System.Text.RegularExpressions.Regex.Split(name, "[^A-Za-z0-9]+"))
+        {
+            if (part.Length == 0)
+            {
+                continue;
+            }
+
+            builder.Append(char.ToUpperInvariant(part[0]));
+
+            if (part.Length > 1)
+            {
+                builder.Append(part, 1, part.Length - 1);
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    /// <summary>The suffix a starter file carries in the release so no tool treats it as live, dropped on copy.</summary>
+    const string TemplateSuffix = ".template";
+
+    /// <summary>Replaces the three bootstrap tokens in starter text or a starter path segment.</summary>
+    /// <param name="text">The template text holding the tokens.</param>
+    /// <param name="projectName">The value for <c>__PROJECT__</c>.</param>
+    /// <param name="namespaceName">The value for <c>__NAMESPACE__</c>.</param>
+    /// <param name="scopeName">The value for <c>__SCOPE__</c>.</param>
+    /// <returns>The text with every token filled.</returns>
+    static string FillBootstrapText(string text, string projectName, string namespaceName, string scopeName) =>
+        text.Replace("__PROJECT__", projectName, StringComparison.Ordinal)
+            .Replace("__NAMESPACE__", namespaceName, StringComparison.Ordinal)
+            .Replace("__SCOPE__", scopeName, StringComparison.Ordinal);
+
+    /// <summary>Decodes starter bytes as text unless they are binary.</summary>
+    /// <param name="bytes">The template file bytes.</param>
+    /// <param name="text">The decoded text, or empty when the bytes are binary.</param>
+    /// <returns>True when the bytes decode as UTF-8 text without a null byte; otherwise false for a binary file.</returns>
+    static bool TryDecodeText(byte[] bytes, out string text)
+    {
+        if (Array.IndexOf(bytes, (byte)0) >= 0)
+        {
+            text = string.Empty;
+            return false;
+        }
+
+        try
+        {
+            text = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true).GetString(bytes);
+            return true;
+        }
+        catch (System.Text.DecoderFallbackException)
+        {
+            text = string.Empty;
+            return false;
+        }
+        catch (ArgumentException)
+        {
+            text = string.Empty;
+            return false;
+        }
+    }
 
     /// <summary>Replaces a placeholder inside every string value of the document.</summary>
     /// <param name="node">The JSON node whose string values are rewritten in place, or null when the subtree holds no value.</param>

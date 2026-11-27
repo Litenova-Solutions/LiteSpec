@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
@@ -30,12 +31,11 @@ static class RecordReader
         }
 
         // The generated model and book under the record root hold no records.
-        files.RemoveAll(file => IsGeneratedOutput(config, file));
+        files.RemoveAll(file => GeneratedFolders.Holds(config, file));
         files.RemoveAll(file => file.Equals(config.GlossaryPath, StringComparison.OrdinalIgnoreCase));
 
-        // The project file and the UI pattern catalog are YAML under the record root, but hold no record.
-        files.RemoveAll(file => file.Equals(ConsumerRoot.ProjectFile(config.Root), StringComparison.OrdinalIgnoreCase)
-            || file.Equals(config.UiPatternCatalog, StringComparison.OrdinalIgnoreCase));
+        // The project file is YAML under the record root, but holds no record.
+        files.RemoveAll(file => file.Equals(ConsumerRoot.ProjectFile(config.Root), StringComparison.OrdinalIgnoreCase));
 
         var records = new List<Record>();
         var bodies = new List<PageBody>();
@@ -90,28 +90,6 @@ static class RecordReader
         return new RecordRead(records, bodies, ReadProvisions(), problems);
     }
 
-    /// <summary>Whether the file sits in the generated model or book folder under a record root.</summary>
-    /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <param name="file">The file to test.</param>
-    /// <returns>True when the file is generated output under <c>&lt;root&gt;/model/</c> or <c>&lt;root&gt;/book/</c>.</returns>
-    private static bool IsGeneratedOutput(ConsumerConfig config, string file)
-    {
-        foreach (var root in config.RecordRoots)
-        {
-            foreach (var folder in new[] { "model", "book" })
-            {
-                var prefix = Path.GetFullPath(Path.Combine(root, folder)) + Path.DirectorySeparatorChar;
-
-                if (file.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     /// <summary>Whether the document opens with a frontmatter fence line, so a parse failure is reported.</summary>
     /// <param name="text">The page text to test.</param>
     /// <returns>True when the first line of the text is the frontmatter fence.</returns>
@@ -139,6 +117,12 @@ static class RecordReader
         List<PageBody> bodies,
         List<Finding> problems)
     {
+        // A module's refusal set holds refusal codes, not records; RefusalSetReader reads it.
+        if (Path.GetFileName(file) == "refusals.yaml")
+        {
+            return;
+        }
+
         var scan = RecordFiles.Scan(file, SourceTree.Read(file));
 
         problems.AddRange(scan.Problems);
@@ -234,9 +218,10 @@ static class RecordReader
         };
 
     /// <summary>
-    ///     Derives the generic refusal results: forbidden for every use case with a permission
-    ///     grant, and invalid-input for every use case with a validated input. Scenarios and
-    ///     tests point at them; they are never written as records.
+    ///     Derives the generic refusal results from each use case's access, inputs, kind and
+    ///     knowledge reads. Scenarios and tests point at them; they are never written as records.
+    ///     A derived not-found or rule-not-stated result carries the refusal of the product-level
+    ///     rule that triggers it, so the product code is declared without restating it.
     /// </summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="records">The written records, appended in place with the derived results.</param>
@@ -248,6 +233,10 @@ static class RecordReader
             .Where(record => record.Id.Length > 0)
             .Select(record => record.Id)
             .ToHashSet(StringComparer.Ordinal);
+        var byId = records
+            .Where(record => record.Id.Length > 0)
+            .GroupBy(record => record.Id, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
         var derived = new List<Record>();
 
         foreach (var useCase in records.Where(record => record.Type == RecordTypes.UseCase))
@@ -257,33 +246,71 @@ static class RecordReader
                 continue;
             }
 
-            if (ModelBuilder.GrantedPermission(useCase) is not null
-                && taken.Add($"result/{name}.forbidden"))
+            foreach (var code in RefusalSetReader.DeriveFor(useCase, byId))
             {
-                derived.Add(DerivedResult(
-                    config,
-                    useCase,
-                    $"result/{name}.forbidden",
-                    "Forbidden",
-                    "The caller lacks the grant the use case requires.",
-                    forbiddenCode));
-            }
+                var id = $"result/{name}.{code}";
 
-            if (ModelBuilder.HasValidatedInput(useCase)
-                && taken.Add($"result/{name}.invalid-input"))
-            {
+                if (!taken.Add(id))
+                {
+                    continue;
+                }
+
+                var refusal = RefusalSetReader.ProductRefusalFor(useCase, code, byId);
+                var wire = code switch
+                {
+                    "forbidden" => forbiddenCode,
+                    "invalid-input" => invalidInputCode,
+                    _ => code,
+                };
+
+                if (refusal is not null && RefusalCode.CodeOf(refusal) is { } product)
+                {
+                    wire = product;
+                }
+
                 derived.Add(DerivedResult(
                     config,
                     useCase,
-                    $"result/{name}.invalid-input",
-                    "Invalid input",
-                    "An input value breaks the rules the use case declares.",
-                    invalidInputCode));
+                    id,
+                    DerivedTitle(code),
+                    DerivedMeaning(code),
+                    wire,
+                    refusal));
             }
         }
 
         records.AddRange(derived);
     }
+
+    /// <summary>The title of a derived generic refusal result.</summary>
+    /// <param name="code">The generic refusal code.</param>
+    /// <returns>The result title.</returns>
+    private static string DerivedTitle(string code) => code switch
+    {
+        "forbidden" => "Forbidden",
+        "invalid-input" => "Invalid input",
+        "not-found" => "Not found",
+        "conflict" => "Conflict",
+        "unauthenticated" => "Unauthenticated",
+        "sign-in-too-old" => "Sign in too old",
+        "rule-not-stated" => "Rule not stated",
+        _ => code,
+    };
+
+    /// <summary>The meaning of a derived generic refusal result.</summary>
+    /// <param name="code">The generic refusal code.</param>
+    /// <returns>The result meaning.</returns>
+    private static string DerivedMeaning(string code) => code switch
+    {
+        "forbidden" => "The caller lacks the grant the use case requires.",
+        "invalid-input" => "An input value breaks the rules the use case declares.",
+        "not-found" => "The record the input names does not exist.",
+        "conflict" => "The record changed since the caller read it.",
+        "unauthenticated" => "The caller is not signed in.",
+        "sign-in-too-old" => "The caller's sign-in is older than the window the use case requires.",
+        "rule-not-stated" => "The knowledge the use case reads states no rule for the asked key or day.",
+        _ => code,
+    };
 
     /// <summary>One derived generic result, carried by its use case's page.</summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>
@@ -292,18 +319,27 @@ static class RecordReader
     /// <param name="title">The derived result title.</param>
     /// <param name="meaning">The derived result meaning sentence.</param>
     /// <param name="code">The refusal code the derived result carries.</param>
+    /// <param name="refusal">The refusal identifier the derived result carries, or null when it keeps the generic code.</param>
     /// <returns>The derived result record, marked derived and carried by the use-case page.</returns>
-    private static Record DerivedResult(ConsumerConfig config, Record useCase, string id, string title, string meaning, string code)
+    private static Record DerivedResult(ConsumerConfig config, Record useCase, string id, string title, string meaning, string code, string? refusal)
     {
-        var fields = JsonText.ObjectOf(
-        [
+        var properties = new List<KeyValuePair<string, JsonText>>
+        {
             new(RecordFields.Type, JsonText.Text(RecordTypes.Result)),
             new(RecordFields.Id, JsonText.Text(id)),
             new(RecordFields.Title, JsonText.Text(title)),
             new(RecordFields.Outcome, JsonText.Text("refusal")),
-            new(RecordFields.Code, JsonText.Text(code)),
-            new(RecordFields.Meaning, JsonText.Text(meaning)),
-        ]);
+        };
+
+        if (refusal is not null)
+        {
+            properties.Add(new(RecordFields.Refusal, JsonText.Text(refusal)));
+        }
+
+        properties.Add(new(RecordFields.Code, JsonText.Text(code)));
+        properties.Add(new(RecordFields.Meaning, JsonText.Text(meaning)));
+
+        var fields = JsonText.ObjectOf(properties);
 
         return new Record
         {
@@ -333,15 +369,16 @@ static class RecordReader
         }
 
         JsonText tree;
+        var glossaryText = SourceTree.Read(config.GlossaryPath);
 
         try
         {
-            tree = YamlText.Parse(SourceTree.Read(config.GlossaryPath));
+            tree = YamlText.Parse(glossaryText);
         }
         catch (JsonTextException exception)
         {
             problems.Add(new Finding(
-                "field-invalid", $"The glossary is not YAML: {exception.Message}",
+                "record-invalid", $"The glossary is not YAML: {exception.Message}{YamlText.ColonHint(glossaryText, exception.Line) ?? string.Empty}",
                 config.GlossaryPath, exception.Line, null));
             return;
         }

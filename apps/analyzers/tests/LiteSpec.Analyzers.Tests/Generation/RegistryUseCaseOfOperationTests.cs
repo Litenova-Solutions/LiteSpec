@@ -7,13 +7,13 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Analyzers.Tests.Generation;
 
-/// <summary>Tests for the registry's operation-name-to-use-case answer in WebApi projects.</summary>
+/// <summary>Tests for the registry's operation-name-to-use-case answer in module projects and hosts.</summary>
 public sealed class RegistryUseCaseOfOperationTests
 {
-    /// <summary>A WebApi project maps each endpoint operation name to its use case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "A WebApi project maps each endpoint operation name to its use case")]
-    public void WebApiMapsOperationNamesToUseCases()
+    /// <summary>A module maps each endpoint operation name to its use case.</summary>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    [Fact(DisplayName = "A module maps each endpoint operation name to its use case")]
+    public void ModuleMapsOperationNamesToUseCases()
     {
         var sources = RecordPages.Sources("""
             namespace Shop.Spending;
@@ -34,7 +34,7 @@ public sealed class RegistryUseCaseOfOperationTests
             "xml",
             ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
             ("export-expense-report.yaml", RecordPages.UseCasePage("use-case/spending.export-expense-report", null)));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.WebApi");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Spending");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"ExportExpenseReport\"] = \"use-case/spending.export-expense-report\",", registry, StringComparison.Ordinal);
         Assert.Contains("[\"SubmitExpense\"] = \"use-case/spending.submit-expense\",", registry, StringComparison.Ordinal);
@@ -42,7 +42,7 @@ public sealed class RegistryUseCaseOfOperationTests
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
 
-        var assembly = Emit(sources, run, "Shop.WebApi");
+        var assembly = Emit(sources, run, "Shop.Spending");
         var lookup = Lookup(assembly);
 
         Assert.Equal("use-case/spending.submit-expense", lookup.Invoke(null, ["SubmitExpense"]));
@@ -50,9 +50,9 @@ public sealed class RegistryUseCaseOfOperationTests
         Assert.Null(lookup.Invoke(null, ["Unknown"]));
     }
 
-    /// <summary>A host beside a module-layout application project maps the operations of its own endpoints.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "A host beside a module-layout application project maps the operations of its own endpoints")]
+    /// <summary>A host beside a module project maps the operations of its own endpoints.</summary>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    [Fact(DisplayName = "A host beside a module project maps the operations of its own endpoints")]
     public void ModuleHostMapsItsOwnOperations()
     {
         var sources = RecordPages.Sources("""
@@ -68,7 +68,7 @@ public sealed class RegistryUseCaseOfOperationTests
         var files = RecordPages.Files(
             "xml",
             ("sign-out-session.yaml", RecordPages.UseCasePage("use-case/accounts.sign-out-session", null)));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Claimwick.WebApi", layout: "modules");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Claimwick.WebApi");
 
         Assert.False(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "A module host generates no registry.");
         Assert.True(run.Sources.TryGetValue("LiteSpecHostOperations.g.cs", out var operations), "The host operation map is missing.");
@@ -76,50 +76,21 @@ public sealed class RegistryUseCaseOfOperationTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
-    /// <summary>A WebApi project without marked endpoints maps no operation.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "A WebApi project without marked endpoints maps no operation")]
-    public void WebApiWithoutMarkedEndpointsMapsNothing()
+    /// <summary>A module without marked endpoints maps no operation.</summary>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    [Fact(DisplayName = "A module without marked endpoints maps no operation")]
+    public void ModuleWithoutMarkedEndpointsMapsNothing()
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
             RecordPages.Files(
                 "xml",
                 ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))),
-            assemblyName: "Shop.WebApi");
+            assemblyName: "Shop.Spending");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("private static readonly System.Collections.Generic.IReadOnlyDictionary<string, string> OperationUseCases = new System.Collections.Generic.Dictionary<string, string>();", registry, StringComparison.Ordinal);
         Assert.Contains("public static string? UseCaseOfOperation(string operationName) =>", registry, StringComparison.Ordinal);
-        Assert.Empty(run.ReportedDiagnostics);
-        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
-    }
-
-    /// <summary>A non-WebApi registry carries no operation lookup.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
-    [Fact(DisplayName = "A non-WebApi registry carries no operation lookup")]
-    public void NonWebApiRegistryHasNoOperationLookup()
-    {
-        var run = GeneratorVerify.Run(
-            RecordPages.Sources("""
-                namespace Shop.Spending;
-
-                public interface IEndpoint;
-
-                /// <implements>use-case/spending.submit-expense</implements>
-                internal sealed class SubmitExpenseEndpoint : IEndpoint
-                {
-                }
-                """),
-            RecordPages.Files(
-                "xml",
-                ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))),
-            assemblyName: "Shop.Application");
-
-        Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
-        Assert.Contains("[\"Shop.Spending.SubmitExpenseEndpoint\"] = new string[] { \"use-case/spending.submit-expense\" },", registry, StringComparison.Ordinal);
-        Assert.DoesNotContain("UseCaseOfOperation", registry, StringComparison.Ordinal);
-        Assert.DoesNotContain("OperationUseCases", registry, StringComparison.Ordinal);
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }

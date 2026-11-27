@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class FailLoudTests
 {
     /// <summary>Worker Root Defaults To The Worker Project.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void WorkerRootDefaultsToTheWorkerProject()
     {
@@ -24,7 +24,7 @@ public sealed class FailLoudTests
     }
 
     /// <summary>Worker Root Follows The Declared Path.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void WorkerRootFollowsTheDeclaredPath()
     {
@@ -37,7 +37,7 @@ public sealed class FailLoudTests
     }
 
     /// <summary>Job In Worker Is Discovered.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void JobInWorkerIsDiscovered()
     {
@@ -119,8 +119,7 @@ public sealed class FailLoudTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra", "worker": "src/Worker"}}}
+              "modules": "src/App", "webapi": "src/WebApi", "worker": "src/Worker"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

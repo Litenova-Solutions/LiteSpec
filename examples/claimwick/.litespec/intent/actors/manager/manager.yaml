@@ -6,3 +6,10 @@ kind: person
 belongsToTeam: false
 holds:
 - role/approver
+responsibilities:
+- Approves expenses.
+- Rejects expenses.
+- Sets the receipt threshold.
+knowledge:
+- The product assumes the manager knows the submitted expense to decide.
+- The product assumes the manager knows the receipt threshold to set.

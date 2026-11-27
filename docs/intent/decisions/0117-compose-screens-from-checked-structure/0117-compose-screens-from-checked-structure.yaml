@@ -1,0 +1,19 @@
+type: decision
+id: decision/0117-compose-screens-from-checked-structure
+title: Compose Screens from Checked Structure
+context: "Agents that follow LiteSpec still build screens with the same faults: pages doing too many jobs, cards inside cards and borders inside borders, forms laid on the page background, neighbouring surfaces sharing one fill, button groups of mixed size and placement, one element drawn two ways on two pages, long forms not divided and short fields stretched full width, a screen offering many use cases becoming one long page with a card per use case, and raw identifiers, codes and message keys on screen. A gap analysis traced four causes: pattern provisions print as bare identifiers on route files so the agent never reads them, the screen record never asks for the page frame or the primary action and the wireframe is judged only for presence and name resolution, the token roles cannot describe stacked layers, and nothing reads the rendered page."
+options:
+  - name: "Leave screen structure to patterns and review"
+    pros: "No new provisions, and each product keeps its own layout judgment."
+    cons: "The faults repeat on every product, because guidance the agent never meets cannot shape the screen it builds."
+  - name: "State composition as required standards with checked structure"
+    pros: "Every route file carries the composition rules as statements, the screen record names its frame and primary action, the wireframe carries the structure, and the checks hold each one, so the faults fail before they ship."
+    cons: "Fifteen new provisions to keep, and products with evidence for other limits must set them."
+  - name: "Check structure only in the consumer route suite"
+    pros: "No new provisions and no new commands; each product asserts what it needs in its own suite."
+    cons: "A consumer suite is written per product and never read by any LiteSpec check, so the rules exist where no other product can reuse them and nothing reports a missing assertion."
+choice: "State composition as required standards with checked structure"
+consequences: "The page `docs/frontend/ui.md` holds fifteen required composition standards applying to artifact route. The screen record requires `pageFrame` with a route and gains optional `primaryAction` naming an offered use case. The project file gains optional `ui.limits` with `sections`, `formFields` and `offers`. The wireframe language bans card and region nesting, requires every field under a section part, requires tabs or navigation past the section limit, requires grouped regions past the field limit, and allows one primary action per whole view, reported through the screen blueprint check. The layer roles and the rendered-page audit are decided separately."
+reopenedWhen: "Screens still ship the listed faults after the checks run, or projects routinely waive the composition rules instead of following them."
+supersedes:
+- decision/0028-one-default-and-two-pattern-options

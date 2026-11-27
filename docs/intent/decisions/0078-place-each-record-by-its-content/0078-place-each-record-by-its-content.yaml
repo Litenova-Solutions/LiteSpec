@@ -1,0 +1,20 @@
+type: decision
+id: decision/0078-place-each-record-by-its-content
+title: Place Each Record by Its Content
+context: "The placement provision nested a record only where its whole content lies, but the older Placement Table gave some types more than one home. Reactions answering another module's event sat with the module that triggered them instead of the module they changed."
+options:
+  - name: "Content is what a record states and changes; links are its reasons"
+    pros: "Each record nests only where its whole content lies, reactions sit with the module they change, and events and systems take the lowest node holding their publishers and callers."
+    cons: "Records whose links suggested another home move."
+  - name: "Place each record with its trigger or publisher"
+    pros: "The cause and the record sit together."
+    cons: "A reaction answering another module's integration event sits with a module it never changes."
+  - name: "Keep the table as written"
+    pros: "No record moves."
+    cons: "The table predates the placement provision and contradicts it where the table places records by their links."
+choice: "Content is what a record states and changes; links are its reasons"
+consequences: "A record nests under another record only when its whole content lies within it: content is what the record states and changes, and its links are its reasons. A reaction answering another module's integration event sits with the module whose records it changes. An integration event sits with its one publishing module, or its receiving module when inbound. An external system sits at the lowest node holding every record that calls it. `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason` and `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes` state the content rule and the reaction home."
+reopenedWhen: "A record's content and its reasons point at different homes with no lowest node holding all of it."
+basedOn:
+  - research/behavior-containment-evidence
+  - research/intent-hierarchy-evidence

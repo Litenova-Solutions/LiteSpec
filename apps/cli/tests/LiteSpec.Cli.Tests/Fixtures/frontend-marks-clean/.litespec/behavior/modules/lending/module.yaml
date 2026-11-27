@@ -1,0 +1,8 @@
+type: module
+id: module/lending
+title: Lending
+dependsOn: []
+excludes:
+- Lending tracks no fines.
+responsibilities:
+- Lending lends copies to readers and tracks loans.

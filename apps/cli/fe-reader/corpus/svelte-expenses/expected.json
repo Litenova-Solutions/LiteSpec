@@ -1,33 +1,35 @@
 {
   "protocol": 1,
-  "reader": "1.0.0",
+  "reader": "1.2.0",
   "frontends": [
     {
       "name": "web",
       "modules": [
         {
-          "folder": "src/lib/modules/spending/expenses/archived",
-          "file": "src/lib/modules/spending/expenses/archived/litespec.ts",
+          "folder": "src/lib/modules/spending/drafts",
+          "file": "src/lib/modules/spending/drafts/litespec.ts",
           "line": 1,
           "marks": []
         },
         {
-          "folder": "src/lib/modules/spending/expenses/drafts",
-          "file": "src/lib/modules/spending/expenses/drafts/litespec.ts",
-          "line": 1,
-          "marks": []
+          "folder": "src/lib/modules/spending/expenses/submit-expense",
+          "file": "src/lib/modules/spending/expenses/submit-expense/litespec.ts",
+          "line": 3,
+          "marks": [
+            "use-case/spending.submit-expense"
+          ]
         },
         {
-          "folder": "src/lib/modules/spending/expenses/list-expenses",
-          "file": "src/lib/modules/spending/expenses/list-expenses/litespec.ts",
+          "folder": "src/lib/modules/spending/list-expenses",
+          "file": "src/lib/modules/spending/list-expenses/litespec.ts",
           "line": 3,
           "marks": [
             "use-case/spending.list-expenses"
           ]
         },
         {
-          "folder": "src/lib/modules/spending/reads/list-receipts",
-          "file": "src/lib/modules/spending/reads/list-receipts/litespec.ts",
+          "folder": "src/lib/modules/spending/list-receipts",
+          "file": "src/lib/modules/spending/list-receipts/litespec.ts",
           "line": 3,
           "marks": [
             "use-case/spending.list-receipts"
@@ -44,29 +46,72 @@
           ],
           "calls": [
             {
-              "operation": "listExpenses",
-              "file": "src/lib/modules/spending/expenses/list-expenses/client.ts",
-              "line": 5
+              "operation": "getExpense",
+              "file": "src/lib/app/helpers.ts",
+              "line": 10,
+              "fromLayout": false
             },
             {
               "operation": "fetchExpenses",
-              "file": "src/lib/modules/spending/expenses/list-expenses/client.ts",
-              "line": 6
+              "file": "src/lib/app/session.ts",
+              "line": 8,
+              "fromLayout": true
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/lib/modules/spending/list-expenses/client.ts",
+              "line": 5,
+              "fromLayout": false
+            },
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/modules/spending/list-expenses/client.ts",
+              "line": 6,
+              "fromLayout": false
             },
             {
               "operation": "getExpense",
-              "file": "src/lib/modules/spending/reads/list-receipts/reader.ts",
-              "line": 4
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5,
+              "fromLayout": true
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/reader.ts",
+              "line": 4,
+              "fromLayout": false
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/routes/(shop)/+layout.server.ts",
+              "line": 4,
+              "fromLayout": true
             },
             {
               "operation": "listExpenses",
               "file": "src/routes/(shop)/expenses/+page.ts",
-              "line": 7
+              "line": 7,
+              "fromLayout": false
             },
             {
               "operation": "getExpense",
               "file": "src/routes/(shop)/expenses/expense-table.svelte",
-              "line": 4
+              "line": 4,
+              "fromLayout": false
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5,
+              "fromLayout": true
+            }
+          ],
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7,
+              "fromLayout": true
             }
           ]
         },
@@ -79,9 +124,42 @@
           ],
           "calls": [
             {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 8,
+              "fromLayout": true
+            },
+            {
               "operation": "getExpense",
-              "file": "src/lib/modules/spending/reads/list-receipts/reader.ts",
-              "line": 4
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5,
+              "fromLayout": true
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/reader.ts",
+              "line": 4,
+              "fromLayout": false
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/routes/(shop)/+layout.server.ts",
+              "line": 4,
+              "fromLayout": true
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5,
+              "fromLayout": true
+            }
+          ],
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7,
+              "fromLayout": true
             }
           ]
         },
@@ -90,14 +168,152 @@
           "line": 1,
           "address": "/about",
           "marks": [],
-          "calls": []
+          "calls": [
+            {
+              "operation": "getExpense",
+              "file": "src/lib/app/helpers.ts",
+              "line": 10,
+              "fromLayout": false
+            },
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 8,
+              "fromLayout": true
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5,
+              "fromLayout": true
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5,
+              "fromLayout": true
+            }
+          ],
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7,
+              "fromLayout": true
+            }
+          ]
         },
         {
           "file": "src/routes/broken/+page.svelte",
           "line": 1,
           "address": "/broken",
           "marks": [],
-          "calls": []
+          "calls": [
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 8,
+              "fromLayout": true
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5,
+              "fromLayout": true
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5,
+              "fromLayout": true
+            }
+          ],
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7,
+              "fromLayout": true
+            }
+          ]
+        },
+        {
+          "file": "src/routes/sign-in/+page.svelte",
+          "line": 4,
+          "address": "/sign-in",
+          "marks": [
+            "screen/web.sign-in"
+          ],
+          "calls": [
+            {
+              "operation": "fetchExpenses",
+              "file": "src/lib/app/session.ts",
+              "line": 8,
+              "fromLayout": true
+            },
+            {
+              "operation": "getExpense",
+              "file": "src/lib/modules/spending/list-receipts/queries.ts",
+              "line": 5,
+              "fromLayout": true
+            },
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/+layout.ts",
+              "line": 5,
+              "fromLayout": true
+            }
+          ],
+          "navigations": [
+            {
+              "path": "/auth/refresh",
+              "file": "src/routes/+layout.ts",
+              "line": 7,
+              "fromLayout": true
+            },
+            {
+              "path": "/auth/login?next=/home",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 13,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/login",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 14,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/logout",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 15,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/callback?code=",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 16,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/login",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 22,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/login",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 24,
+              "fromLayout": false
+            },
+            {
+              "path": "/auth/login?next=/home",
+              "file": "src/routes/sign-in/+page.svelte",
+              "line": 27,
+              "fromLayout": false
+            }
+          ]
         }
       ],
       "tests": [
@@ -108,7 +324,7 @@
           "proves": [
             "scenario/list-expenses.listing-shows-own-expenses"
           ],
-          "journey": null,
+          "flow": null,
           "gotos": [
             "/expenses"
           ],
@@ -126,7 +342,7 @@
           "proves": [
             "scenario/get-expense.detail-shows-expense"
           ],
-          "journey": "journey/submit-and-reimburse",
+          "flow": "flow/submit-and-reimburse",
           "gotos": [
             "/expenses/[param]"
           ],

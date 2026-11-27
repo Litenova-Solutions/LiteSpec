@@ -29,7 +29,7 @@ export interface Manifest {
 
 export const manifest: Manifest = parse(fs.readFileSync(path.join(root, "litespec.manifest.yaml"), "utf8"));
 
-/** The release this build publishes, such as 6.0.0. */
+/** The release this build publishes, such as 7.0.0. */
 export const version = manifest.version;
 
 /** The heading slug LiteSpec uses for provision IDs and anchors (Provisions.HeadingSlug in the CLI). */
@@ -67,12 +67,12 @@ export interface Provision {
 export type PageStyle = "standard" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary" | "research" | "decision";
 
 export interface Page {
-  /** Repository-relative file path, such as docs/backend/domain.md. */
+  /** Repository-relative file path, such as docs/core/backend-domain.md. */
   file: string;
-  /** The path under docs/ without .md, such as backend/domain. The ID page segment and the URL path. */
+  /** The path under docs/ without .md, such as core/backend-domain. The ID page segment and the URL path. */
   path: string;
   style: PageStyle;
-  /** The first folder under docs/, such as backend. */
+  /** The first folder under docs/, such as core. */
   area: string;
   title: string;
   /** The first paragraph of the Intent or Purpose section, as Markdown. */
@@ -86,19 +86,19 @@ export interface Page {
 
 /** A selection the site publishes, with the pages and layers it applies. */
 export interface Selection {
-  /** The URL key: the shape and the stacks joined with dots, such as server.dotnet.react. */
+  /** The URL key: the shape and the stacks joined with dots, such as server.dotnet.svelte. */
   key: string;
   shape: string;
   stacks: string[];
   /** Repository-relative pages the selection applies, in ordinal order. */
   pages: string[];
-  /** The keys of the layers the selection applies, in reading order, without extensions and pattern groups. */
+  /** The keys of the layers the selection applies, in reading order, without extensions. */
   layers: string[];
 }
 
-/** A layer: the bundle of one folder's pages, one extension or one UI pattern group. */
+/** A layer: the bundle of one folder's pages or one extension. */
 export interface Layer {
-  /** The URL key, such as core, backend/dotnet or ext/outbox. */
+  /** The URL key, such as core, packs/dotnet or ext/outbox. */
   key: string;
   title: string;
   /** Repository-relative pages in the layer, in reading order. */
@@ -137,7 +137,7 @@ const pageIndex: PageIndexFile = (() => {
 export interface ProvisionIndexEntry {
   id: string;
   heading: string;
-  /** The owning page, relative to the repository root, such as docs/backend/api.md. */
+  /** The owning page, relative to the repository root, such as docs/packs/dotnet/api.md. */
   page: string;
   /** The heading slug the index links to. */
   anchor: string;
@@ -217,13 +217,13 @@ export function selections(): Selection[] {
   return pageIndex.selections;
 }
 
-/** The URL key of a selection, such as server.dotnet.react. */
+/** The URL key of a selection, such as server.dotnet.svelte. */
 export const selectionKey = (selection: Selection) => selection.key;
 
 /** The repository-relative pages a selection applies, in ordinal order. */
 export const appliedPages = (selection: Selection) => selection.pages;
 
-/** The layer keys a selection applies, without extensions and pattern groups, in reading order. */
+/** The layer keys a selection applies, without extensions, in reading order. */
 export const selectionLayers = (selection: Selection) => selection.layers;
 
 // ---- URLs ----
@@ -231,13 +231,13 @@ export const selectionLayers = (selection: Selection) => selection.layers;
 /** A page's path in HTML URLs: a folder index is served at its folder, so learn/README is learn. */
 export const htmlPath = (page: Page | string) => (typeof page === "string" ? page : page.path).replace(/(^|\/)README$/, "");
 
-/** The HTML URL of a page: /6.0.0/backend/domain/ */
+/** The HTML URL of a page: /7.0.0/core/backend-domain/ */
 export const pageUrl = (page: Page | string) => `/${version}/${htmlPath(page)}/`.replace(/\/\/$/, "/");
 
-/** The raw Markdown URL of a page: /6.0.0/backend/domain.md */
+/** The raw Markdown URL of a page: /7.0.0/core/backend-domain.md */
 export const rawUrl = (page: Page | string) => `/${version}/${typeof page === "string" ? page : page.path}.md`;
 
-/** The generated Standard overview URL: /6.0.0/standard/ */
+/** The generated Standard overview URL: /7.0.0/standard/ */
 export const standardUrl = () => `/${version}/standard/`;
 
 /** Every layer the site publishes, in the order the page index gives them. */
@@ -245,10 +245,10 @@ export function layers(): Layer[] {
   return pageIndex.layers;
 }
 
-/** The bundle URL of a layer: /6.0.0/layers/backend/dotnet.md */
+/** The bundle URL of a layer: /7.0.0/layers/packs/dotnet.md */
 export const layerUrl = (key: string) => `/${version}/layers/${key}.md`;
 
-/** The index URL of a selection: /6.0.0/select/server.dotnet.react/llms.txt */
+/** The index URL of a selection: /7.0.0/select/server.dotnet.svelte/llms.txt */
 export const selectionIndexUrl = (selection: Selection | string) => `/${version}/select/${typeof selection === "string" ? selection : selectionKey(selection)}/llms.txt`;
 
 /** The schema files the release ships, from schemas/. */

@@ -11,7 +11,7 @@ states:
 transitions:
   - from: Active
     to: Returned
-    by: use-case/lending.borrow-copy
+    movedBy: use-case/lending.borrow-copy
 data:
   - name: borrower-email
     meaning: The address overdue notices go to.
@@ -23,7 +23,7 @@ dataClasses:
     fields:
       - borrower-email
     onErasure: erase
-    basis: business
+    basedOn: business
     purpose: Send overdue notices to readers.
     period: P30D
     enforcedBy: record-expiry
@@ -35,7 +35,7 @@ records:
     statement: A loan has one borrower.
     governs:
       - use-case/lending.borrow-copy
-    refusal: result/borrow-copy.copy-unavailable
+    refusal: lending.copy-not-available
     basedOn: []
     fulfills:
       - requirement/borrowing.max-active-loans
@@ -49,26 +49,3 @@ records:
     basedOn: []
     fulfills:
       - requirement/borrowing.loan-period-days
-  - type: event
-    id: event/loan.loan-borrowed
-    title: Loan borrowed
-    meaning: A copy was lent.
-    carries:
-      - loanId
-      - copyId
-      - readerId
-      - dueDate
-  - type: event
-    id: event/loan.loan-returned
-    title: Loan returned
-    meaning: A copy was returned.
-    carries:
-      - loanId
-      - returnedAt
-  - type: event
-    id: event/loan.loan-extended
-    title: Loan extended
-    meaning: A loan was extended.
-    carries:
-      - loanId
-      - newDueDate

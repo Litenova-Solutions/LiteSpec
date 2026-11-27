@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="src/__NAMESPACE__.Domain/__NAMESPACE__.Domain.csproj" />
+  <Project Path="src/__NAMESPACE__.Application/__NAMESPACE__.Application.csproj" />
+  <Project Path="src/__NAMESPACE__.Infrastructure/__NAMESPACE__.Infrastructure.csproj" />
+  <Project Path="src/Modules/__NAMESPACE__.Health/__NAMESPACE__.Health.csproj" />
+  <Project Path="src/__NAMESPACE__.Android/__NAMESPACE__.Android.csproj" />
+</Solution>

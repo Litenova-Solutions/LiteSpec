@@ -1,6 +1,7 @@
 type: decision
 id: decision/0039-ship-a-litespec-skill
 title: Ship a LiteSpec Skill
+context: "An agent in a consumer project learns the LiteSpec task order from the protocol region in AGENTS.md, but each agent reads its own skill folders. A global skill takes precedence over the project copy, and Claude Code reads CLAUDE.md before the nearest AGENTS.md. A project whose CLAUDE.md does not import AGENTS.md never shows its protocol, and shared links need Developer Mode or admin rights on Windows."
 options:
   - name: "Ship one generated skill as a copy per agent, at project and global scope"
     pros: "One template change reaches every agent and scope through `skill add`, and each copy works in git and on Windows with no extra rights."

@@ -1,0 +1,10 @@
+type: module
+id: module/health
+title: Health
+summary: Health holds the check-ins the __PROJECT__ sample records and reads back.
+dependsOn: []
+covers:
+- Health records check-ins with an optional note through the web list.
+- Health reads one check-in and lists recorded check-ins newest first.
+excludes:
+- Health sends no reminder and keeps no second aggregate; the sample ends at record and read.

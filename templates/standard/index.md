@@ -1,9 +1,7 @@
 # Overview
 
-## Intent
-
-Route the reader to the pages of one area. Name the area, the reader it serves and the first page to open.
+Send the reader to the pages of one area. Name the area, who it serves, and which page to open first.
 
 ## Pages
 
-- Name each page by its title, then say in one clause what the reader finds there.
+- List each page by its title, with one clause saying what the reader finds there.

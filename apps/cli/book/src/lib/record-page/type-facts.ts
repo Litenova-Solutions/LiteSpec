@@ -4,8 +4,8 @@
 
 import { capitalize, esc, formatLabel, pluralize, proofLabel, stripStep } from "$lib/frame";
 import type { Book, BookRecord, ProofState, RecordFields } from "$lib/frame";
-import { codeCls, inlineRefHtml } from "./page-html";
-import { aggregateFields, journeyFields, routeFileOf, stringField, stringList, teamValue } from "./page-values";
+import { inlineRefHtml } from "./page-html";
+import { aggregateFields, flowFields, objectList, stringField, stringList, teamValue } from "./page-values";
 
 export interface Fact {
   key: string;
@@ -66,8 +66,8 @@ const facts: Record<string, FactFn> = {
     if (from) out.push({ key: "Effective from", text: env.fmtDate(from) });
     return out;
   },
-  journey: (f, r) => {
-    const steps = journeyFields(f).steps;
+  flow: (f, r) => {
+    const steps = flowFields(f).steps;
     const srv: Record<string, string[]> = r.stepServers ?? {};
     const served = steps.filter((s) => (srv[String(s.id ?? "")] ?? []).length).length;
     return [{ key: "Serves", text: `${served} of ${steps.length} steps served` }];
@@ -78,7 +78,7 @@ const facts: Record<string, FactFn> = {
   },
   aggregate: (f, r) => {
     const af = aggregateFields(f);
-    const out: Fact[] = [{ key: "Kind", text: capitalize(stringField(f, "kind") ?? "entity") }];
+    const out: Fact[] = [];
     if (af.states.length) {
       const reach = r.reachable ?? [];
       const starts = new Set(af.transitions.filter((t) => t.from === "-").map((t) => String(t.to)));
@@ -108,12 +108,26 @@ const facts: Record<string, FactFn> = {
   },
   reaction: () => [{ key: "Kind", text: "Reaction" }],
   job: (f) => [{ key: "Kind", text: capitalize(stringField(f, "kind") ?? "job") }],
-  "integration-event": (f, r) => {
-    const out: Fact[] = [{ key: "Direction", text: f.direction === "in" ? "Arrives from outside" : "Leaves the system" }];
+  "module-event": (_f, r) => {
+    const out: Fact[] = [];
+    // The use cases that publish it, computed from the domain event each raises and the domain event this translates.
+    const publishers = (r.in ?? []).filter((edge) => edge.key === "publishes").length;
+    if (publishers) out.push({ key: "Published by", text: pluralize(publishers, "use case") });
     const t = testedFact(r);
     if (t) out.push(t);
     return out;
   },
+  "integration-event": (f, r) => {
+    const out: Fact[] = [{ key: "Action", text: f.action === "receive" ? "Arrives from outside" : "Leaves the system" }];
+    // The use cases that publish it, computed from the domain event each raises and the domain event this translates.
+    const publishers = (r.in ?? []).filter((edge) => edge.key === "publishes").length;
+    if (publishers) out.push({ key: "Published by", text: pluralize(publishers, "use case") });
+    const t = testedFact(r);
+    if (t) out.push(t);
+    return out;
+  },
+  "read-model": (f) => [{ key: "Keeps", text: pluralize(objectList(f, "fields").length, "field") }],
+  "reference-data": (f) => [{ key: "Holds", text: pluralize(objectList(f, "rows").length, "row") }],
   "external-system": (_f, r) => {
     const t = testedFact(r);
     return t ? [t] : [];
@@ -123,7 +137,7 @@ const facts: Record<string, FactFn> = {
     const kind = kindFact(f);
     return kind ? [kind] : [];
   },
-  departure: (f, _r, env) => {
+  waiver: (f, _r, env) => {
     const expiresOn = stringField(f, "expiresOn");
     if (!expiresOn) return [{ key: "Expires", text: "Lasting, no expiry date" }];
     const n = env.days(expiresOn);
@@ -174,11 +188,10 @@ export function factsFor(type: string, r: BookRecord, env: FactEnv): Fact[] {
   return fn(r.fields ?? {}, r, env);
 }
 
-/** One row of the field table. A route row renders a source link in the table. */
+/** One row of the field table. */
 export interface FieldRow {
   label: string;
   html: string;
-  route?: boolean;
 }
 
 /** What the field table's rows read from the book: the facts' env, the parent, and the field labels. */
@@ -187,16 +200,27 @@ export interface FieldTableEnv extends FactEnv {
   labelField(key: string): string;
 }
 
-/** The fields the table never shows as plain rows: prose, relations, and record care. */
+/** The fields the table never shows as plain rows: prose, relations, record care, and fields a type renderer shows. */
 export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "statement", "summary", "description", "offering", "meaning", "situation", "whyItMatters",
   "purpose", "whatHappens", "affects", "affectsSegment", "actor", "advances",
   "serves", "risk", "costToday", "workaroundToday", "finishedWhen",
-  "address", "host", "entryPoint", "floorplan",
+  "route", "host", "entryPoint",
+  "workaround", "cost", "scope", "productEffect", "context", "compatibility", "job",
   "questions", "evidence", "lifecycle", "plannedFor", "refusedBecause", "provenance",
   "decider", "decideBy", "owner", "approvedBy", "approvedOn", "approvedHash", "reviewBy",
   // A scenario shows these in its own Given, When, Then and Result sections.
   "given", "when", "then", "result",
+  // A read model shows these in its own definition list, with the key as a record link.
+  "keyedBy", "removedBy", "freshness",
+  // A module event and an integration event show the domain event each translates in their own definition list, as a record link.
+  "translates",
+  // A reaction shows the use case it undoes in its own section.
+  "compensates",
+  // A flow shows these in its own start and finish callouts.
+  "startedWhen",
+  // A refusal result shows its joined problem type in its own section.
+  "problemType",
 ]);
 
 /** The field table's rows: the type's relations and facts, then the plain fields. */
@@ -220,6 +244,7 @@ export function fieldRowsFor(book: Book, r: BookRecord, env: FieldTableEnv): Fie
 
   if (f.advances) add("Advances", linkList(flat(f.advances)));
   if (f.serves) add("Serves", linkList(flat(f.serves).map((x) => String(x).split("#")[0])));
+  if (f.owner) add("Owner", inlineRefHtml(book, stripStep(String(f.owner))));
   if (env.parent) add("Parent", inlineRefHtml(book, env.parent));
   if (r.type === "permission") {
     const risk = stringList(f, "risk");
@@ -230,27 +255,13 @@ export function fieldRowsFor(book: Book, r: BookRecord, env: FieldTableEnv): Fie
     if (f.workaroundToday) add("Workaround today", esc(f.workaroundToday));
     if (r.evidenceStrength) add("Evidence strength", esc(capitalize(r.evidenceStrength)));
   }
-  if (r.type === "journey") {
-    const finishedWhen = stringField(f, "finishedWhen");
-    if (finishedWhen) add("Finished when", esc(finishedWhen));
-  }
-  if (r.type === "screen") {
-    const address = stringField(f, "address") || stringField(f, "host");
-    if (address) add("Address", `<span class="${codeCls}">${esc(address)}</span>`);
-    const entryPoint = stringField(f, "entryPoint");
-    if (entryPoint) add("Entry point", inlineRefHtml(book, stripStep(entryPoint)));
-    const floorplan = stringField(f, "floorplan");
-    if (floorplan) add("Floorplan", esc(capitalize(formatLabel(floorplan))));
-    if (r.route) {
-      if (routeFileOf(r.route)) out.push({ label: "Route", html: "", route: true });
-      else add("Route", "No page carries this screen");
-    } else if (r.captureState) add("Capture state", esc(r.captureState));
-  }
   for (const x of factsFor(r.type, r, env)) {
     if (x.text && !out.some((row) => row.label === x.key)) add(x.key, esc(x.text));
   }
   for (const key of Object.keys(f)) {
     if (NON_TABLE_FIELDS.has(key)) continue;
+    // The waiver page shows the kind beside its exit or consequences.
+    if (key === "kind" && r.type === "waiver") continue;
     // A field a type fact already shows, such as kind, keeps that one row.
     const label = env.labelField(key);
     if (out.some((row) => row.label === label)) continue;

@@ -6,36 +6,35 @@ namespace LiteSpec.Cli.Tests.Model.Frontend;
 /// <summary>Proves <c>litespec model render</c> writes the records file each web frontend imports from its frame.</summary>
 public sealed class FrontendRecordsTests
 {
-    /// <summary>Render Writes The Records File Into Each Frame.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <summary>Render Writes The Records File Into The Svelte Frame.</summary>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void RenderWritesTheRecordsFileIntoEachFrame()
+    public void RenderWritesTheRecordsFileIntoTheSvelteFrame()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
         var result = TestCli.Run("model", "render", "--root", fixture.Path);
         Assert.Equal(0, result.Status);
 
         var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
-        var console = Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts");
 
         // The fixture holds no proof records, so the proof union is LiteSpec's frontend provisions.
-        foreach (var file in new[] { web, console })
-        {
-            var text = File.ReadAllText(file);
+        var text = File.ReadAllText(web);
 
-            Assert.Contains("  | \"litespec/frontend/ui#check-every-route\"", text);
-            Assert.Equal(
-                // The tool writes the file with LF; the raw literal takes the test file's line ending.
-                ExpectedUnion.ReplaceLineEndings("\n") + "\n",
-                System.Text.RegularExpressions.Regex.Replace(
-                    text, "export type ProofTargetId =\n(  \\| \"[^\"]+\"\n)*?  \\| \"[^\"]+\";\n", "export type ProofTargetId = never;\n"));
-        }
+        Assert.Contains("  | \"litespec/core/ui-verification#run-geometry-sensors-on-every-route\"", text);
+        Assert.Equal(
+            // The tool writes the file with LF; the raw literal takes the test file's line ending.
+            ExpectedUnion.ReplaceLineEndings("\n") + "\n",
+            System.Text.RegularExpressions.Regex.Replace(
+                text, "export type ProofTargetId =\n(  \\| \"[^\"]+\"\n)*?  \\| \"[^\"]+\";\n", "export type ProofTargetId = never;\n"));
         Assert.Contains("apps/web/src/lib/app/litespec-records.ts", result.Stdout);
-        Assert.Contains("apps/console/src/app/litespec-records.ts", result.Stdout);
+
+        // Only Svelte frontends take a records file, so the console frontend takes none.
+        Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "console", "src", "lib", "app", "litespec-records.ts")));
+        Assert.DoesNotContain(Path.Combine("apps", "console"), result.Stdout);
     }
 
     /// <summary>Render Leaves Out Use Cases With No Browser Entry Point.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void RenderLeavesOutUseCasesWithNoBrowserEntryPoint()
     {
@@ -49,7 +48,7 @@ public sealed class FrontendRecordsTests
     }
 
     /// <summary>Check Writes No Records File.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void CheckWritesNoRecordsFile()
     {
@@ -61,7 +60,7 @@ public sealed class FrontendRecordsTests
     }
 
     /// <summary>Render Writes Never For No Ids.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void RenderWritesNeverForNoIds()
     {
@@ -71,12 +70,13 @@ public sealed class FrontendRecordsTests
         Assert.Contains("export type ScreenId = never;", text);
         Assert.Contains("export type ProofTargetId = never;", text);
         Assert.Contains("export interface LiteSpecMark { readonly implements: UseCaseId | ScreenId }", text);
+        Assert.DoesNotContain("offers", text);
         Assert.Contains("export function proves(id: ProofTargetId)", text);
         Assert.EndsWith("\n", text);
     }
 
     /// <summary>Render Breaks A Long Union One Id Per Line.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void RenderBreaksALongUnionOneIdPerLine()
     {
@@ -89,7 +89,7 @@ public sealed class FrontendRecordsTests
     }
 
     /// <summary>Render Writes The Proves Helper Typed To Proof Targets.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void RenderWritesTheProvesHelperTypedToProofTargets()
     {

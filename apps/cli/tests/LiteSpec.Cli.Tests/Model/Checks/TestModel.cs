@@ -24,6 +24,15 @@ static class TestModel
     public static Record Record(string type, string id, string file, string json) =>
         Record(type, id, file, 1, json);
 
+    /// <summary>Every record the file reader yields for one record file, read at line 1 of the file.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="id">The record id.</param>
+    /// <param name="file">The file the record sits in.</param>
+    /// <param name="json">The record fields as a JSON object.</param>
+    /// <returns>The records the file reader yields, the page first.</returns>
+    public static IReadOnlyList<Record> Records(string type, string id, string file, string json) =>
+        Records(type, id, file, 1, json);
+
     /// <summary>
     ///     A record of the type and id at the file and line, with the JSON fields. The fields become
     ///     YAML text and go through <see cref="RecordFiles.Scan"/>, the file reader the CLI reads
@@ -34,14 +43,42 @@ static class TestModel
     /// <param name="type">The record type.</param>
     /// <param name="id">The record id.</param>
     /// <param name="file">The file the record sits in.</param>
-    /// <param name="line">The line the record starts on. An entry is written under a rule set, so its line is the one the reader gives it.</param>
+    /// <param name="line">The line the record starts on, with its type on that line and its id on the next.</param>
     /// <param name="json">The record fields as a JSON object.</param>
     /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
     /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
-    /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
+    /// <param name="isEntry">Whether the check sees the record as an entry, which some checks leave out.</param>
     /// <returns>The record the file reader yields, at the given position.</returns>
     /// <exception cref="InvalidOperationException">The reader refused the text or did not yield exactly the one record.</exception>
     public static Record Record(string type, string id, string file, int line, string json, string? explanationFile = null, string? explanation = null, bool isEntry = false)
+    {
+        var records = Records(type, id, file, line, json, explanationFile, explanation, isEntry);
+
+        if (records.Count != 1)
+        {
+            throw new InvalidOperationException(
+                $"The record file reader did not yield one record for '{id}'.");
+        }
+
+        return records[0];
+    }
+
+    /// <summary>
+    ///     Every record the file reader yields for one record file: the page, then its
+    ///     entries, then each step of a flow. A flow test adds them all to its model,
+    ///     so the steps resolve like the production reader yields them.
+    /// </summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="id">The record id.</param>
+    /// <param name="file">The file the record sits in.</param>
+    /// <param name="line">The line the record starts on.</param>
+    /// <param name="json">The record fields as a JSON object.</param>
+    /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
+    /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
+    /// <param name="isEntry">Whether the check sees the record as an entry, which some checks leave out.</param>
+    /// <returns>The records the file reader yields, the page first.</returns>
+    /// <exception cref="InvalidOperationException">The reader refused the text.</exception>
+    public static IReadOnlyList<Record> Records(string type, string id, string file, int line, string json, string? explanationFile = null, string? explanation = null, bool isEntry = false)
     {
         var fields = JsonText.Parse(json);
         var properties = new List<KeyValuePair<string, JsonText>>
@@ -62,47 +99,29 @@ static class TestModel
         }
 
         var body = YamlWriter.Write(JsonText.ObjectOf(properties)).TrimEnd('\n');
-        var text = isEntry ? EntryText(body, line) : new string('\n', line - 1) + body;
+        var text = new string('\n', line - 1) + body;
         var scan = RecordFiles.Scan(file, text);
 
-        if (scan.Problems.Count > 0 || scan.Records.Count != 1)
+        if (scan.Problems.Count > 0 || scan.Records.Count == 0)
         {
             throw new InvalidOperationException(
-                $"The record file reader did not yield one record for '{id}': "
+                $"The record file reader did not yield a record for '{id}': "
                 + string.Join("; ", scan.Problems.Select(problem => problem.Message)));
         }
 
-        var indexed = scan.Records[0];
-
-        return new Record
+        return scan.Records.Select((indexed, at) => new Record
         {
             Type = indexed.Type,
             Id = indexed.Id,
             Title = indexed.Title,
             File = indexed.File,
             Line = indexed.Line,
-            ExplanationFile = explanationFile,
-            Explanation = explanation,
-            IsEntry = indexed.IsEntry,
+            ExplanationFile = at == 0 ? explanationFile : null,
+            Explanation = at == 0 ? explanation : null,
+            IsEntry = isEntry || indexed.IsEntry,
+            PageId = indexed.PageId,
             Raw = RecordFile.ElementOf(indexed.Tree),
-        };
-    }
-
-    /// <summary>
-    ///     The file text of one entry: a rule set holding the entry in its records list, with the
-    ///     padding that puts the entry on the given line.
-    /// </summary>
-    /// <param name="body">The entry as YAML block text.</param>
-    /// <param name="line">The line the entry starts on.</param>
-    /// <returns>The file text.</returns>
-    static string EntryText(string body, int line)
-    {
-        var lines = body.Split('\n').Select((text, index) => index == 0 ? "  - " + text : "    " + text);
-
-        return new string('\n', line - 3)
-            + $"{RecordFields.Type}: {RecordTypes.RuleSet}\n{RecordFields.Records}:\n"
-            + string.Join("\n", lines)
-            + "\n";
+        }).ToList();
     }
 
     /// <summary>A model holding the records, with empty code, screens and tests.</summary>

@@ -1,0 +1,10 @@
+type: aggregate
+id: aggregate/health.check-in
+title: Check-in
+summary: A check-in is one recorded health entry the app holds on the phone.
+states:
+- name: Recorded
+  meaning: The backend sample recorded the check-in and the app holds it as written.
+transitions:
+- from: "-"
+  to: Recorded

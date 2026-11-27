@@ -1,0 +1,42 @@
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://litespec.dev/7.0.0/schemas/fragments/ext/ai-mcp.schema.yaml'
+title: LiteSpec ai-mcp Extension Fragment
+description: 'The MCP tool and server blocks the ai-mcp extension adds to use-case and entry-point records.'
+x-extends:
+  useCasePage:
+  - mcp
+  entryPointPage:
+  - mcp
+  entryPointEntry:
+  - mcp
+$defs:
+  mcpUseCase:
+    description: 'The MCP tool exposure of the use case: the tool name, what it does and whether it changes state.'
+    type: object
+    additionalProperties: false
+    required:
+    - tool
+    properties:
+      tool:
+        $ref: '#/$defs/nonEmptyString'
+      description:
+        $ref: '#/$defs/nonEmptyString'
+      readOnly:
+        type: boolean
+  mcpEntryPoint:
+    description: 'The MCP server block of the entry point: the server name, its transport and the tools it mounts.'
+    type: object
+    additionalProperties: false
+    required:
+    - serverName
+    properties:
+      serverName:
+        $ref: '#/$defs/nonEmptyString'
+      transport:
+        $ref: '#/$defs/nonEmptyString'
+      tools:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/nonEmptyString'

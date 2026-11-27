@@ -1,0 +1,24 @@
+type: integration-event
+id: integration-event/expense-submitted
+title: Expense Submitted
+summary: The expense-submitted event announces a newly submitted expense.
+direction: send
+eventType: com.claimwick.expense.submitted
+source: /spending/expenses
+subject: aggregate/spending.expense
+fields:
+- name: expenseId
+  meaning: The submitted expense.
+  type: id
+  identifies: aggregate/spending.expense
+  required: true
+  classification: internal
+via: external-system/event-bus
+delivery: The broker delivers each event at least once, in submission order.
+requires: permission/request-expense
+trust: payload
+translates: domain-event/expense.submitted
+dataschema: https://schemas.claimwick.dev/expense-submitted/v1
+compatibility: The payload may gain a new field. No field may be removed or renamed, and no meaning may change, until the event's dataschema moves to a new version.
+terms:
+- term/expense

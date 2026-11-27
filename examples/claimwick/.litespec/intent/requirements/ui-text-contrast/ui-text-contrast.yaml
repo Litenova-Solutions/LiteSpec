@@ -1,0 +1,14 @@
+type: requirement
+id: requirement/ui-text-contrast
+title: UI Text Contrast in Each Scheme
+kind: quality
+statement: Body text reaches 4.5:1 and large text reaches 3:1 against its surface in each declared color scheme.
+rationale: Managers decide expenses between meetings on bright screens, so unreadable text stalls every decision.
+stimulus: A reader opens any screen in any declared color scheme
+environment: Normal operation on a phone or desktop display
+response: Every text role meets its contrast limit against its surface
+measure: Lowest contrast ratio of body text and of large text against its surface, per declared scheme
+target: At least 4.5:1 for body text and 3:1 for large text
+check: token-limits
+basedOn:
+- goal/decided-in-days

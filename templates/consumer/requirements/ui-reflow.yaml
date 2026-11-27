@@ -1,0 +1,14 @@
+type: requirement
+id: requirement/ui-reflow
+title: UI Reflow at 320 Pixels
+kind: quality
+statement: No screen shows clipped content at 320 CSS pixels.
+rationale: Readers work from narrow phones, so clipped content hides what they check.
+stimulus: A reader opens any route at 320 CSS pixels wide
+environment: Normal operation on a narrow phone display
+response: Every route shows its content with no clipping
+measure: Routes showing clipped content at 320 CSS pixels
+target: Zero routes
+check: route-suite
+basedOn:
+  - <constraint, goal or problem>

@@ -1,0 +1,25 @@
+type: screen
+id: screen/__SCOPE__-app.check-in-list
+title: Check-in List
+summary: Ava opens the list to find the check-in from this morning, newest first, with the state of each.
+route: /check-ins
+offers:
+- use-case/health.read-check-ins
+fieldSources:
+- field: checkInId
+  from: use-case/health.read-check-ins
+- field: state
+  from: use-case/health.read-check-ins
+fulfills:
+- requirement/ui-text-contrast
+leadsTo:
+- screen/__SCOPE__-app.check-in-detail
+job: Ava scans the recorded check-ins to find the one from this morning and opens it.
+archetype: ListPage
+states:
+- name: Loading
+  shows: The rows show as placeholders while the check-ins load.
+- name: Empty
+  shows: The list says no check-in is recorded yet.
+- name: Failed
+  shows: The list says the check-ins are unavailable and offers to try again.

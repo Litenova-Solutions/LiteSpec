@@ -4,7 +4,7 @@ A skill is a folder of instructions that an AI coding agent loads when a task ma
 
 ## Context
 
-An agent in a consumer project learns the LiteSpec task order from the protocol region in `AGENTS.md`. Claude Code and OpenCode each read their own skill folders, and a global skill takes precedence over the project's copy. Claude Code reads `CLAUDE.md` before the nearest `AGENTS.md`, so a project with a bare `CLAUDE.md` never shows its protocol.
+An agent in a consumer project learns the LiteSpec task order from the protocol region in `AGENTS.md`. Claude Code and OpenCode each read their own skill folders, and a global skill takes precedence over the project's copy. Claude Code reads `CLAUDE.md` before the nearest `AGENTS.md`, so a project whose `CLAUDE.md` does not import `AGENTS.md` never shows its protocol.
 
 An agent that loads its rules once works from memory for its later edits. A link could share one skill folder across agents, but links need Developer Mode or admin rights on Windows.
 
@@ -19,9 +19,11 @@ LiteSpec compared 2 options for installing the skill. The table sets each option
 
 ## Decision
 
-LiteSpec ships one generated skill named `litespec`, installed as a copy for each agent at project and global scope. The command `litespec skill add` installs it. The project copy carries the release stamp, and the global copy names no release.
+LiteSpec ships one generated skill named `litespec`, installed as a copy for each agent at project and global scope. The command `litespec skill add` installs it. The project copy carries the release stamp, and the global copy lists no release.
 
-Every copy carries the generated marker that the command reads back. `model render` rewrites the project copies, and `model check` reports drift. The edit-time recipes stay hand-installed on their guide page.
+Every copy carries the generated marker that the command reads back. `model render` rewrites the project copies, and `model check` reports drift.
+
+The edit-time recipes stay hand-installed on their guide page.
 
 ## Consequences
 
@@ -33,7 +35,11 @@ Every copy carries `generated-by: litespec` in its frontmatter `metadata`. A pro
 
 `init --skill` installs the skill at project scope during setup, and `init --skill-global` installs it at global scope. Without a flag, `init` prints the `skill add` command as its last line. `model check` reports `skill-drift` at level S when a project copy differs from what `render` writes. Global copies live outside the project and stay outside the check. `skill add` writes Markdown files only, and it installs no hooks.
 
-The top 20 judged provisions across the Claimwick code hold none that a cheap and sure check covers. So no provision gains a check. The entry-file table states which file each agent reads, and how each one bridges to `AGENTS.md`. `init` prints a line when a `CLAUDE.md` does not import `AGENTS.md`, and `model check` reports `agent-protocol-unreached` as advisory for it. `litespec/core/agent#keep-the-agent-protocol-current` holds the drift obligation for the region and the project copies.
+The top 20 judged provisions across the Claimwick code hold none that a cheap and sure check covers. So no provision gains a check.
+
+The entry-file table states which file each agent reads, and how each one bridges to `AGENTS.md`. `init` prints a line when a `CLAUDE.md` does not import `AGENTS.md`, and `model check` reports `agent-protocol-unreached` as advisory for it.
+
+`litespec/core/agent#keep-the-agent-protocol-current` holds the drift obligation for the region and the project copies.
 
 ## Revisit Conditions
 

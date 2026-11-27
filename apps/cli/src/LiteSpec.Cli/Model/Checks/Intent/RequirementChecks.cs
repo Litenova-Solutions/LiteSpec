@@ -15,6 +15,14 @@ internal static class RequirementChecks
     {
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
         {
+            // A product-level requirement states why the product holds it: it names a constraint, a goal or a problem in basedOn.
+            if (requirement.File.Replace(Path.DirectorySeparatorChar, '/').Contains("/intent/requirements/", StringComparison.Ordinal)
+                && !requirement.Ids(RecordFields.BasedOn).Any(id => model.ById.TryGetValue(id, out var cited)
+                    && cited.Type is RecordTypes.Constraint or RecordTypes.Goal or RecordTypes.Problem))
+            {
+                findings.Add(new Finding("record-invalid", $"Product requirement '{requirement.Id}' names no constraint, goal or problem in basedOn.", requirement.File, requirement.Line, SubjectOf(requirement)));
+            }
+
             foreach (var entry in ExceptEntries(requirement))
             {
                 var fallbacks = LinkStrings(entry, RecordFields.Fallback);

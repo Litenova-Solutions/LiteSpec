@@ -14,14 +14,15 @@ public sealed class RulesExplanationTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            ".litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.md");
+            ".litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.md",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
             "Rules for .litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.md (concern: records, artifact: problem)",
             result.Output);
-        Assert.Contains("litespec/core/writing#give-each-explanation-file-its-fixed-sections", result.Output);
-        Assert.Contains("litespec/core/writing#write-for-the-reader-who-arrives-cold", result.Output);
+        Assert.Contains("litespec/core/writing#write-human-docs-for-the-cold-reader", result.Output);
+        Assert.Contains("litespec/core/writing#write-machine-read-fields-in-present-tense", result.Output);
     }
 
     /// <summary>A decision explanation lists the decision writing provision through its sibling record type.</summary>
@@ -33,12 +34,13 @@ public sealed class RulesExplanationTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            ".litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md");
+            ".litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md",
+            "--all");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
             "Rules for .litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md (concern: records, artifact: decision)",
             result.Output);
-        Assert.Contains("litespec/core/writing#compare-real-options-in-each-decision-record", result.Output);
+        Assert.Contains("litespec/core/intent#record-each-decision-option-with-pros-and-cons", result.Output);
     }
 }

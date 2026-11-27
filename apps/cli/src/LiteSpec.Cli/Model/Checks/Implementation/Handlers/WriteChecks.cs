@@ -3,8 +3,8 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
 /// <summary>The write check: every repository a handler, reaction or job takes belongs to an aggregate its record declares it changes or reads.</summary>
-/// <follows>litespec/backend/application#take-repositories-from-declared-changes-and-reads</follows>
-/// <follows>litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads</follows>
+/// <follows>litespec/core/backend-application#write-only-aggregates-the-record-names</follows>
+/// <follows>litespec/core/use-cases#name-every-aggregate-a-use-case-writes-or-reads</follows>
 internal static class WriteChecks
 {
     /// <summary>Reports each repository a handler or host takes whose aggregate its record leaves undeclared.</summary>
@@ -24,7 +24,7 @@ internal static class WriteChecks
                 continue;
             }
 
-            var declared = new HashSet<string>(useCase.Ids(RecordFields.Changes), StringComparer.Ordinal);
+            var declared = new HashSet<string>(useCase.Ids(RecordFields.Writes), StringComparer.Ordinal);
             declared.UnionWith(useCase.Ids(RecordFields.Reads));
 
             foreach (var repository in handler.Repositories)

@@ -6,20 +6,20 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
-///     Reads one Svelte or React frontend through the shared TypeScript reader
-///     run: the Node reader runs once for every web frontend, and this reader
+///     Reads one Svelte frontend through the shared TypeScript reader
+///     run: the Node reader runs once for every Svelte frontend, and this reader
 ///     takes its own frontend's facts from that run.
 /// </summary>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</follows>
 sealed class TypeScriptFrontendReader : IFrontendReader
 {
     /// <summary>The frontend this reader takes its facts for.</summary>
     private readonly FrontendConfig frontend;
 
-    /// <summary>The shared Node reader run every web frontend takes its facts from.</summary>
+    /// <summary>The shared Node reader run every Svelte frontend takes its facts from.</summary>
     private readonly Task<IReadOnlyList<FrontendFacts>> run;
 
-    /// <summary>Initializes a new instance of the <see cref="TypeScriptFrontendReader"/> class for one web frontend.</summary>
+    /// <summary>Initializes a new instance of the <see cref="TypeScriptFrontendReader"/> class for one Svelte frontend.</summary>
     /// <param name="frontend">The frontend this reader takes its facts for.</param>
     /// <param name="run">The shared Node reader run every web frontend takes its facts from.</param>
     public TypeScriptFrontendReader(FrontendConfig frontend, Task<IReadOnlyList<FrontendFacts>> run)

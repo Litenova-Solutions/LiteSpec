@@ -68,8 +68,8 @@
         "slug":  "6-add-the-checks-to-ci"
     },
     {
-        "heading":  "6. Record a Deliberate Departure",
-        "slug":  "6-record-a-deliberate-departure"
+        "heading":  "6. Record a Deliberate Waiver",
+        "slug":  "6-record-a-deliberate-waiver"
     },
     {
         "heading":  "A Complete Example",
@@ -1028,8 +1028,8 @@
         "slug":  "close-every-process-with-named-exits-and-a-driver"
     },
     {
-        "heading":  "Close Incident Deviations Within Seven Days",
-        "slug":  "close-incident-deviations-within-seven-days"
+        "heading":  "Close Incident Waivers Within Seven Days",
+        "slug":  "close-incident-waivers-within-seven-days"
     },
     {
         "heading":  "Close the Scope as Denied or Failed",
@@ -1752,12 +1752,12 @@
         "slug":  "deliver-one-complete-use-case"
     },
     {
-        "heading":  "Departures During Adoption",
-        "slug":  "departures-during-adoption"
+        "heading":  "Waivers During Adoption",
+        "slug":  "waivers-during-adoption"
     },
     {
-        "heading":  "Departures from the Rules",
-        "slug":  "departures-from-the-rules"
+        "heading":  "Waivers from the Rules",
+        "slug":  "waivers-from-the-rules"
     },
     {
         "heading":  "Dependencies",
@@ -1828,8 +1828,8 @@
         "slug":  "describe-every-external-system-operation"
     },
     {
-        "heading":  "Describe Every Integration Event for Its Direction",
-        "slug":  "describe-every-integration-event-for-its-direction"
+        "heading":  "Describe Every Integration Event the Product Sends or Receives",
+        "slug":  "describe-every-integration-event-the-product-sends-or-receives"
     },
     {
         "heading":  "Describe Every Notification with Audience Channel and Consent",
@@ -1908,8 +1908,8 @@
         "slug":  "dispatch-declared-effects-through-their-entry-points"
     },
     {
-        "heading":  "Dispatch Journey-Step Commands in a New Scope",
-        "slug":  "dispatch-journey-step-commands-in-a-new-scope"
+        "heading":  "Dispatch Flow-Step Commands in a New Scope",
+        "slug":  "dispatch-flow-step-commands-in-a-new-scope"
     },
     {
         "heading":  "Dispatch Only Declared Effect Edges",
@@ -2436,8 +2436,8 @@
         "slug":  "founder-decisions-and-agent-drafts"
     },
     {
-        "heading":  "Freeze Every Commercial Data Value",
-        "slug":  "freeze-every-commercial-data-value"
+        "heading":  "Freeze Every Frozen Value",
+        "slug":  "freeze-every-frozen-value"
     },
     {
         "heading":  "Freshness",
@@ -2972,12 +2972,12 @@
         "slug":  "jobs-and-gates"
     },
     {
-        "heading":  "Journey",
-        "slug":  "journey"
+        "heading":  "Flow",
+        "slug":  "flow"
     },
     {
-        "heading":  "Journeys as Product Sentences",
-        "slug":  "journeys-as-product-sentences"
+        "heading":  "Flows as Product Sentences",
+        "slug":  "flows-as-product-sentences"
     },
     {
         "heading":  "Justify Every Wider Visibility",
@@ -3364,8 +3364,8 @@
         "slug":  "keep-orientation-documents-separate-from-canonical-records"
     },
     {
-        "heading":  "Keep Permission and Entry Point Lists to Entries",
-        "slug":  "keep-permission-and-entry-point-lists-to-entries"
+        "heading":  "Keep Permission and Entry Point Sets to Entries",
+        "slug":  "keep-permission-and-entry-point-sets-to-entries"
     },
     {
         "heading":  "Keep Persisted State in App-Private Storage",
@@ -4460,8 +4460,8 @@
         "slug":  "one-change-from-start-to-finish"
     },
     {
-        "heading":  "One Journey End to End",
-        "slug":  "one-journey-end-to-end"
+        "heading":  "One Flow End to End",
+        "slug":  "one-flow-end-to-end"
     },
     {
         "heading":  "One Module End to End",
@@ -4520,8 +4520,8 @@
         "slug":  "options-binding"
     },
     {
-        "heading":  "Order Each Journey Toward One Goal",
-        "slug":  "order-each-journey-toward-one-goal"
+        "heading":  "Lead Each Flow Toward the Record It Exists For",
+        "slug":  "lead-each-flow-toward-the-record-it-exists-for"
     },
     {
         "heading":  "Order Every Refusal List by Precedence",
@@ -4848,8 +4848,8 @@
         "slug":  "place-a-type-at-the-lowest-folder-that-holds-its-consumers"
     },
     {
-        "heading":  "Place a Workspace AppHost Beside the Applications It Runs",
-        "slug":  "place-a-workspace-apphost-beside-the-applications-it-runs"
+        "heading":  "Keep the AppHost in the Deploy Folder",
+        "slug":  "keep-the-apphost-in-the-deploy-folder"
     },
     {
         "heading":  "Place the ID Under Every Provision Heading",
@@ -5412,8 +5412,8 @@
         "slug":  "rate-limit"
     },
     {
-        "heading":  "Reach Every Inbound Integration Event Through a Webhook",
-        "slug":  "reach-every-inbound-integration-event-through-a-webhook"
+        "heading":  "Name How Every Inbound Integration Event Arrives",
+        "slug":  "name-how-every-inbound-integration-event-arrives"
     },
     {
         "heading":  "Reachable",
@@ -5788,8 +5788,8 @@
         "slug":  "record-a-package-size-budget"
     },
     {
-        "heading":  "Record a Project-Wide Lowering as a Deviation",
-        "slug":  "record-a-project-wide-lowering-as-a-deviation"
+        "heading":  "Record a Project-Wide Lowering as a Waiver",
+        "slug":  "record-a-project-wide-lowering-as-a-waiver"
     },
     {
         "heading":  "Record a Setting as Reference",
@@ -6728,8 +6728,8 @@
         "slug":  "run-jobs-in-worker"
     },
     {
-        "heading":  "Run Journey Checks",
-        "slug":  "run-journey-checks"
+        "heading":  "Run Flow Checks",
+        "slug":  "run-flow-checks"
     },
     {
         "heading":  "Run LiteSpec.Analyzers in Every Application Project",
@@ -7004,8 +7004,8 @@
         "slug":  "serve-editors-from-the-model"
     },
     {
-        "heading":  "Serve Every Journey Step",
-        "slug":  "serve-every-journey-step"
+        "heading":  "Serve Every Flow Step",
+        "slug":  "serve-every-flow-step"
     },
     {
         "heading":  "Serve Static Content Through Served Content",
@@ -7264,8 +7264,8 @@
         "slug":  "stacks"
     },
     {
-        "heading":  "Staff and System Journeys",
-        "slug":  "staff-and-system-journeys"
+        "heading":  "Staff and System Flows",
+        "slug":  "staff-and-system-flows"
     },
     {
         "heading":  "Stage After-Commit Effects in the Outbox",
@@ -7424,8 +7424,8 @@
         "slug":  "state-what-a-hook-may-rely-on"
     },
     {
-        "heading":  "State When Each Journey Finishes",
-        "slug":  "state-when-each-journey-finishes"
+        "heading":  "State When Each Flow Finishes",
+        "slug":  "state-when-each-flow-finishes"
     },
     {
         "heading":  "State an Unexpressible Transition as a Custom Method",
@@ -7792,8 +7792,8 @@
         "slug":  "the-analyzers"
     },
     {
-        "heading":  "The AppHost Placement",
-        "slug":  "the-apphost-placement"
+        "heading":  "Where the AppHost Lives",
+        "slug":  "where-the-apphost-lives"
     },
     {
         "heading":  "The Approach",
@@ -7976,8 +7976,8 @@
         "slug":  "the-jobs"
     },
     {
-        "heading":  "The Journey",
-        "slug":  "the-journey"
+        "heading":  "The Flow",
+        "slug":  "the-flow"
     },
     {
         "heading":  "The Known Gap for Export Expenses",
@@ -8864,8 +8864,8 @@
         "slug":  "verified"
     },
     {
-        "heading":  "Verified Behavior and Journey Evidence",
-        "slug":  "verified-behavior-and-journey-evidence"
+        "heading":  "Verified Behavior and Flow Evidence",
+        "slug":  "verified-behavior-and-flow-evidence"
     },
     {
         "heading":  "Verify Actor and Target Tenancy",
@@ -8876,8 +8876,8 @@
         "slug":  "verify-before-accepting-worker-output"
     },
     {
-        "heading":  "Verify Connected Journeys",
-        "slug":  "verify-connected-journeys"
+        "heading":  "Verify Connected Flows",
+        "slug":  "verify-connected-flows"
     },
     {
         "heading":  "Verify Inbound Provider Messages",
@@ -9096,8 +9096,8 @@
         "slug":  "write-every-scenario-in-given-when-then"
     },
     {
-        "heading":  "Write Journey Steps as Sentences with Ids",
-        "slug":  "write-journey-steps-as-sentences-with-ids"
+        "heading":  "Write Flow Steps as Sentences with Ids",
+        "slug":  "write-flow-steps-as-sentences-with-ids"
     },
     {
         "heading":  "Write Links on the Record That Points",

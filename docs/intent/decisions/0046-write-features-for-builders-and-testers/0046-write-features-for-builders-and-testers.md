@@ -1,6 +1,6 @@
 # Write Features for the Builder and the Tester
 
-A feature and its requirements are read by someone who has to build or test what they say. Until now, a feature's explanation could leave its edges unstated, promise outcomes it cannot bring about, and describe behavior no requirement holds. This decision requires a Boundaries section and states how success criteria, requirement statements and rationales are written, so a developer can tell what to build and a tester can tell what passes.
+A developer builds what a feature and its requirements state, and a tester tests it. A feature explanation that leaves its edges unstated, promises outcomes the feature cannot bring about, or describes behavior no requirement holds gives neither reader what they need. This decision requires a Boundaries section and states how success criteria, requirement statements and rationales are written, so a developer can tell what to build and a tester can tell what passes.
 
 ## Context
 
@@ -30,7 +30,7 @@ An explanation describes only behavior the requirements state. Every record name
 
 ## Consequences
 
-`explanation-missing` reports a feature explanation without Boundaries. Five new provisions on the intent page and one on the writing page state the rules, and the literal-words provision also refuses loose verbs. A requirement title names the specific behavior or fact it requires.
+A reviewer checks a feature explanation for Boundaries. Five new provisions on the intent page and one on the writing page state the rules, and the literal-words provision also refuses loose verbs. A requirement title names the specific behavior or fact it requires.
 
 The feature template and the Claimwick approval feature follow the new sections. Each consumer adds Boundaries to its feature explanations, as the changelog's upgrade step describes.
 

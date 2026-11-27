@@ -6,7 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class RegistryTests
 {
     /// <summary>The registry maps marked types to records and use cases to grants.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry maps marked types to records and use cases to grants")]
     public void RegistryMapsTypesAndGrants()
     {
@@ -18,7 +18,7 @@ public sealed class RegistryTests
 
                 public interface ICommandHandler<TCommand, TResult>;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
 
                 /// <implements>use-case/spending.submit-expense</implements>
@@ -28,18 +28,18 @@ public sealed class RegistryTests
                 """),
             RecordPages.Files(
                 "xml",
-                ("events.yaml", RecordPages.EventPage("event/expense.submitted")),
+                ("domain-events.yaml", RecordPages.DomainEventPage("domain-event/expense.submitted")),
                 ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
-        Assert.Contains("[\"Shop.Spending.ExpenseSubmittedEvent\"] = new string[] { \"event/expense.submitted\" },", registry, StringComparison.Ordinal);
+        Assert.Contains("[\"Shop.Spending.ExpenseSubmittedEvent\"] = new string[] { \"domain-event/expense.submitted\" },", registry, StringComparison.Ordinal);
         Assert.Contains("[\"Shop.Spending.SubmitExpenseCommandHandler\"] = new string[] { \"use-case/spending.submit-expense\" },", registry, StringComparison.Ordinal);
         Assert.Contains("[\"use-case/spending.submit-expense\"] = \"permission/submit-expense\",", registry, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
     /// <summary>The registry leaves unmarked types out.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry leaves unmarked types out")]
     public void RegistryLeavesUnmarkedTypesOut()
     {
@@ -49,14 +49,14 @@ public sealed class RegistryTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
 
                 internal sealed class UnmarkedHelper
                 {
                 }
                 """),
-            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("domain-events.yaml", RecordPages.DomainEventPage("domain-event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.DoesNotContain("UnmarkedHelper", registry, StringComparison.Ordinal);
@@ -64,7 +64,7 @@ public sealed class RegistryTests
     }
 
     /// <summary>A use case with no known record takes no grant entry.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A use case with no known record takes no grant entry")]
     public void UnknownUseCaseTakesNoGrant()
     {
@@ -90,13 +90,13 @@ public sealed class RegistryTests
     }
 
     /// <summary>The registry is empty with no marked types.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry is empty with no marked types")]
     public void RegistryIsEmptyWithNoMarkedTypes()
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))));
+            RecordPages.Files("xml", ("domain-events.yaml", RecordPages.DomainEventPage("domain-event/expense.submitted"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("new System.Collections.Generic.Dictionary<string, string[]>();", registry, StringComparison.Ordinal);
@@ -105,7 +105,7 @@ public sealed class RegistryTests
     }
 
     /// <summary>The registry lists no follows targets.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "The registry lists no follows targets")]
     public void RegistryListsNoFollowsTargets()
     {
@@ -116,12 +116,12 @@ public sealed class RegistryTests
                 public interface ICommandHandler<TCommand, TResult>;
 
                 /// <implements>use-case/spending.submit-expense</implements>
-                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                /// <follows>decision/0002-keep-expenses-as-documents</follows>
                 internal sealed class SubmitExpenseCommandHandler : ICommandHandler<object, object>
                 {
                 }
 
-                /// <follows>decision/0002-store-expenses-as-documents</follows>
+                /// <follows>decision/0002-keep-expenses-as-documents</follows>
                 internal sealed class CommitStep
                 {
                     public void Commit()
@@ -132,17 +132,17 @@ public sealed class RegistryTests
             RecordPages.Files(
                 "xml",
                 ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", null)),
-                ("0002-store-expenses-as-documents.yaml", RecordPages.DecisionPage("decision/0002-store-expenses-as-documents"))));
+                ("0002-keep-expenses-as-documents.yaml", RecordPages.DecisionPage("decision/0002-keep-expenses-as-documents"))));
 
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.SubmitExpenseCommandHandler\"] = new string[] { \"use-case/spending.submit-expense\" },", registry, StringComparison.Ordinal);
-        Assert.DoesNotContain("decision/0002-store-expenses-as-documents", registry, StringComparison.Ordinal);
+        Assert.DoesNotContain("decision/0002-keep-expenses-as-documents", registry, StringComparison.Ordinal);
         Assert.DoesNotContain("CommitStep", registry, StringComparison.Ordinal);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
     /// <summary>A project file with no record pages writes no registry.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A project file with no record pages writes no registry")]
     public void NoRecordPagesWritesNoRegistry()
     {

@@ -18,8 +18,8 @@ public sealed class StackReaderTests
     /// <param name="scenarios">The scenario count the case expects the builder to read.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
-    [InlineData("small", 80, 7, 0, 0)]
-    [InlineData("large", 101, 7, 1, 9)]
+    [InlineData("small", 86, 7, 0, 0)]
+    [InlineData("large", 125, 7, 1, 8)]
     public void BuildReadsFixtureCounts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);
@@ -157,7 +157,7 @@ public sealed class StackReaderTests
         Assert.Equal("coded", CompletionOf(root, "use-case/lending.return-copy").GetProperty("stage").GetString());
     }
 
-    /// <summary>A Playwright result verifies the browser-only use case and exercises its journey step.</summary>
+    /// <summary>A Playwright result verifies the browser-only use case and exercises its flow step.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
     public void PlaywrightResultsVerifyTheBrowserOnlyUseCase()
@@ -205,7 +205,7 @@ public sealed class StackReaderTests
 
         Assert.Equal("verified", CompletionOf(root, "use-case/lending.review-loans").GetProperty("stage").GetString());
         Assert.Contains(
-            "journey/borrow-and-return#s4",
+            "step/borrow-and-return.review-loans",
             root.GetProperty("exercisedSteps").EnumerateArray().Select(step => step.GetString()));
     }
 
@@ -367,21 +367,23 @@ public sealed class StackReaderTests
           "status": "reviewed",
           "kind": "query",
           "access": {
-            "auth": [
-              "session"
-            ],
             "grant": "permission/read-loans",
             "tenant": "own"
           },
-          "reachedThrough": [
+          "via": [
             "entry-point/library-app"
           ],
           "serves": [
-            "journey/borrow-and-return#s4"
+            "step/borrow-and-return.review-loans"
           ],
-          "records": [
+          "steps": [
             {
-              "type": "result",
+              "statement": "The reader opens the loan review and reads each loan.",
+              "cites": ["result/review-loans.reviewed"]
+            }
+          ],
+          "results": [
+            {
               "id": "result/review-loans.reviewed",
               "title": "Reviewed",
               "owner": "lending-team",
@@ -426,7 +428,19 @@ public sealed class StackReaderTests
           "owner": "lending-team",
           "status": "reviewed",
           "entryPoint": "entry-point/library-app",
-          "address": "/loans",
+          "route": "/loans",
+          "archetype": "ListPage",
+          "job": "The reader reviews their loans and opens one to read it.",
+          "states": [
+            {
+              "name": "Empty",
+              "shows": "The screen says there are no loans to review."
+            },
+            {
+              "name": "Listed",
+              "shows": "The screen lists each loan with its due date."
+            }
+          ],
           "offers": ["use-case/lending.review-loans"],
           "summary": "A reader reviews their loans."
         }

@@ -1,0 +1,6 @@
+type: goal
+id: goal/readable-check-ins
+title: Readable Check-ins on the Phone
+statement: Visitors read their recorded check-ins on the phone in any light.
+measure: Share of check-in rows readable at the default font scale.
+target: Every row.

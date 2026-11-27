@@ -7,8 +7,7 @@ using static LiteSpec.Cli.Model.Checks.Implementation.Handlers.EffectEdges;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
 /// <summary>The effect checks: every dispatch a handler, reaction or job makes is an effect edge its record declares, and a message goes out only after the commit.</summary>
-/// <follows>litespec/backend/application#dispatch-only-declared-effect-edges</follows>
-/// <follows>litespec/backend/application#send-messages-after-commit</follows>
+/// <follows>litespec/core/backend-application#dispatch-only-declared-effect-edges</follows>
 internal static class EffectChecks
 {
     /// <summary>Runs the effect checks.</summary>

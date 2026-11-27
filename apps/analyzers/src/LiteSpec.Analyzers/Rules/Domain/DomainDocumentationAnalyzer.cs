@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1011: every public Domain type and member carries XML documentation.</summary>
-/// <follows>litespec/backend/dotnet/domain#document-every-public-domain-contract</follows>
+/// <follows>litespec/core/backend-domain#document-every-public-domain-contract</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
 {
@@ -207,7 +207,7 @@ public sealed class DomainDocumentationAnalyzer : LayerAnalyzer
         return plain is not null && DocumentsPlain(plain.ToString());
     }
 
-    /// <summary>Stores the filled summary used by the containing code.</summary>
+    /// <summary>Holds the filled summary used by the containing code.</summary>
     private static readonly Regex FilledSummary = new(@"<summary>\s*\S[\s\S]*?</summary>", RegexOptions.Compiled);
 
     /// <summary>Returns true when the documents-plain condition holds; otherwise false.</summary>

@@ -75,7 +75,7 @@ static partial class GeneratedRegions
         {
             "alert-inventory" => AlertInventory(model, file),
             "decision-index" => DecisionIndex(model, file),
-            "departure-index" => DepartureIndex(model, file),
+            "waiver-index" => WaiverIndex(model, file),
             "operations-log" => OperationsLog(file),
             "runbook-index" => RunbookIndex(model, file),
             _ => null,
@@ -235,30 +235,30 @@ static partial class GeneratedRegions
             decision.Id);
     }
 
-    /// <summary>Renders the departures beside the page, grouped by gap or permanent and ordered by expiry.</summary>
+    /// <summary>Renders every waiver of the product, gaps by expiry with their closing records, then lasting waivers with their consequences.</summary>
     /// <param name="model">The built project model holding the records.</param>
     /// <param name="file">The page the tables sit on, for relative links.</param>
-    /// <returns>The departure index tables as Markdown lines, or empty when the folder holds no departure.</returns>
-    private static string DepartureIndex(ProjectModel model, string file)
+    /// <returns>The waiver index tables as Markdown lines, or empty when the product holds no waiver.</returns>
+    private static string WaiverIndex(ProjectModel model, string file)
     {
         var folder = Path.GetDirectoryName(file)!;
-        var departures = model.Records
-            .Where(record => record.Type == RecordTypes.Departure && SameFolder(folder, record.File))
+        var waivers = model.Records
+            .Where(record => record.Type == RecordTypes.Waiver)
             .ToList();
 
-        if (departures.Count == 0)
+        if (waivers.Count == 0)
         {
             return "";
         }
 
-        var gaps = departures
-            .Where(departure => departure.Field(RecordFields.ExpiresOn) is { Length: > 0 })
-            .OrderBy(departure => departure.Field(RecordFields.ExpiresOn)!, StringComparer.Ordinal)
-            .ThenBy(departure => departure.Id, StringComparer.Ordinal)
+        var gaps = waivers
+            .Where(waiver => waiver.Field(RecordFields.Kind) == "gap")
+            .OrderBy(waiver => waiver.Field(RecordFields.ExpiresOn) ?? "", StringComparer.Ordinal)
+            .ThenBy(waiver => waiver.Id, StringComparer.Ordinal)
             .ToList();
-        var lasting = departures
-            .Where(departure => departure.Field(RecordFields.ExpiresOn) is not { Length: > 0 })
-            .OrderBy(departure => departure.Id, StringComparer.Ordinal)
+        var lasting = waivers
+            .Where(waiver => waiver.Field(RecordFields.Kind) != "gap")
+            .OrderBy(waiver => waiver.Id, StringComparer.Ordinal)
             .ToList();
 
         var lines = new List<string>();
@@ -267,12 +267,12 @@ static partial class GeneratedRegions
         {
             lines.Add("### Gaps");
             lines.Add("");
-            lines.Add("| Departure | Expires On | Covers |");
-            lines.Add("|:---|:---|:---|");
+            lines.Add("| Waiver | Module | Expires On | Covers | Closed By |");
+            lines.Add("|:---|:---|:---|:---|:---|");
 
-            foreach (var departure in gaps)
+            foreach (var waiver in gaps)
             {
-                lines.Add($"| {DepartureCell(folder, departure)} | {Cell(departure.Field(RecordFields.ExpiresOn)!)} | {CoversCell(departure)} |");
+                lines.Add($"| {WaiverCell(folder, waiver)} | {ModuleCell(model, waiver)} | {Cell(waiver.Field(RecordFields.ExpiresOn) ?? "")} | {CoversCell(waiver)} | {ClosedByCell(waiver)} |");
             }
         }
 
@@ -283,32 +283,73 @@ static partial class GeneratedRegions
                 lines.Add("");
             }
 
-            lines.Add("### Permanent");
+            lines.Add("### Lasting");
             lines.Add("");
-            lines.Add("| Departure | Covers |");
-            lines.Add("|:---|:---|");
+            lines.Add("| Waiver | Module | Covers | Consequences |");
+            lines.Add("|:---|:---|:---|:---|");
 
-            foreach (var departure in lasting)
+            foreach (var waiver in lasting)
             {
-                lines.Add($"| {DepartureCell(folder, departure)} | {CoversCell(departure)} |");
+                lines.Add($"| {WaiverCell(folder, waiver)} | {ModuleCell(model, waiver)} | {CoversCell(waiver)} | {Cell(waiver.Field(RecordFields.Consequences) ?? "")} |");
             }
         }
 
         return string.Join('\n', lines);
     }
 
-    /// <summary>One departure cell: its title linked to its record file.</summary>
-    /// <param name="folder">The departures folder the page sits in, for the relative link.</param>
-    /// <param name="departure">The departure the cell renders.</param>
+    /// <summary>One waiver cell: its title linked to its record file.</summary>
+    /// <param name="folder">The waivers folder the page sits in, for the relative link.</param>
+    /// <param name="waiver">The waiver the cell renders.</param>
     /// <returns>The linked title.</returns>
-    private static string DepartureCell(string folder, Record departure) =>
-        $"[{Cell(departure.Title)}]({PathText.Relative(folder, departure.File)})";
+    private static string WaiverCell(string folder, Record waiver) =>
+        $"[{Cell(waiver.Title)}]({PathText.Relative(folder, waiver.File)})";
 
-    /// <summary>One departure covers cell: every covered code, provision or page as a code span.</summary>
-    /// <param name="departure">The departure whose covers are rendered.</param>
-    /// <returns>The covers joined with commas, or empty when the departure covers nothing.</returns>
-    private static string CoversCell(Record departure) =>
-        string.Join(", ", departure.Strings(RecordFields.Covers).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
+    /// <summary>One waiver module cell: its module, or a dash for a product-level waiver.</summary>
+    /// <param name="model">The built project model holding the project configuration.</param>
+    /// <param name="waiver">The waiver whose module is rendered.</param>
+    /// <returns>The module name, or a dash.</returns>
+    private static string ModuleCell(ProjectModel model, Record waiver) =>
+        Cell(WaiverModuleOf(model, waiver.File) ?? "-");
+
+    /// <summary>The module home of a waiver file, or null when the file sits at product level.</summary>
+    /// <param name="model">The loaded project model that holds the project configuration.</param>
+    /// <param name="file">The full path of the waiver file.</param>
+    /// <returns>The module folder under governance/modules, or null for a product-level waivers file.</returns>
+    private static string? WaiverModuleOf(ProjectModel model, string file)
+    {
+        var comparison = Path.DirectorySeparatorChar == '\\'
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        foreach (var root in model.Config.RecordRoots)
+        {
+            var modules = Path.Combine(root, "governance", "modules") + Path.DirectorySeparatorChar;
+
+            if (file.StartsWith(modules, comparison))
+            {
+                var rest = file[modules.Length..].Split(Path.DirectorySeparatorChar);
+
+                if (rest.Length >= 3 && string.Equals(rest[1], "waivers", comparison))
+                {
+                    return rest[0];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>One waiver covers cell: every covered code, provision or page as a code span.</summary>
+    /// <param name="waiver">The waiver whose covers are rendered.</param>
+    /// <returns>The covers joined with commas, or empty when the waiver covers nothing.</returns>
+    private static string CoversCell(Record waiver) =>
+        string.Join(", ", waiver.Strings(RecordFields.Waives).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
+
+    /// <summary>One waiver closed-by cell: every closing record as a code span.</summary>
+    /// <param name="waiver">The waiver whose closing records are rendered.</param>
+    /// <returns>The closing records joined with commas, or empty when the waiver names none.</returns>
+    private static string ClosedByCell(Record waiver) =>
+        string.Join(", ", waiver.Ids("closedBy").Order(StringComparer.Ordinal).Select(id => $"`{Cell(id)}`"));
 
     /// <summary>Whether the named record sits in the folder: the folder holds the record's own folder.</summary>
     /// <param name="folder">The folder the page sits in.</param>
@@ -448,13 +489,23 @@ static partial class GeneratedRegions
 
         foreach (var segment in segments)
         {
+            // The Ports folder of a sibling Contracts project holds the module's public
+            // surface, so it reads as application with the project below, while a
+            // module's own top-level Ports folder is the ports concern.
+            if (string.Equals(segment, "Ports", StringComparison.Ordinal)
+                && segments.Any(candidate => candidate.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
             var concern = segment switch
             {
                 "Domain" => "domain",
                 "Application" => "application",
+                "Ports" => "ports",
                 "Infrastructure" => "infrastructure",
                 "WebApi" => "web-api",
-                "Composition" or "Contracts" or "Jobs" => "application",
+                "Composition" or "Contracts" or "Notifications" or "ExternalSystems" or "ReadModels" => "application",
                 "Migrations" => "infrastructure",
                 _ => "",
             };
@@ -470,6 +521,11 @@ static partial class GeneratedRegions
             if (segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase))
             {
                 return "domain";
+            }
+
+            if (segment.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase))
+            {
+                return "application";
             }
 
             if (segment.EndsWith(".Application", StringComparison.OrdinalIgnoreCase)

@@ -1,11 +1,10 @@
 # API Compatibility
 
 **Stack:** any
+
 **Concern:** web-api
 
-## Intent
-
-API compatibility keeps consumers that release on their own schedule working when the API or its published events change, including public, partner, and mobile clients. This page states how a project classifies each contract and event change, versions breaking ones, keeps supported versions alive, and retires them with notice. A team with such consumers applies it, so its consumers keep working across releases instead of breaking on deploy day.
+Some consumers ship on their own schedule: public clients, partner clients, mobile apps, and readers of published events. This page is for API owners whose contract changes land in code they do not control. Sort each change, version the breaking ones, and retire old versions with notice, so those consumers keep working across releases.
 
 ## Activation
 
@@ -13,454 +12,56 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The consumer enables `compat` for public APIs, partner clients, mobile clients, independently deployed consumers, or consumers of its published events. APIs whose consumers always release together with them stay under `litespec/backend/api#treat-openapi-as-a-generated-contract`. A project whose first deployment holds no customer data yet defers these rules through the stage extension.
+Enable `compat` when any consumer deploys on its own schedule: a public API, a partner client, a mobile client, or a reader of published events. An API whose consumers release together with it stays under the [backend API rules](../core/backend-api.md). A project whose first deployment holds no customer data yet defers these rules through the stage extension.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision.
+This extension replaces no baseline provision. It adds no optional record type.
 
-Each domain event stays inside the product; each fact consumed outside it is an integration event, as the [behavior page](../core/behavior.md) states.
+A domain event leaves the product only as an integration event, as the [behavior rules](../core/behavior.md) state.
 
-This extension switches on no optional record type.
+### Sort Each Change
+
+Each contract change reaching an independently deployed consumer gets a verdict: breaking, compatible, or needs review. The reviewer records the verdict, so the decision reaches consumers announced instead of silent.
+
+Removal, rename, tightened input, narrowed value, response, status, or authentication changes count as breaking. A consumer depends on each element of the contract: a field it reads, a status it branches on, or a scheme it implements. Removing, renaming, narrowing, or retyping any of them breaks the consumer depending on it.
+
+Removed query output fields, refusal codes, and integration-event payload fields count as breaking for the same reason. Consumers read output fields, branch on refusal codes, and parse event payloads, so a removed field breaks every consumer relying on it while the route stays green. Added enum values and polymorphic subtypes go through consumer review first, since generated clients switch over every value and reject a valid response with no branch for the new case.
+
+Optional fields, endpoints, and query parameters count as compatible when existing callers send and interpret the same values as before. Stable Problem Details codes stay under the same verdict scheme: removing or reassigning a stable code counts as breaking, since consumers branch on codes the way they branch on statuses. An unclear change counts as breaking with consumer review, because a structural comparison proves less than a person judging consumer impact, and a spare review costs less than a broken consumer. Integration-event changes use the same three verdicts, keeping one shared meaning across HTTP responses and events.
+
+### Version, Keep, and Retire
+
+A breaking Behavior change past production travels as a decision stating consumer impact: which consumers break, what they change, and when the old shape goes away. The decision puts the impact where a developer review alone falls short.
+
+Each release stores its OpenAPI document as a retained baseline artifact. The current document gets compared with the supported baseline both locally and in continuous integration: the local run catches a breaking change while rework stays cheap, and the integration run catches it when the local run was skipped. Continuous integration fails a breaking diff unless a new API version or a recorded consumer decision authorizes it, forcing the compatibility decision while versioning stays possible.
+
+Each operation for independent consumers carries a deliberate `operationId`, turning into stable method names in generated clients. Outside shapes the project does not own stay exempt, such as OAuth redirects, OIDC discovery documents, provider webhook receivers, and well-known resources. A compatible change keeps its `operationId`, and a new API version assigns a fresh one for each changed operation, so the retained version keeps its own names. A breaking contract ships behind a new route or a documented media-type version, serving both contracts at once while each consumer moves on its own schedule. The previous version stays available for its declared support window.
+
+Each planned removal announces itself twice: a documented deprecation signal on the operation itself, such as `Deprecation` and `Sunset` headers, and an entry in the consumer `CHANGELOG.md` where teams plan. The versioning decision states affected consumers, deadline, and removal condition before anything goes away, and each deprecation decision records the sunset date with the replacement operation. Breaking event changes ship in a new event version beside the retained one, retiring only after the declared support window with a deprecation notice.
+
+### Errors and Generated Clients
+
+Problem Details type, code, field-error codes, and documented statuses are versioned contract elements. Consumer failure paths branch on them with the least test coverage, so changing them outside versioning breaks the path with the thinnest proof. A new error outcome joins the contract only when existing consumers handle an unknown code safely, keeping old clients working against the new contract.
+
+Each first-party generated client compiles and exercises its changed operations against the changed document. The client compiler and its exhaustive switches catch breaking changes a structural comparison misses.
+
+### Where the Contract Lives
+
+The current source artifact lives at `apps/api/openapi/{ProjectName}.json`, giving source generation, contract review, and the baseline comparison one file to read. Each supported baseline stays beside its contract owner or under an immutable retained-release reference, keeping the comparison target fixed. Local verification and continuous integration share the same OpenAPI diff tool, giving each change one classification in both places. Problem Details error codes stay stable across compatible versions, letting consumer error handling survive routine releases.
 
 ## Standards
 
-### Classify Independent-Consumer Changes
-
-**ID:** `litespec/ext/compat#classify-independent-consumer-changes`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST classify each contract change that affects an independently deployed consumer.
-
-**Rationale:** Every contract change reaches consumers the project does not deploy. Classifying each one decides whether consumers need a new version, a review, or nothing at all. An unclassified change ships the decision to consumers as a surprise.
-
-**Reviewed for:** Which independent-consumer contract changes lack a classification? Look at the change reviews.
-
-### Classify Breaking Contract Changes
-
-**ID:** `litespec/ext/compat#classify-breaking-contract-changes`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST classify removal, rename, required input, narrowed value, response, status, or authentication changes as breaking.
-
-**Rationale:** A consumer can depend on any element of the contract: a field it reads, a status it branches on, an authentication scheme it implements. Removing, renaming, narrowing, or retyping any of them breaks the consumer that depended on it. Calling each such change breaking routes it to versioning instead of silent release.
-
-**Reviewed for:** Which removed, renamed, narrowed, retyped, or authentication changes lack a breaking verdict? Look at the change reviews.
-
-### Treat Removed Behavior Fields as Breaking
-
-**ID:** `litespec/ext/compat#treat-removed-behavior-fields-as-breaking`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST classify removal of a query output field, a refusal code, or an integration-event payload field as breaking.
-
-**Rationale:** Consumers read query output fields, branch on refusal codes, and parse integration-event payloads, so a removed field breaks every consumer that relied on it while the route stays green. Calling each such removal breaking routes it to versioning and notice instead of silent release.
-
-**Reviewed for:** Which removed output fields, refusal codes, or integration-event payload fields lack a breaking verdict? Look at the change reviews.
-
-### Classify Compatible Additions
-
-**ID:** `litespec/ext/compat#classify-compatible-additions`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST classify an optional field, endpoint, or query parameter as compatible when existing clients retain behavior.
-
-**Rationale:** An optional field, endpoint, or query parameter asks nothing of existing callers: they send and interpret the same values as before. Classifying these as compatible keeps routine growth cheap. Treating them as breaking would version the API for changes nobody has to adopt.
-
-**Reviewed for:** Which optional additions lack a record of why existing behavior stays? Look at the change reviews.
-
-### Review Exhaustive Consumer Changes
-
-**ID:** `litespec/ext/compat#review-exhaustive-consumer-changes`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST require consumer review for an added enum value or polymorphic subtype.
-
-**Rationale:** Generated clients often switch exhaustively over enum values and discriminator cases. A new value that the server sends reaches a client with no branch for it, which rejects a valid response. Consumer review checks that each client handles the new case before it ships.
-
-**Reviewed for:** Which added enum values or discriminator cases shipped without consumer review? Look at the consumer reviews.
-
-### Preserve Stable Error Codes
-
-**ID:** `litespec/ext/compat#preserve-stable-error-codes`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST classify removal or reassignment of a stable Problem Details code as breaking.
-
-**Rationale:** Consumers branch on stable Problem Details codes the way they branch on statuses. Removing or reassigning a code breaks that branch while the status stays green. Treating the code as breaking keeps error handling stable across versions.
-
-**Reviewed for:** Which removed or reassigned stable codes lack a breaking verdict? Look at the change reviews.
-
-### Resolve Uncertain Classifications Safely
-
-**ID:** `litespec/ext/compat#resolve-uncertain-classifications-safely`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST classify an unclear contract change as breaking and require consumer review.
-
-**Rationale:** A structural diff cannot prove every change compatible: some changes need a person to judge their effect on consumers. Classifying the unclear ones as breaking routes them to consumer review instead of release. The cost of a needless review is smaller than the cost of a broken consumer.
-
-**Reviewed for:** Which unclear changes shipped as compatible without consumer review? Look at the change reviews.
-
-### Record Breaking Behavior Changes as Decisions
-
-**ID:** `litespec/ext/compat#record-breaking-behavior-changes-as-decisions`
-
-**Strength:** required
-
-**Applies to:** artifact: record:decision
-
-**Statement:** After production, a breaking Behavior change MUST travel as a decision naming its consumer impact.
-
-**Rationale:** A breaking change past production breaks promises consumers release against, so the decision states the impact: which consumers break, what they must change, and when the old shape leaves. A developer review alone cannot accept breaking what the product promised.
-
-**Reviewed for:** Which breaking Behavior changes past production lack a decision naming their consumer impact? Look at the decisions.
-
-### Retain Release Baselines
-
-**ID:** `litespec/ext/compat#retain-release-baselines`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API owner MUST store each release OpenAPI document as a retained baseline artifact.
-
-**Rationale:** Each release stores its OpenAPI document as an immutable baseline. Later changes diff against it instead of against memory or a mutable file. Without a retained baseline, the project cannot prove what changed between two releases.
-
-**Reviewed for:** Which releases lack a retained OpenAPI baseline? Look at the release artifacts.
-
-### Diff Release Contracts
-
-**ID:** `litespec/ext/compat#diff-release-contracts`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** The project MUST compare the current OpenAPI document with the selected supported baseline, both locally and in continuous integration.
-
-**Rationale:** The diff against the supported baseline runs both locally and in continuous integration. The local run catches a breaking change while it is cheap to rework. The CI run catches it when the local run was skipped.
-
-**Reviewed for:** Which changes skipped the local or continuous integration diff against the baseline? Look at the local runs and the CI runs.
-
-### Reject Breaking Diffs Without Authorization
-
-**ID:** `litespec/ext/compat#reject-breaking-diffs-without-authorization`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** Continuous integration MUST fail a breaking diff unless a new API version or a recorded consumer decision authorizes it.
-
-**Rationale:** A breaking diff that fails CI stops until a new API version or a recorded consumer decision authorizes it. The failure forces the compatibility decision before release, while versioning is still possible. A warning nobody has to answer authorizes nothing.
-
-**Reviewed for:** Which breaking diffs passed without a new version or a recorded decision? Look at the CI runs.
-
-### Assign Operation IDs
-
-**ID:** `litespec/ext/compat#assign-operation-ids`
-
-**Strength:** required
-
-**Applies to:** artifact: endpoint
-
-**Statement:** Every operation exposed to an independent consumer MUST have a deliberate `operationId`, except an endpoint whose shape a specification outside the project fixes.
-
-**Rationale:** Generated clients turn each `operationId` into a method name, and tools use it to reference the operation. A deliberate identifier keeps those names stable and meaningful. An endpoint whose shape an outside specification fixes is exempt, because the project does not own that contract.
-
-**Example:** An OAuth redirect endpoint, an OIDC discovery document, a provider webhook receiver, and a well-known resource each carry a shape the other party defines.
-
-**Reviewed for:** Which independent-consumer operations lack a deliberate operationId? Look at the OpenAPI document.
-
-### Retain Compatible Operation IDs
-
-**ID:** `litespec/ext/compat#retain-compatible-operation-ids`
-
-**Strength:** required
-
-**Applies to:** artifact: endpoint
-
-**Statement:** A compatible API change MUST retain the existing `operationId`.
-
-**Rationale:** A compatible change promises existing consumers keep working. Renaming the `operationId` breaks that promise for every generated client and every stored operation reference. The identifier stays until a new version takes over.
-
-**Reviewed for:** Which compatible changes renamed the operationId? Look at the OpenAPI diff.
-
-### Assign Versioned Operation IDs
-
-**ID:** `litespec/ext/compat#assign-versioned-operation-ids`
-
-**Strength:** required
-
-**Applies to:** artifact: endpoint
-
-**Statement:** A new API version MUST assign a new operation ID when its operation contract changes.
-
-**Rationale:** The new version needs its own contract names so the retained version keeps its own. A new `operationId` for each changed operation separates the two. Sharing one identifier across versions would let the new contract rename the old one.
-
-**Reviewed for:** Which new versions reuse the operation ID of a changed contract? Look at the versioned OpenAPI documents.
-
-### Version Breaking Contracts
-
-**ID:** `litespec/ext/compat#version-breaking-contracts`
-
-**Strength:** required
-
-**Applies to:** artifact: endpoint
-
-**Statement:** An API owner MUST use a new route or documented media-type version for a breaking contract.
-
-**Rationale:** Breaking changes need a boundary: a new route or a documented media-type version. Both contracts then serve at once, and each consumer moves on its own schedule. Without the boundary, one contract serves two incompatible expectations.
-
-**Reviewed for:** Which breaking contracts ship without a new route or media-type version? Look at the versioned API surface.
-
-### Retain Supported Versions
-
-**ID:** `litespec/ext/compat#retain-supported-versions`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API owner MUST keep the previous version available for its declared support window.
-
-**Rationale:** A consumer the project does not deploy moves on its own release cadence. The declared support window states how long the previous version stays available for that move. Removing it early strands consumers that kept to the published plan.
-
-**Reviewed for:** Which previous versions left before their support window? Look at the deployed versions beside the declared window.
-
-### Record Version Retirement
-
-**ID:** `litespec/ext/compat#record-version-retirement`
-
-**Strength:** required
-
-**Applies to:** artifact: record:decision
-
-**Statement:** A versioning decision MUST name each affected consumer, the deadline, and the removal condition, with the decision recorded before any removal.
-
-**Rationale:** A removal touches consumers the project does not control, so the decision names each affected consumer, the deadline, and the removal condition. Recording happens before any removal, while the plan can still change. An unrecorded retirement removes first and notifies whoever complains.
-
-**Reviewed for:** Which retirements lack affected consumers, a deadline, a removal condition, or recording before removal? Look at the versioning decisions.
-
-### Signal Planned Public Removal
-
-**ID:** `litespec/ext/compat#signal-planned-public-removal`
-
-**Strength:** required
-
-**Applies to:** artifact: endpoint
-
-**Statement:** A public operation scheduled for removal MUST expose a documented deprecation signal.
-
-**Rationale:** Consumers discover a planned removal only when the API tells them. A documented deprecation signal, such as `Deprecation` and `Sunset` headers, announces the removal on the operation itself. A removal with no signal arrives as an outage to every consumer that missed the release notes.
-
-**Reviewed for:** Which operations scheduled for removal lack a deprecation signal? Look at the public operations.
-
-### Publish Deprecation Context
-
-**ID:** `litespec/ext/compat#publish-deprecation-context`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A public operation scheduled for removal MUST appear in the consumer `CHANGELOG.md`.
-
-**Rationale:** Headers announce the removal on the operation, but consumers plan from release notes. The consumer `CHANGELOG.md` names each operation scheduled for removal in the one place consumers already read. A deprecation missing from the changelog reaches only the consumers that inspect headers.
-
-**Reviewed for:** Which operations scheduled for removal are missing from the consumer changelog? Look at the consumer `CHANGELOG.md`.
-
-### Record Deprecation Conditions
-
-**ID:** `litespec/ext/compat#record-deprecation-conditions`
-
-**Strength:** required
-
-**Applies to:** artifact: record:decision
-
-**Statement:** A deprecation decision MUST record the sunset date and replacement operation, with nothing removed before the decision is recorded.
-
-**Rationale:** A deprecation decision records the sunset date and the replacement operation, so each consumer knows when to move and where to go. Nothing is removed before the decision is recorded. A removal without a recorded replacement strands the consumer that depended on the old operation.
-
-**Reviewed for:** Which deprecations lack a sunset date, a replacement, or recording before removal? Look at the deprecation decisions.
-
-### Treat Errors as Contracts
-
-**ID:** `litespec/ext/compat#treat-errors-as-contracts`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API owner MUST treat Problem Details type, code, field-error codes, and documented statuses as versioned contract elements.
-
-**Rationale:** Error handling is consumer code: it branches on Problem Details type, code, field-error codes, and documented statuses. Versioning those elements with the contract keeps error handling working across releases. An error shape that changes outside versioning breaks the consumer's failure path, which is the path least tested.
-
-**Reviewed for:** Which type, code, field-code, or status changes shipped outside versioning? Look at the versioned error surface.
-
-### Gate New Error Outcomes
-
-**ID:** `litespec/ext/compat#gate-new-error-outcomes`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API owner MUST add an error outcome only when existing consumers safely handle an unknown code.
-
-**Rationale:** A new error outcome reaches consumers written before it existed. Adding it only when existing consumers handle an unknown code safely keeps old clients working against the new contract. An outcome old clients cannot parse turns their error path into a crash.
-
-**Reviewed for:** Which added error outcomes break existing consumers on unknown codes? Look at the consumer error handling.
-
-### Exercise Generated Consumers
-
-**ID:** `litespec/ext/compat#exercise-generated-consumers`
-
-**Strength:** required
-
-**Applies to:** artifact: test
-
-**Statement:** An API owner MUST test each first-party generated client against the changed OpenAPI document, with each client compiling and exercising its changed operations.
-
-**Rationale:** A structural diff compares documents; it never compiles a client. Testing each first-party generated client against the changed document compiles it and exercises its changed operations. The client's compiler and its exhaustive switches catch the breaks the diff cannot see.
-
-**Reviewed for:** Which first-party clients skip compiling or exercising the changed contract? Look at the client test runs.
-
-### Classify Integration Event Changes
-
-**ID:** `litespec/ext/compat#classify-integration-event-changes`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API change reviewer MUST classify each integration-event change as breaking, compatible, or needing consumer review under `litespec/ext/compat#classify-breaking-contract-changes`, `litespec/ext/compat#classify-compatible-additions`, and `litespec/ext/compat#review-exhaustive-consumer-changes`.
-
-**Rationale:** An integration event is a contract with consumers the project does not deploy, so its changes need the same verdicts as HTTP contract changes. Reusing the contract classification keeps one meaning of breaking, compatible, and needs-review across both surfaces. A separate event verdict would let one change read as compatible for events and breaking for HTTP.
-
-**Reviewed for:** Which integration-event changes lack a breaking, compatible, or needs-review verdict? Look at the event reviews.
-
-### Version Breaking Integration Events
-
-**ID:** `litespec/ext/compat#version-breaking-integration-events`
-
-**Strength:** required
-
-**Applies to:** artifact: record:integration-event
-
-**Statement:** An API owner MUST carry a breaking integration-event change in a new event version beside the retained version.
-
-**Rationale:** Outside consumers move on their own release cadence, so the breaking change ships beside the retained version instead of replacing it. Each consumer moves to the new version on its own schedule. Without the retained version, one event serves two incompatible expectations.
-
-**Reviewed for:** Which breaking event changes ship without a new version beside the retained one? Look at the integration event versions.
-
-### Retire Integration Events with Notice
-
-**ID:** `litespec/ext/compat#retire-integration-events-with-notice`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An API owner MUST retire an integration event version only after its declared support window with a deprecation notice to its consumers.
-
-**Rationale:** A retired version strands every consumer still reading it, so the declared support window states how long the version stays available and the notice tells consumers when to move. Retiring early or silently turns a planned removal into an outage for the consumers that kept to the published plan.
-
-**Reviewed for:** Which retired event versions left before their support window or without notice? Look at the retirement records beside the event consumers.
+None.
 
 ## Conventions
 
-### Store Current OpenAPI Source
-
-**ID:** `litespec/ext/compat#store-current-openapi-source`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Store the current source artifact at `apps/api/openapi/{ProjectName}.json`.
-
-**Replacement:** A consumer records a contract-source convention naming where its current OpenAPI artifact lives.
-
-**Rationale:** Source generation and contract review both need the current OpenAPI artifact. One predictable path keeps generation, review, and the diff reading the same file. A second copy drifts from the first.
-
-**Reviewed for:** Which current OpenAPI artifacts live outside the documented path or the recorded local convention? Look at `apps/api/openapi/`.
-
-### Keep Baseline References Immutable
-
-**ID:** `litespec/ext/compat#keep-baseline-references-immutable`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Store each supported baseline beside its contract owner or under an immutable retained-release reference.
-
-**Replacement:** A consumer records a baseline convention naming where its immutable baselines live.
-
-**Rationale:** A diff proves nothing when its comparison target can move. Baselines beside their contract owner or under an immutable release reference stay fixed. A mutable baseline lets a breaking change hide by moving the target.
-
-**Reviewed for:** Which baselines move, or live outside the recorded local convention? Look at the baseline references.
-
-### Use One Diff Tool
-
-**ID:** `litespec/ext/compat#use-one-diff-tool`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Use the same OpenAPI diff tool in local verification and continuous integration.
-
-**Replacement:** A consumer records a diff-tool convention naming the OpenAPI diff tool its local run and continuous integration share.
-
-**Rationale:** The local run and CI have to agree on what breaking means. One diff tool in both places gives one classification for each change. Two tools disagree on edge cases and teach developers to distrust the check.
-
-**Reviewed for:** Which local runs or CI runs use a different diff tool than the recorded local convention? Look at the local runs and the CI runs.
-
-### Keep Problem Details Codes Stable
-
-**ID:** `litespec/ext/compat#keep-problem-details-codes-stable`
-
-**Strength:** default
-
-**Applies to:** artifact: any
-
-**Default:** Keep Problem Details error codes stable across compatible versions.
-
-**Replacement:** A consumer records an error-code convention naming how its Problem Details codes evolve.
-
-**Rationale:** Consumer error handling branches on these codes for years. Keeping them stable across compatible versions lets that handling survive routine releases. A renamed code forces every consumer to update its failure path for no behavior gain.
-
-**Reviewed for:** Which Problem Details codes changed across compatible versions, or outside the recorded local convention? Look at the versioned error surface.
+None.
 
 ## Dependencies
 
-Packages: None. A project that introduces an OpenAPI diff tool pins its version in the manifest.
+Packages: None. When a project introduces an OpenAPI diff tool, it pins the tool version in the manifest.
 
-Related extensions: `stage` for deferring these rules before first customer data.
+Related extensions: None.
 
 Guides: None.

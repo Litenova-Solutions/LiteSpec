@@ -1,0 +1,10 @@
+type: permission-set
+title: Permissions
+excludes:
+- The record-check-in permission changes no check-in but the recorded one.
+permissions:
+- id: permission/record-check-in
+  title: Record Check-in
+  meaning: The right to record a check-in with a note.
+  grantedTo:
+  - role/health-visitor

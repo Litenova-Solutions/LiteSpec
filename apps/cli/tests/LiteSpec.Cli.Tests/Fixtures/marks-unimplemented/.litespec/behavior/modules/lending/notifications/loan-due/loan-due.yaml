@@ -2,10 +2,10 @@ type: notification
 id: notification/lending.loan-due
 title: Loan due
 template: loan-due-reader
-addresses:
-  - actor/reader
-channel:
-  - email
-consent: Readers accept notices at signup.
+audience:
+- actor/reader
+channels:
+- email
 frequency: once
+consent: Readers accept notices at signup.
 sender: The library desk

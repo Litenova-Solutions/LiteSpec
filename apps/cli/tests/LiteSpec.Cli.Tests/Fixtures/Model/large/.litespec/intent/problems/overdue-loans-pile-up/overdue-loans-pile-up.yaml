@@ -10,3 +10,11 @@ evidence:
   source: https://example.org/library/desk-log
   readOn: 2026-10-01
   kind: reported
+failureCases:
+- A reader holding several loans finds each due date only at the desk.
+- A loan passes its due date without notice to the reader.
+workaround: Readers keep the due date slips and check them at the desk.
+cost: Due dates pass without notice and loans pile up overdue.
+resolutionCriteria:
+- Each reader sees the due date of every loan without visiting the desk.
+- No loan passes its due date without notice to the reader.

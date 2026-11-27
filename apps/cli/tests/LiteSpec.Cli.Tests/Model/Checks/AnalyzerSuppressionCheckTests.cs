@@ -5,11 +5,11 @@ using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
-/// <summary>Proves the analyzer suppression check against the lowering and suppression places and the departures that cover them.</summary>
+/// <summary>Proves the analyzer suppression check against the lowering and suppression places and the waivers that cover them.</summary>
 public sealed class AnalyzerSuppressionCheckTests
 {
-    /// <summary>An analyzer rule lowered in .editorconfig with no covering departure reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>An analyzer rule lowered in .editorconfig with no covering waiver reports analyzer-lowering-unrecorded.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void EditorConfigLoweringReports()
     {
@@ -21,14 +21,14 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Equal("analyzer-lowering-unrecorded", finding.Code);
         Assert.Equal("S", finding.Tier);
         Assert.Contains("LS1001", finding.Message);
-        Assert.Contains("litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding.Message);
-        Assert.Contains("no live departure covering", finding.Message);
+        Assert.Contains("litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding.Message);
+        Assert.Contains("no live waiver covering", finding.Message);
         Assert.Equal(Path.Combine(temp.Path, ".editorconfig"), finding.Path);
         Assert.Equal(2, finding.Line);
     }
 
     /// <summary>An analyzer rule kept at error in .editorconfig reports no analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void EditorConfigErrorSeverityPasses()
     {
@@ -39,7 +39,7 @@ public sealed class AnalyzerSuppressionCheckTests
     }
 
     /// <summary>An analyzer rule lowered in a nested .editorconfig reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void NestedEditorConfigLoweringReports()
     {
@@ -49,11 +49,11 @@ public sealed class AnalyzerSuppressionCheckTests
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
 
         Assert.Contains("LS1002", finding.Message);
-        Assert.Contains("litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums", finding.Message);
+        Assert.Contains("litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums", finding.Message);
     }
 
     /// <summary>An analyzer rule lowered in .globalconfig reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void GlobalConfigLoweringReports()
     {
@@ -63,28 +63,28 @@ public sealed class AnalyzerSuppressionCheckTests
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
 
         Assert.Contains("LS2004", finding.Message);
-        Assert.Contains("litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories", finding.Message);
+        Assert.Contains("litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories", finding.Message);
         Assert.Equal(2, finding.Line);
     }
 
     /// <summary>An analyzer rule named in a Directory.Build.props NoWarn reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void DirectoryBuildPropsNoWarnReports()
     {
         using var temp = TestCli.Temp("checks");
-        Write(temp.Path, "Directory.Build.props", "<Project>\n    <PropertyGroup>\n        <NoWarn>$(NoWarn);LS5001</NoWarn>\n    </PropertyGroup>\n</Project>\n");
+        Write(temp.Path, "Directory.Build.props", "<Project>\n    <PropertyGroup>\n        <NoWarn>$(NoWarn);LS5003</NoWarn>\n    </PropertyGroup>\n</Project>\n");
 
         var finding = Assert.Single(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
 
-        Assert.Contains("LS5001", finding.Message);
+        Assert.Contains("LS5003", finding.Message);
         Assert.Contains("NoWarn", finding.Message);
         Assert.Contains("litespec/core/system#point-code-and-tests-up-to-records", finding.Message);
         Assert.Equal(3, finding.Line);
     }
 
     /// <summary>An analyzer rule named in a project file NoWarn reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void ProjectFileNoWarnReports()
     {
@@ -98,7 +98,7 @@ public sealed class AnalyzerSuppressionCheckTests
     }
 
     /// <summary>An analyzer rule named by a pragma warning disable reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void PragmaWarningDisableReports()
     {
@@ -112,13 +112,13 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Equal(1, finding.Line);
     }
 
-    /// <summary>Two analyzer rules named by one pragma warning disable report one finding each.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>Two analyzer rules named by separate pragma warning disables report one finding each.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void PragmaWarningDisableWithTwoRulesReportsBoth()
     {
         using var temp = TestCli.Temp("checks");
-        Write(temp.Path, "src/Widget.cs", "#pragma warning disable LS1001, LS1002\n");
+        Write(temp.Path, "src/Widget.cs", "#pragma warning disable LS1001\n#pragma warning disable LS1002\n");
 
         var findings = Lowerings(TestModel.Model(TestModel.Config(temp.Path)));
 
@@ -128,7 +128,7 @@ public sealed class AnalyzerSuppressionCheckTests
     }
 
     /// <summary>An analyzer rule named by a SuppressMessage reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void SuppressMessageReports()
     {
@@ -139,12 +139,12 @@ public sealed class AnalyzerSuppressionCheckTests
 
         Assert.Contains("LS2012", finding.Message);
         Assert.Contains("SuppressMessage", finding.Message);
-        Assert.Contains("litespec/backend/application#enforce-target-authorization-in-the-pipeline", finding.Message);
+        Assert.Contains("litespec/core/backend-application#enforce-target-authorization-in-the-pipeline", finding.Message);
         Assert.Equal(7, finding.Line);
     }
 
     /// <summary>Suppressions naming no LiteSpec analyzer rule report no analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void NonLiteSpecSuppressionsPass()
     {
@@ -157,7 +157,7 @@ public sealed class AnalyzerSuppressionCheckTests
     }
 
     /// <summary>An analyzer rule lowered under a skipped build output folder reports no analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void SuppressionUnderBinPasses()
     {
@@ -168,60 +168,60 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Empty(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
     }
 
-    /// <summary>A live departure covering the provision the lowered rule enforces reports no analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>A live waiver covering the provision the lowered rule enforces reports no analyzer-lowering-unrecorded.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
-    public void LiveDepartureCoveringProvisionPasses()
+    public void LiveWaiverCoveringProvisionPasses()
     {
         using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringDeparture(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2999-01-01"));
+            LoweringWaiver(temp.Path, "\"litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2999-01-01"));
 
         Assert.Empty(Lowerings(model));
     }
 
-    /// <summary>A live departure covering this finding code reports no analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>A live waiver covering this finding code reports no analyzer-lowering-unrecorded.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
-    public void LiveDepartureCoveringFindingCodePasses()
+    public void LiveWaiverCoveringFindingCodePasses()
     {
         using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("departure", "departure/lower-analyzer-rule", Path.Combine(temp.Path, "lower-analyzer-rule.yaml"), """{"covers": ["analyzer-lowering-unrecorded"], "subject": ["use-case/lending.list-loans"], "reason": "The lowering waits for its departure record.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/lower-analyzer-rule", Path.Combine(temp.Path, "lower-analyzer-rule.yaml"), """{"kind": "gap", "waives": ["analyzer-lowering-unrecorded"], "appliesTo": ["use-case/lending.list-loans"], "reason": "The lowering waits for its waiver record.", "closedBy": ["waiver/lower-analyzer-rule"], "exitWhen": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         Assert.Empty(Lowerings(model));
     }
 
-    /// <summary>An expired departure covering the provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>An expired waiver covering the provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
-    public void ExpiredDepartureCoveringProvisionReports()
+    public void ExpiredWaiverCoveringProvisionReports()
     {
         using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringDeparture(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2000-01-01"));
+            LoweringWaiver(temp.Path, "\"litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2000-01-01"));
 
         var finding = Assert.Single(Lowerings(model));
 
         Assert.Contains("LS1001", finding.Message);
     }
 
-    /// <summary>A live departure covering another provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>A live waiver covering another provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
-    public void DepartureCoveringAnotherProvisionReports()
+    public void WaiverCoveringAnotherProvisionReports()
     {
         using var temp = TestCli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringDeparture(temp.Path, "\"litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums\"", "2999-01-01"));
+            LoweringWaiver(temp.Path, "\"litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums\"", "2999-01-01"));
 
         var finding = Assert.Single(Lowerings(model));
 
@@ -229,8 +229,8 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Contains("keep-domain-free-of-outer-layer-concerns", finding.Message);
     }
 
-    /// <summary>Every suppression in the analyzer-lowering-unrecorded fixture reports, one per rule and place.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>Every suppression of a known rule in the analyzer-lowering-unrecorded fixture reports, one per rule and place, while the fixture's LS5001 suppression reports nothing because the carried release ships no LS5001 rule.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void FixtureSuppressionsReportEachRule()
     {
@@ -239,16 +239,18 @@ public sealed class AnalyzerSuppressionCheckTests
 
         var findings = Lowerings(TestModel.Model(TestModel.Config(temp.Path)));
 
-        Assert.Equal(6, findings.Count);
+        Assert.Equal(5, findings.Count);
 
-        foreach (var rule in new[] { "LS1001", "LS2004", "LS5001", "LS3001", "LS1002", "LS2012" })
+        foreach (var rule in new[] { "LS1001", "LS2004", "LS3001", "LS1002", "LS2012" })
         {
             Assert.Contains(findings, finding => finding.Message.Contains(rule, StringComparison.Ordinal));
         }
+
+        Assert.DoesNotContain(findings, finding => finding.Message.Contains("LS5001", StringComparison.Ordinal));
     }
 
-    /// <summary>A model check over a project lowering LS1001 with no departure reports analyzer-lowering-unrecorded as a blocking S finding.</summary>
-    /// <proves>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</proves>
+    /// <summary>A model check over a project lowering LS1001 with no waiver reports analyzer-lowering-unrecorded as a blocking S finding.</summary>
+    /// <proves>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</proves>
     [Fact]
     public void ModelCheckReportsUnrecordedLowering()
     {
@@ -261,18 +263,18 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", finding);
         Assert.Contains("LS1001", finding);
-        Assert.Contains("litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding);
+        Assert.Contains("litespec/packs/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding);
     }
 
     static List<Finding> Lowerings(ProjectModel model) =>
         Checker.Check(model).Findings.Where(finding => finding.Code == "analyzer-lowering-unrecorded").ToList();
 
-    static Record LoweringDeparture(string root, string coversJson, string expiresOn) =>
+    static Record LoweringWaiver(string root, string coversJson, string expiresOn) =>
         TestModel.Record(
-            "departure",
-            "departure/lower-analyzer-rule",
+            "waiver",
+            "waiver/lower-analyzer-rule",
             Path.Combine(root, "lower-analyzer-rule.yaml"),
-            $$"""{"covers": {{coversJson}}, "subject": ["use-case/lending.list-loans"], "reason": "The lowering is recorded as a departure.", "exit": "The lowering is removed.", "expiresOn": "{{expiresOn}}"}""");
+            $$"""{"kind": "gap", "waives": {{coversJson}}, "appliesTo": ["use-case/lending.list-loans"], "reason": "The lowering is recorded as a waiver.", "closedBy": ["waiver/lower-analyzer-rule"], "exitWhen": "The lowering is removed.", "expiresOn": "{{expiresOn}}"}""");
 
     static void CopyFixture(string root)
     {

@@ -5,13 +5,57 @@ summary: Each night the job erases the personal data of decided expenses past th
 kind: scheduled
 schedule:
   every: P1D
-  timezone: Europe/Amsterdam
+  timeZone: Europe/Amsterdam
 selection: Decided expenses past their retention.
 runbook: runbook/clear-stuck-reimbursements
 effects:
 - runs: use-case/spending.erase-personal-data
   timing: async
+outcomes:
+- name: completed
+  meaning: Every selected expense was erased.
+- name: nothing-selected
+  meaning: No decided expense was past its retention.
+- name: failed
+  meaning: The run could not finish after every retry.
+- name: retry-scheduled
+  meaning: The run failed and another attempt is scheduled.
 fulfills:
 - requirement/approval.erased-after-retention
+onFailure:
+  mode: retry
+  retry:
+    maxAttempts: 3
+    initialDelay: PT5M
+    maxDelay: PT1H
+    backoff: exponential
+  ifExhausted: dead-letter
+  deadLetter:
+    after: P1D
+    action: The failed selection waits for the next nightly run, which selects the same expenses again.
+idempotency:
+  mode: state
+  recognizedBy: the Erased state and the missing row, so a rerun selects only what remains
 reads:
 - aggregate/spending.expense
+tracksState:
+  aggregate: aggregate/spending.expense
+  pending: Reimbursed
+  done: Erased
+scenarios:
+- id: scenario/erase-expired-personal-data.expired-expenses-are-erased
+  title: Expired Expenses Are Erased
+  given: Two decided expenses are past their retention.
+  when: The nightly run selects them.
+  then: The personal data of both expenses is erased.
+  result: result/erase-personal-data.erased
+  exercises:
+  - rule/expense.erased-after-retention
+- id: scenario/erase-expired-personal-data.nothing-expired-selects-nothing
+  title: Nothing Expired Selects Nothing
+  given: No decided expense is past its retention.
+  when: The nightly run selects.
+  then: No expense is selected and nothing is erased.
+  outcome: nothing-selected
+  exercises:
+  - rule/expense.erased-after-retention

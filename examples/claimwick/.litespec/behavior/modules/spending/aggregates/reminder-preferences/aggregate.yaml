@@ -1,0 +1,54 @@
+type: aggregate
+id: aggregate/spending.reminder-preference
+title: Reminder Preference
+summary: One manager's choice to skip approval reminders.
+states:
+- name: Active
+  meaning: The preference applies.
+transitions:
+- from: "-"
+  to: Active
+  movedBy: use-case/spending.change-reminder-preference
+data:
+- name: manager
+  meaning: The manager the preference belongs to.
+  classification: personal
+  dataClass: preference-owner
+- name: reason
+  meaning: Why the manager skips reminders.
+  classification: internal
+  dataClass: preference-record
+- name: updatedAt
+  meaning: The time the preference was last set.
+  classification: internal
+  dataClass: preference-record
+dataClasses:
+- name: preference-owner
+  classification: personal
+  fields:
+  - manager
+  onErasure: erase
+  basedOn:
+  - requirement/approval-reminders.remind-approver-after-three-days
+  period:
+    mode: none
+    reason: A preference stays until the manager asks for reminders again.
+  periodStartsAt: the manager asking for no reminder to the manager asking for reminders again
+  enforcedBy:
+  - use-case/spending.change-reminder-preference
+  purpose: Link each preference to the manager it belongs to.
+- name: preference-record
+  classification: internal
+  fields:
+  - reason
+  - updatedAt
+  onErasure: erase
+  basedOn:
+  - requirement/approval-reminders.remind-approver-after-three-days
+  period:
+    mode: none
+    reason: A preference stays until the manager asks for reminders again.
+  periodStartsAt: the manager asking for no reminder to the manager asking for reminders again
+  enforcedBy:
+  - use-case/spending.change-reminder-preference
+  purpose: Decide who gets an approval reminder.

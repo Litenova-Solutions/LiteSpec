@@ -1,0 +1,14 @@
+type: decision
+id: decision/0108-composable-access-policies
+title: Composable Policies for Shared Access Conditions
+context: "A sign-in freshness rule reached five use cases as five separate guards, each reading the window, checking the time, and choosing the refusal alone. One copy checked before the permission and one after, one let anonymous callers through, and a new sensitive use case silently got none. No page showed how a condition beyond a permission joins the authorization definition."
+options:
+  - name: "Declare each shared access condition once as a composable policy"
+    pros: "One factory holds the condition, each use case declares the policy, and the one guard evaluates it in one order for all of them."
+    cons: "Use cases declare one more policy beside their permission."
+  - name: "Keep one guard per use case with a shared helper"
+    pros: "Each use case keeps its own check inline."
+    cons: "Copies still drift in order, refusals, and anonymous handling, and each new use case repeats the wiring."
+choice: "Declare each shared access condition once as a composable policy"
+consequences: "Access conditions shared by several use cases are composable policies: Permission, RecentSignIn, Self, and System. Each use case declares its policies in its authorization definition, and the guard evaluates signed-in, then the condition, then the permission. A use case adds no guard for a condition a policy covers."
+reopenedWhen: "A shared condition needs per-use-case evaluation that one policy fails to express."

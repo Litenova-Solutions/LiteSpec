@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class OperationsMarkReaderTests
 {
     /// <summary>Follows Marks Are Read With The Comment Style.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void FollowsMarksAreReadWithTheCommentStyle()
     {
@@ -20,7 +20,7 @@ public sealed class OperationsMarkReaderTests
             example.com {
                 reverse_proxy localhost:5000
             }
-            # <follows>  departure/export-review-bypass  </follows>
+            # <follows>  waiver/export-review-bypass  </follows>
             """);
 
         var marks = OperationsMarkReader.Read(ConsumerConfig.Load(temp.Path));
@@ -29,13 +29,13 @@ public sealed class OperationsMarkReaderTests
         Assert.Equal("decision/0002-loan-index", marks[0].Id);
         Assert.Equal(MarkStyle.Comment, marks[0].Style);
         Assert.Equal(1, marks[0].Line);
-        Assert.Equal("departure/export-review-bypass", marks[1].Id);
+        Assert.Equal("waiver/export-review-bypass", marks[1].Id);
         Assert.Equal(MarkStyle.Comment, marks[1].Style);
         Assert.Equal(5, marks[1].Line);
     }
 
     /// <summary>Marks Outside Comments And Other Verbs Are Ignored.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void MarksOutsideCommentsAndOtherVerbsAreIgnored()
     {
@@ -52,7 +52,7 @@ public sealed class OperationsMarkReaderTests
     }
 
     /// <summary>Markdown Files Below An Operations Folder Are Ignored.</summary>
-    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#link-each-operations-file-to-its-decision</proves>
     [Fact]
     public void MarkdownFilesBelowAnOperationsFolderAreIgnored()
     {

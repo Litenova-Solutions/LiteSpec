@@ -13,7 +13,7 @@ public sealed class SettingsCheckTests
     public void OperatorSettingWithoutKeyReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", null));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -29,7 +29,7 @@ public sealed class SettingsCheckTests
     public void OperatorSettingWithKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -43,7 +43,7 @@ public sealed class SettingsCheckTests
     public void ProductSettingWithoutKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "product", null));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -52,12 +52,12 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Keyed Setting Without Options Class Reports.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void KeyedSettingWithoutOptionsClassReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -68,14 +68,14 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Keyed Setting With Marked Options Class Passes.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void KeyedSettingWithMarkedOptionsClassPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -85,14 +85,14 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Options Class With Wrong Section Reports.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void OptionsClassWithWrongSectionReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Loans", "MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -103,14 +103,14 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Options Class With Missing Property Reports.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void OptionsClassWithMissingPropertyReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxLoans"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -121,14 +121,14 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Options Class Spelling Key Passes.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void OptionsClassSpellingKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -137,14 +137,14 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Nested Section Spelling Key Passes.</summary>
-    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
+    /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</proves>
     [Fact]
     public void NestedSectionSpellingKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:Loans:MaxRenewals"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending:Loans", "MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -159,9 +159,9 @@ public sealed class SettingsCheckTests
     public void MethodlessOptionsClassWithSettingMarkIsAccepted()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -179,7 +179,7 @@ public sealed class SettingsCheckTests
     public void MethodlessClassWithUseCaseMarkReports()
     {
         using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopyHelper.cs", MethodlessHelper(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/BorrowCopyHelper.cs", MethodlessHelper(
             "use-case/lending.borrow-copy", "BorrowCopyHelper"));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
@@ -190,16 +190,16 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Declared Template Missing From Store Reports.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void DeclaredTemplateMissingFromStoreReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("hold-ready-reader", "A hold is ready.", "Hello, a hold is ready.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unimplemented", "notification/lending.loan-due");
@@ -209,16 +209,16 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Declared Template Held By Store Passes.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void DeclaredTemplateHeldByStorePasses()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due.", "Hello, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -227,14 +227,14 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Missing Template Store File Reports.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void MissingTemplateStoreFileReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unimplemented", "MessageTemplates.cs");
@@ -244,7 +244,7 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Template Checks Skipped Without Store.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void TemplateChecksSkippedWithoutStore()
     {
@@ -260,17 +260,17 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Stored Key Without Notification Reports.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void StoredKeyWithoutNotificationReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due.", "Hello, your loan ends soon."),
             ("hold-ready-reader", "A hold is ready.", "Hello, a hold is ready.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unrecorded", "MessageTemplates.cs");
@@ -280,16 +280,16 @@ public sealed class SettingsCheckTests
     }
 
     /// <summary>Stored Keys Matching Notifications Pass.</summary>
-    /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
+    /// <proves>litespec/core/edges#match-notification-templates-to-the-template-store</proves>
     [Fact]
     public void StoredKeysMatchingNotificationsPass()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", PairFormStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", PairFormStore(
             ("loan-due-reader", "Hello, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -305,9 +305,9 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader", "readerName", "dueDate"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-param-drift", "dueDate");
@@ -324,9 +324,9 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader", "readerName"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore(
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore(
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -341,8 +341,8 @@ public sealed class SettingsCheckTests
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "none", "readerName"));
-        Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore());
-        AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
+        Write(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs", TemplateStore());
+        AddTemplateStore(temp.Path, "apps/api/src/Modules/Library.Lending/Application/Loans/BorrowCopy/MessageTemplates.cs");
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -372,20 +372,22 @@ public sealed class SettingsCheckTests
         File.WriteAllText(file, project.ToJsonString());
     }
 
-    static string SettingJson(string id, string title, string setBy, string? key)
+    static string SettingJson(string id, string title, string setBy, string? path)
     {
-        var keyLine = key is null ? "" : ",\n  \"key\": \"" + key + "\"";
+        var pathLine = path is null ? "" : ",\n  \"configurationPath\": \"" + path + "\"";
 
         return "{\n"
             + "  \"type\": \"setting\",\n"
             + "  \"id\": \"" + id + "\",\n"
             + "  \"title\": \"" + title + "\",\n"
-            + "  \"valueType\": \"integer\",\n"
-            + "  \"default\": 5,\n"
-            + "  \"range\": \"1-10\",\n"
-            + "  \"unit\": \"loans\",\n"
-            + "  \"setBy\": \"" + setBy + "\"" + keyLine + ",\n"
-            + "  \"atBound\": \"refuse\",\n"
+            + "  \"value\": {\n"
+            + "    \"type\": \"integer\",\n"
+            + "    \"default\": 5,\n"
+            + "    \"range\": \"1-10\",\n"
+            + "    \"unit\": \"loans\",\n"
+            + "    \"outOfRange\": \"refuse\"\n"
+            + "  },\n"
+            + "  \"setBy\": \"" + setBy + "\"" + pathLine + ",\n"
             + "  \"fulfills\": [\n"
             + "    \"requirement/borrowing.max-active-loans\"\n"
             + "  ]\n"
@@ -394,19 +396,20 @@ public sealed class SettingsCheckTests
 
     static string NotificationJson(string id, string title, string template, params string[] parameters)
     {
-        var paramsJson = parameters.Length == 0
-            ? ""
-            : ",\n  \"params\": [\n" + string.Join(",\n", parameters.Select(parameter => "    \"" + parameter + "\"")) + "\n  ]";
+        var paramsList = string.Join(", ", parameters.Select(parameter => "\"" + parameter + "\""));
 
         return "{\n"
             + "  \"type\": \"notification\",\n"
             + "  \"id\": \"" + id + "\",\n"
             + "  \"title\": \"" + title + "\",\n"
             + "  \"template\": \"" + template + "\",\n"
-            + "  \"addresses\": [\n    \"actor/reader\"\n  ],\n"
-            + "  \"channel\": [\n    \"email\"\n  ],\n"
-            + "  \"consent\": \"Readers accept notices at signup.\",\n"
-            + "  \"frequency\": \"once\"" + paramsJson + ",\n"
+            + "  \"audience\": [\n    \"actor/reader\"\n  ],\n"
+            + "  \"channels\": [\n    \"email\"\n  ],\n"
+            + "  \"via\": \"external-system/text-gateway\",\n"
+            + "  \"frequency\": \"once\",\n"
+            + "  \"deduplicationKey\": \"loan-due per loan\",\n"
+            + "  \"parameters\": [" + paramsList + "],\n"
+            + "  \"locale\": \"en\",\n"
             + "  \"fulfills\": [\n    \"requirement/borrowing.max-active-loans\"\n  ]\n"
             + "}\n";
     }

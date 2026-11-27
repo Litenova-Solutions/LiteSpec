@@ -161,7 +161,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "6.0.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@6.0.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "7.0.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@7.0.0")));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -185,7 +185,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("nuget:LiteSpec.Analyzers", finding);
         Assert.Contains("5.1.1", finding);
         Assert.Contains("differs from its manifest pin", finding);
-        Assert.Contains("6.0.0", finding);
+        Assert.Contains("7.0.0", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
@@ -297,7 +297,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("[G]", finding);
         Assert.Contains("decision/0099-admit-extra-package", finding);
         Assert.Contains("nuget:UnknownLib", finding);
-        Assert.Contains("failureBehavior", finding);
+        Assert.Contains("onFailure", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-version-drift", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
@@ -417,7 +417,7 @@ public sealed class DependencyCheckTests
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[admission-invalid]"));
 
         Assert.Equal(1, check.Status);
-        Assert.Contains("failureBehavior", finding);
+        Assert.Contains("onFailure", finding);
     }
 
     /// <summary>A CycloneDX direct package with no pin and no admission reports dependency-undeclared.</summary>
@@ -482,14 +482,14 @@ public sealed class DependencyCheckTests
         Assert.Contains("npm:React", finding);
     }
 
-    /// <summary>An npm package at its pin with an accepted license reports nothing.</summary>
+    /// <summary>A Svelte package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
     public void NpmPinnedPackagePasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("react", "19.3.0", "MIT", "pkg:npm/react@19.3.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("svelte", "5.0.0", "MIT", "pkg:npm/svelte@5.0.0")));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -529,7 +529,7 @@ public sealed class DependencyCheckTests
     }
 
     static void WriteFollower(string root) =>
-        Write(root, "apps/api/src/Library.Application/Lending/Loans/ExtraPackageAdapter.cs", FollowerFile("decision/0099-admit-extra-package", "ExtraPackageAdapter"));
+        Write(root, "apps/api/src/Modules/Library.Lending/Application/ExtraPackageAdapter.cs", FollowerFile("decision/0099-admit-extra-package", "ExtraPackageAdapter"));
 
     static void Write(string root, string relative, string text)
     {
@@ -681,9 +681,9 @@ public sealed class DependencyCheckTests
             + "}\n";
     }
 
-    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "failureBehavior": "The download fails and the page stays readable."}]""";
+    const string CompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process", "onFailure": "The download fails and the page stays readable."}]""";
 
     const string IncompleteAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "MIT", "location": "in-process"}]""";
 
-    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "GPL-3.0-only", "location": "in-process", "failureBehavior": "The download fails and the page stays readable."}]""";
+    const string GplAdmits = """[{"package": "nuget:UnknownLib", "layer": "Infrastructure", "license": "GPL-3.0-only", "location": "in-process", "onFailure": "The download fails and the page stays readable."}]""";
 }

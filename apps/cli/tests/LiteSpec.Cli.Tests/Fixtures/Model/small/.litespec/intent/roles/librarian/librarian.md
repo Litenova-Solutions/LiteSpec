@@ -6,6 +6,6 @@ Librarians manage the whole collection.
 
 Fixture text for the Access section.
 
-## Limits
+## Excludes
 
-Fixture text for the Limits section.
+Fixture text for the Excludes section.

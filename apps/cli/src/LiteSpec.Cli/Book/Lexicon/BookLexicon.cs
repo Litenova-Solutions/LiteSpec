@@ -15,7 +15,7 @@ sealed class BookLexicon
     /// <summary>Gets the record types by id, in record-type table order.</summary>
     public IReadOnlyDictionary<string, LexiconType> Types { get; }
 
-    /// <summary>Gets the record layers by key, in four-layer table order, then governance and glossary.</summary>
+    /// <summary>Gets the record layers by key, in four-layer table order, then governance, glossary and root.</summary>
     public IReadOnlyDictionary<string, LexiconLayer> Layers { get; }
 
     /// <summary>Gets the link phrases, in Links-table row order.</summary>
@@ -23,6 +23,15 @@ sealed class BookLexicon
 
     /// <summary>Gets the field labels by field name, seeded from the book's field-label table.</summary>
     public IReadOnlyDictionary<string, string> Fields { get; } = BookLexiconFieldLabels.Labels;
+
+    /// <summary>
+    ///     Reads one field under its label, trying the typed entry of the form
+    ///     record-type dot field before the plain entry.
+    /// </summary>
+    /// <param name="field">The field name.</param>
+    /// <param name="recordType">The record type reading the field, or null for the plain entry.</param>
+    /// <returns>The label for the field on that record type, or the field name when no entry names it.</returns>
+    public static string FieldLabel(string field, string? recordType = null) => BookLexiconFieldLabels.FieldLabel(field, recordType);
 
     /// <summary>Gets the glossary entries by lowercase term, in glossary order.</summary>
     public IReadOnlyDictionary<string, LexiconGlossaryEntry> Glossary { get; }
@@ -68,8 +77,9 @@ sealed class BookLexicon
         var model = BookLexiconTables.ReadLines(modelFile);
         var layers = BookLexiconParsers.ParseLayers(modelFile, model);
         var types = BookLexiconParsers.ParseTypes(modelFile, model);
-        var links = BookLexiconParsers.ParseLinks(modelFile, model);
+        var links = BookLexiconSchema.Links(Path.Combine(liteSpecRoot, "schemas", "record.schema.yaml"));
         var sections = BookLexiconParsers.ParseSections(modelFile, model);
+        sections["Reach States"] = BookLexiconParsers.ParseReachStates(modelFile, model);
         var findings = BookLexiconParsers.ParseFindings(toolsFile, BookLexiconTables.ReadLines(toolsFile));
         var glossary = BookLexiconParsers.ParseGlossary(glossaryFile, BookLexiconTables.ReadLines(glossaryFile));
 
@@ -79,7 +89,10 @@ sealed class BookLexicon
     /// <summary>
     ///     Resolves a link field path to its Links-table phrases: the longest dotted prefix
     ///     naming a table field wins, so effects.calls reads as its effects row. A leading
-    ///     record type is ignored, so use-case.effects.calls reads the same.
+    ///     record type is ignored, so use-case.effects.calls reads the same. A value under a
+    ///     named map carries the map key in its path, so leading segments are stripped until
+    ///     a row matches, and output.include.orders.freshness.decidedBy reads as its
+    ///     freshness row.
     /// </summary>
     /// <param name="field">The edge's field key, such as effects.calls.</param>
     /// <param name="carrier">The linking record's type, choosing between rows sharing one field, or null for the table's first row.</param>
@@ -95,28 +108,41 @@ sealed class BookLexicon
             candidate = candidate[(dot + 1)..];
         }
 
+        var suffix = candidate;
         while (true)
         {
-            var matches = Links.Where(link => link.Field == candidate).ToList();
-            if (matches.Count > 0)
+            var inner = suffix;
+            while (true)
             {
-                var pick = carrier is not null
-                    ? matches.FirstOrDefault(link => link.Carriers.Contains(carrier)) ?? matches[0]
-                    : matches[0];
-                forward = pick.Forward;
-                inverse = pick.Inverse;
-                return true;
+                var matches = Links.Where(link => link.Field == inner).ToList();
+                if (matches.Count > 0)
+                {
+                    var pick = carrier is not null
+                        ? matches.FirstOrDefault(link => link.Carriers.Contains(carrier)) ?? matches[0]
+                        : matches[0];
+                    forward = pick.Forward;
+                    inverse = pick.Inverse;
+                    return true;
+                }
+
+                var nested = inner.LastIndexOf('.');
+                if (nested < 0)
+                {
+                    break;
+                }
+
+                inner = inner[..nested];
             }
 
-            var nested = candidate.LastIndexOf('.');
-            if (nested < 0)
+            var leading = suffix.IndexOf('.');
+            if (leading < 0)
             {
                 forward = "";
                 inverse = "";
                 return false;
             }
 
-            candidate = candidate[..nested];
+            suffix = suffix[(leading + 1)..];
         }
     }
 

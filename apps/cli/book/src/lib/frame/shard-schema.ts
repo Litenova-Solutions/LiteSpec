@@ -10,8 +10,12 @@ import type {
   BookTest,
   CaptureState,
   IntentCoverage,
+  GoalObservation,
+  GoalOutcome,
   IntentCoverageEntry,
+  ReachClaim,
   LayerClaim,
+  LayerKey,
   Lexicon,
   LexiconLayer,
   LexiconLink,
@@ -20,6 +24,9 @@ import type {
   Manifest,
   OutlineKind,
   OutlineNode,
+  ParkedChild,
+  ProductArea,
+  ProductAreas,
   ProofState,
   SearchRow,
   SecurityItem,
@@ -152,8 +159,8 @@ function isOutlineKind(value: unknown): value is OutlineKind {
   return value === "record" || value === "group" || value === "code" || value === "test" || value === "finding";
 }
 
-function isLayerKey(value: unknown): value is "intent" | "behavior" | "implementation" | "proof" {
-  return value === "intent" || value === "behavior" || value === "implementation" || value === "proof";
+function isLayerKey(value: unknown): value is LayerKey | "root" {
+  return value === "intent" || value === "behavior" || value === "implementation" || value === "proof" || value === "root";
 }
 
 /** One edge as the records packs carry it: the other end and the field key. */
@@ -244,7 +251,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
   if (isRecord(fieldsValue) === false) fail(what + " needs a fields object");
 
   const layerValue = raw["layer"];
-  let layer: "intent" | "behavior" | "implementation" | "proof" | null | undefined;
+  let layer: LayerKey | "root" | null | undefined;
   if (layerValue === undefined) layer = undefined;
   else if (layerValue === null) layer = null;
   else if (isLayerKey(layerValue)) layer = layerValue;
@@ -289,6 +296,11 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
       state,
       tests: optNumber(proofValue, "tests", what),
       test,
+      commit: optString(proofValue, "commit", what),
+      lastPassedAt: optString(proofValue, "lastPassedAt", what),
+      status: optString(proofValue, "status", what),
+      commitsBehind: optNumber(proofValue, "commitsBehind", what),
+      staleReason: optString(proofValue, "staleReason", what),
     };
   }
 
@@ -313,6 +325,14 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
       hasCode: optNullableBoolean(completionValue, "hasCode", what),
       hasTests: optNullableBoolean(completionValue, "hasTests", what),
       scenarios,
+      stage: optString(completionValue, "stage", what),
+      proof: optString(completionValue, "proof", what),
+      heldBy: optStringArray(completionValue, "heldBy", what),
+      parkedBy: parseParkedChildren(completionValue["parkedBy"], what),
+      inScope: optNumber(completionValue, "inScope", what),
+      parked: optNumber(completionValue, "parked", what),
+      total: optNumber(completionValue, "total", what),
+      counts: parseCompletionCounts(completionValue["counts"], what),
     };
   }
 
@@ -404,7 +424,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
       if (isRecord(item) === false) fail(what + " needs step objects");
       steps.push({
         text: optString(item, "text", what),
-        serves: optStringArray(item, "serves", what),
+        cites: optStringArray(item, "cites", what),
       });
     }
   }
@@ -438,7 +458,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
     else if (typeof reachedValue === "boolean" || typeof reachedValue === "number") reached = reachedValue;
     else fail(what + " needs an intentCoverage reached boolean or number");
     const coverageStepsValue = intentCoverageValue["steps"];
-    let coverageSteps: { id?: string; reached?: boolean; reachedBy?: string[] }[] | undefined;
+    let coverageSteps: { id?: string; reached?: boolean; reachedBy?: string[]; claims?: ReachClaim[] }[] | undefined;
     if (coverageStepsValue !== undefined) {
       if (Array.isArray(coverageStepsValue) === false) fail(what + " needs intentCoverage steps");
       coverageSteps = [];
@@ -448,6 +468,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
           id: optString(item, "id", what),
           reached: optBoolean(item, "reached", what),
           reachedBy: optStringArray(item, "reachedBy", what),
+          claims: parseReachClaims(item["claims"], what),
         });
       }
     }
@@ -455,6 +476,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
       reached,
       total: optNumber(intentCoverageValue, "total", what),
       reachedBy: optStringArray(intentCoverageValue, "reachedBy", what),
+      claims: parseReachClaims(intentCoverageValue["claims"], what),
       steps: coverageSteps,
     };
   }
@@ -528,6 +550,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
     screens: optStringArray(raw, "screens", what),
     shownBy: optStringArray(raw, "shownBy", what),
     concerns: optStringArray(raw, "concerns", what),
+    outcome: parseGoalOutcome(raw["outcome"], what),
   };
 }
 
@@ -655,7 +678,7 @@ export function parseLexicon(raw: unknown): Lexicon {
   if (isRecord(sectionsValue) === false) fail("the lexicon needs sections");
   if (isRecord(glossaryValue) === false) fail("the lexicon needs a glossary");
   if (isRecord(fieldsValue) === false) fail("the lexicon needs fields");
-  if (isRecord(findingsValue) === false) fail("the lexicon needs findings");
+  if (findingsValue !== undefined && isRecord(findingsValue) === false) fail("the lexicon needs findings");
 
   const types: Record<string, LexiconType> = {};
   for (const [key, item] of Object.entries(typesValue)) {
@@ -683,12 +706,14 @@ export function parseLexicon(raw: unknown): Lexicon {
     fields[key] = item;
   }
   const findings: Record<string, { level: string; meaning: string }> = {};
-  for (const [key, item] of Object.entries(findingsValue)) {
-    if (isRecord(item) === false) fail("finding code " + key + " needs an object");
-    findings[key] = {
-      level: reqString(item, "level", "finding code " + key),
-      meaning: reqString(item, "meaning", "finding code " + key),
-    };
+  if (isRecord(findingsValue)) {
+    for (const [key, item] of Object.entries(findingsValue)) {
+      if (isRecord(item) === false) fail("finding code " + key + " needs an object");
+      findings[key] = {
+        level: reqString(item, "level", "finding code " + key),
+        meaning: reqString(item, "meaning", "finding code " + key),
+      };
+    }
   }
   return {
     types,
@@ -704,7 +729,9 @@ export function parseLexicon(raw: unknown): Lexicon {
 function parseIntentCoverageEntry(raw: unknown): IntentCoverageEntry {
   if (isRecord(raw) === false) fail("an Intent coverage entry needs an object");
   const kind = raw["kind"];
-  if (kind !== "requirement" && kind !== "step") fail("an Intent coverage entry needs a kind word");
+  if (kind !== "requirement" && kind !== "step" && kind !== "problem" && kind !== "constraint") {
+    fail("an Intent coverage entry needs a kind word");
+  }
   const reached = raw["reached"];
   if (typeof reached !== "boolean") fail("an Intent coverage entry needs a reached boolean");
   return {
@@ -712,7 +739,49 @@ function parseIntentCoverageEntry(raw: unknown): IntentCoverageEntry {
     kind,
     reached,
     reachedBy: reqStringArray(raw["reachedBy"], "an Intent coverage entry"),
+    claims: parseReachClaims(raw["claims"], "an Intent coverage entry"),
   };
+}
+
+/** The Intent coverage entries of a coverage shard: one entry per requirement, flow step, problem and constraint. */
+export function parseIntentCoverageEntries(raw: unknown): IntentCoverageEntry[] {
+  if (Array.isArray(raw) === false) fail("the Intent coverage entries need a list");
+  return raw.map((item) => parseIntentCoverageEntry(item));
+}
+
+function parseProductArea(raw: unknown): ProductArea {
+  if (isRecord(raw) === false) fail("a product area needs an object");
+  return {
+    id: reqString(raw, "id", "a product area"),
+    title: reqString(raw, "title", "a product area"),
+    features: reqStringArray(raw["features"], "a product area"),
+    flows: reqStringArray(raw["flows"], "a product area"),
+  };
+}
+
+/** The product-areas shard: one entry per Behavior module, with the features and flows no module reaches. */
+export function parseProductAreas(raw: unknown): ProductAreas {
+  if (isRecord(raw) === false) fail("the product areas need an object");
+  const modulesValue = raw["modules"];
+  const unfulfilledValue = raw["unfulfilled"];
+  if (Array.isArray(modulesValue) === false) fail("the product areas need modules");
+  if (isRecord(unfulfilledValue) === false) fail("the product areas need unfulfilled features and flows");
+  return {
+    modules: modulesValue.map((item) => parseProductArea(item)),
+    unfulfilled: {
+      features: reqStringArray(unfulfilledValue["features"], "the unfulfilled product area"),
+      flows: reqStringArray(unfulfilledValue["flows"], "the unfulfilled product area"),
+    },
+  };
+}
+
+function parseCoverageCounts(value: unknown, what: string): { reached: number; total: number } | undefined {
+  if (value === undefined) return undefined;
+  if (isRecord(value) === false) fail(what + " needs counts");
+  const reached = value["reached"];
+  const total = value["total"];
+  if (typeof reached !== "number" || typeof total !== "number") fail(what + " needs counts");
+  return { reached, total };
 }
 
 function parseIntentCoverage(raw: unknown): IntentCoverage {
@@ -722,7 +791,6 @@ function parseIntentCoverage(raw: unknown): IntentCoverage {
   const entriesValue = raw["entries"];
   if (isRecord(requirementsValue) === false) fail("the Intent coverage needs requirements");
   if (isRecord(stepsValue) === false) fail("the Intent coverage needs steps");
-  if (Array.isArray(entriesValue) === false) fail("the Intent coverage needs entries");
   const requirementsReached = requirementsValue["reached"];
   const requirementsTotal = requirementsValue["total"];
   const stepsReached = stepsValue["reached"];
@@ -743,7 +811,9 @@ function parseIntentCoverage(raw: unknown): IntentCoverage {
     share,
     requirements: { reached: requirementsReached, total: requirementsTotal },
     steps: { reached: stepsReached, total: stepsTotal },
-    entries: entriesValue.map((item) => parseIntentCoverageEntry(item)),
+    problems: parseCoverageCounts(raw["problems"], "the Intent coverage problems"),
+    constraints: parseCoverageCounts(raw["constraints"], "the Intent coverage constraints"),
+    entries: entriesValue === undefined ? [] : parseIntentCoverageEntries(entriesValue),
   };
 }
 
@@ -755,16 +825,16 @@ function parseLayerClaim(raw: unknown): LayerClaim {
   };
 }
 
-/** The manifest shard: project, roots, editor, claims, coverage, layers and shard map. */
+/** The manifest shard: project, source links, release, claims, coverage, layers and shard map. */
 export function parseManifest(raw: unknown): Manifest {
   if (isRecord(raw) === false) fail("the manifest needs an object");
   const projectValue = raw["project"];
-  const rootsValue = raw["roots"];
+  const linksValue = raw["links"];
   const layersValue = raw["layers"];
   const totalsValue = raw["totals"];
   const shardOfValue = raw["shardOf"];
   if (isRecord(projectValue) === false) fail("the manifest needs a project");
-  if (isRecord(rootsValue) === false) fail("the manifest needs roots");
+  if (linksValue !== null && typeof linksValue !== "string") fail("the manifest needs links, a template or null");
   if (Array.isArray(layersValue) === false) fail("the manifest needs layers");
   if (isRecord(totalsValue) === false) fail("the manifest needs totals");
   if (isRecord(shardOfValue) === false) fail("the manifest needs a shard map");
@@ -778,6 +848,10 @@ export function parseManifest(raw: unknown): Manifest {
       outline: reqStringArray(item["outline"], "a manifest layer"),
     });
   }
+
+  const completeValue = raw["complete"];
+  if (completeValue !== undefined && typeof completeValue !== "number") fail("the manifest complete count needs a number");
+  const complete = typeof completeValue === "number" ? completeValue : undefined;
 
   const totals: Record<string, number> = {};
   for (const [key, item] of Object.entries(totalsValue)) {
@@ -821,19 +895,74 @@ export function parseManifest(raw: unknown): Manifest {
       id: reqString(projectValue, "id", "the manifest project"),
       title: reqString(projectValue, "title", "the manifest project"),
     },
-    roots: {
-      consumer: reqString(rootsValue, "consumer", "the manifest roots"),
-      litespec: reqString(rootsValue, "litespec", "the manifest roots"),
-    },
-    editor: reqString(raw, "editor", "the manifest"),
+    productId: reqString(raw, "productId", "the manifest"),
+    links: typeof linksValue === "string" ? linksValue : null,
+    release: reqString(raw, "release", "the manifest"),
     claims,
     intentCoverage,
     testRun,
     totals,
+    complete,
     layers,
     shardOf,
     search: reqStringArray(raw["search"], "the manifest search"),
     unplaced: reqStringArray(raw["unplaced"], "the manifest unplaced"),
     generatedOn: reqString(raw, "generatedOn", "the manifest"),
   };
+}
+
+function parseReachClaims(raw: unknown, what: string): ReachClaim[] | undefined {
+  if (raw === undefined) return undefined;
+  if (Array.isArray(raw) === false) fail(what + " needs a claims list");
+  return raw.map((item) => {
+    if (isRecord(item) === false) fail(what + " needs claim objects");
+    const state = item["state"];
+    if (state !== "verified" && state !== "claimed") fail(what + " needs a claim state of verified or claimed");
+    return { id: reqString(item, "id", what + " claim"), state };
+  });
+}
+
+function parseParkedChildren(raw: unknown, what: string): ParkedChild[] | undefined {
+  if (raw === undefined) return undefined;
+  if (Array.isArray(raw) === false) fail(what + " needs a parkedBy list");
+  return raw.map((item) => {
+    if (isRecord(item) === false) fail(what + " needs parkedBy objects");
+    return {
+      id: reqString(item, "id", what + " parkedBy"),
+      waiver: reqString(item, "waiver", what + " parkedBy"),
+      expiresOn: optNullableString(item, "expiresOn", what + " parkedBy"),
+    };
+  });
+}
+
+function parseCompletionCounts(raw: unknown, what: string): Record<string, { done?: number; of?: number }> | undefined {
+  if (raw === undefined) return undefined;
+  if (isRecord(raw) === false) fail(what + " needs a counts object");
+  const out: Record<string, { done?: number; of?: number }> = {};
+  for (const [key, item] of Object.entries(raw)) {
+    if (isRecord(item) === false) fail(what + " needs count objects");
+    out[key] = {
+      done: optNumber(item, "done", what),
+      of: optNumber(item, "of", what),
+    };
+  }
+  return out;
+}
+
+function parseGoalOutcome(raw: unknown, what: string): GoalOutcome | undefined {
+  if (raw === undefined) return undefined;
+  if (isRecord(raw) === false) fail(what + " needs an outcome object");
+  const state = raw["state"];
+  if (state !== "measured" && state !== "not measured") fail(what + " needs an outcome state");
+  const observationsValue = raw["observations"];
+  if (Array.isArray(observationsValue) === false) fail(what + " needs outcome observations");
+  const observations = observationsValue.map((item): GoalObservation => {
+    if (isRecord(item) === false) fail(what + " needs observation objects");
+    return {
+      observedOn: reqString(item, "observedOn", what + " observation"),
+      value: String(item["value"] ?? ""),
+      source: reqString(item, "source", what + " observation"),
+    };
+  });
+  return { state, observations };
 }

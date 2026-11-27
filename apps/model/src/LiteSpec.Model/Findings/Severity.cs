@@ -5,47 +5,28 @@ using System.Linq;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     One finding's decided outcome: whether it blocks, reports or is covered by a departure.
+///     One finding's decided outcome: whether it blocks, reports or is covered by a waiver.
 /// </summary>
 /// <param name="Outcome">What the host does with the finding.</param>
 public sealed record Severity(Outcome Outcome)
 {
     /// <summary>
-    ///     The finding codes about planned Intent: a requirement, step, goal or
-    ///     constraint that no Behavior record reaches yet. They report locally and
-    ///     block only in the pull-request check, so Intent can run ahead of Behavior.
-    /// </summary>
-    public static readonly IReadOnlyCollection<string> PlannedIntent = new HashSet<string>(StringComparer.Ordinal)
-    {
-        "intent-unreached", "requirement-fulfillment-missing", "step-use-case-missing", "goal-mover-missing", "constraint-unreached",
-    };
-
-    /// <summary>
-    ///     Decides one finding's severity from its tier, the reader and where the
-    ///     check runs: reported for tier A, reported for tier S under an unqualified
-    ///     reader, reported for planned Intent outside continuous integration, and
-    ///     blocking otherwise. Exceptions are set aside before, in Suppression.Partition.
+    ///     Decides one finding's severity from its tier and the reader: reported for tier R, reported for tier S under an unqualified
+    ///     reader, and blocking otherwise. Waived findings are set aside before, in Suppression.Partition.
     /// </summary>
     /// <param name="finding">The finding.</param>
     /// <param name="readerQualified">Whether the reader that produced the finding is qualified.</param>
-    /// <param name="continuousIntegration">Whether the check runs in continuous integration, the pull-request check.</param>
     /// <returns>The decided severity.</returns>
     public static Severity Of(
         Finding finding,
-        bool readerQualified,
-        bool continuousIntegration)
+        bool readerQualified)
     {
-        if (string.Equals(finding.Tier, "A", StringComparison.Ordinal))
+        if (string.Equals(finding.Tier, "R", StringComparison.Ordinal))
         {
             return new Severity(Outcome.Reported);
         }
 
         if (string.Equals(finding.Tier, "S", StringComparison.Ordinal) && !readerQualified)
-        {
-            return new Severity(Outcome.Reported);
-        }
-
-        if (!continuousIntegration && PlannedIntent.Contains(finding.Code))
         {
             return new Severity(Outcome.Reported);
         }

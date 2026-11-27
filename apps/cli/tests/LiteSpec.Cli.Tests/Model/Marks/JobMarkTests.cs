@@ -2,7 +2,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
-/// <summary>Proves a plain class carrying a job mark hosts its job: it clears job-unimplemented and takes exactly one mark.</summary>
+/// <summary>Proves a plain class carrying a job mark hosts its job: it clears job-unimplemented.</summary>
 public sealed class JobMarkTests
 {
     /// <summary>Marked Plain Class Clears Job Unimplemented.</summary>
@@ -12,8 +12,8 @@ public sealed class JobMarkTests
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
-        WriteSource(fixture.Path, "Library.Infrastructure", "ChargeDuesJob.cs", """
-            namespace Library.Infrastructure.Billing;
+        WriteSource(fixture.Path, Path.Combine("Modules", "Library.Lending", "Application", "ChargeDues"), "ChargeDuesJob.cs", """
+            namespace Library.Lending.Application.ChargeDues;
 
             /// <implements>job/billing.charge-dues</implements>
             public sealed class ChargeDuesJob
@@ -29,35 +29,6 @@ public sealed class JobMarkTests
         Assert.Contains(MarksFixture.WithCode(findings, "job-unimplemented"), finding => finding.Subject != null && finding.Subject.StartsWith("job/lending.", StringComparison.Ordinal));
         Assert.DoesNotContain(MarksFixture.WithCode(findings, "job-unimplemented"), finding => finding.Subject == "job/billing.charge-dues");
         Assert.Empty(MarksFixture.WithCode(findings, "mark-missing"));
-        Assert.Empty(MarksFixture.WithCode(findings, "mark-count-invalid"));
-    }
-
-    /// <summary>Marked Plain Class With Two Marks Reports Mark Count.</summary>
-    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact]
-    public void MarkedPlainClassWithTwoMarksReportsMarkCount()
-    {
-        using var fixture = MarksFixture.Prepare("unimplemented");
-        WriteJob(fixture.Path);
-        WriteSource(fixture.Path, "Library.Infrastructure", "ChargeDuesJob.cs", """
-            namespace Library.Infrastructure.Billing;
-
-            /// <implements>job/billing.charge-dues</implements>
-            /// <implements>job/billing.charge-dues</implements>
-            public sealed class ChargeDuesJob
-            {
-                public void Run()
-                {
-                }
-            }
-            """);
-
-        var findings = MarksFixture.Check(fixture.Path);
-        var counts = MarksFixture.WithCode(findings, "mark-count-invalid");
-
-        var finding = Assert.Single(counts, found => found.Message.Contains("twice"));
-        Assert.Contains("ChargeDuesJob", finding.Message);
-        Assert.DoesNotContain(MarksFixture.WithCode(findings, "job-unimplemented"), unimplemented => unimplemented.Subject == "job/billing.charge-dues");
     }
 
     /// <summary>Unmarked Plain Class Is Technical And Job Stays Unimplemented.</summary>
@@ -68,8 +39,8 @@ public sealed class JobMarkTests
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
-        WriteSource(fixture.Path, "Library.Infrastructure", "ChargeDuesJob.cs", """
-            namespace Library.Infrastructure.Billing;
+        WriteSource(fixture.Path, Path.Combine("Modules", "Library.Lending", "Application", "ChargeDues"), "ChargeDuesJob.cs", """
+            namespace Library.Lending.Application.ChargeDues;
 
             public sealed class ChargeDuesJob
             {
@@ -96,8 +67,8 @@ public sealed class JobMarkTests
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         WriteJob(fixture.Path);
-        WriteSource(fixture.Path, "Library.Domain", "ChargeDuesJob.cs", """
-            namespace Library.Domain.Billing;
+        WriteSource(fixture.Path, Path.Combine("Modules", "Library.Lending", "Domain", "Loans"), "ChargeDuesJob.cs", """
+            namespace Library.Lending.Domain.Loans;
 
             /// <implements>job/billing.charge-dues</implements>
             public sealed class ChargeDuesJob

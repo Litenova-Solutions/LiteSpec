@@ -10,14 +10,14 @@ namespace LiteSpec.Cli.Tests.Model.Readers;
 public sealed class DotnetMarkLinkTests
 {
     /// <summary>Handler Marked Xml Links Its Use Case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerMarkedXmlLinksItsUseCase()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
@@ -37,14 +37,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Handler Marked Attribute Links Its Use Case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerMarkedAttributeLinksItsUseCase()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "ListLoans"), "ListLoansQueryHandler.cs", """
-            namespace Library.Application.Lending.Loans.ListLoans;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "ListLoans"), "ListLoansQueryHandler.cs", """
+            namespace Library.App.Application.ListLoans;
 
             [Implements("use-case/lending.list-loans")]
             public sealed class ListLoansQueryHandler : IQueryHandler<ListLoansQuery>
@@ -63,14 +63,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Handler Without Mark Has Empty Use Case Id And An Unmarked Element.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerWithoutMarkHasEmptyUseCaseIdAndAnUnmarkedElement()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
             {
@@ -91,14 +91,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Handler With Two Use Case Marks Has Empty Use Case Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void HandlerWithTwoUseCaseMarksHasEmptyUseCaseId()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             /// <implements>use-case/lending.return-copy</implements>
@@ -119,33 +119,33 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Event Id Comes From Its Mark Not Its Class Name.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventIdComesFromItsMarkNotItsClassName()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanRenewedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanRenewedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
-            /// <implements>event/loan.loan-borrowed</implements>
+            /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanRenewedEvent(Guid LoanId) : IDomainEvent;
             """);
 
         var domainEvent = Assert.Single(Read(temp.Path).Events);
 
-        Assert.Equal("event/loan.loan-borrowed", domainEvent.EventId);
+        Assert.Equal("domain-event/loan.loan-borrowed", domainEvent.EventId);
     }
 
     /// <summary>Event Without Mark Has Null Event Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventWithoutMarkHasNullEventId()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent;
             """);
@@ -156,14 +156,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Aggregate Method Carries Its Use Cases.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AggregateMethodCarriesItsUseCases()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan : AggregateRoot<Guid>
@@ -185,14 +185,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Aggregate Method Without Marks Has No Use Cases.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AggregateMethodWithoutMarksHasNoUseCases()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan : AggregateRoot<Guid>
@@ -210,14 +210,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Marked Method Of No Kind Lands In Stray Marks.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void MarkedMethodOfNoKindLandsInStrayMarks()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanReader.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "LoanReader.cs", """
+            namespace Library.App.Domain.Loans;
 
             public sealed class LoanReader
             {
@@ -237,14 +237,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Marked Plain Class Lands In Stray Marks.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void MarkedPlainClassLandsInStrayMarks()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Money.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Money.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class Money;
@@ -261,39 +261,39 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Classification Lands In Runtime Value.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ClassificationLandsInRuntimeValue()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
-            /// <implements>event/loan.loan-borrowed</implements>
+            /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent
             {
-                public const string Classification = "event/loan.loan-borrowed";
+                public const string Classification = "domain-event/loan.loan-borrowed";
             }
             """);
 
         var element = Assert.Single(Read(temp.Path).Elements);
 
         Assert.Equal(CodeKind.DomainEvent, element.Kind);
-        Assert.Equal("event/loan.loan-borrowed", element.RuntimeValue);
+        Assert.Equal("domain-event/loan.loan-borrowed", element.RuntimeValue);
     }
 
     /// <summary>Event Without Classification Has Null Runtime Value.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EventWithoutClassificationHasNullRuntimeValue()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "LoanBorrowedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanBorrowedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
-            /// <implements>event/loan.loan-borrowed</implements>
+            /// <implements>domain-event/loan.loan-borrowed</implements>
             public sealed record LoanBorrowedEvent(Guid LoanId) : IDomainEvent;
             """);
 
@@ -303,14 +303,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Endpoint Links Its Use Case From Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EndpointLinksItsUseCaseFromItsMark()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "WebApi", "BorrowCopyEndpoint.cs", """
-            namespace Library.WebApi.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "WebApi", "BorrowCopy"), "BorrowCopyEndpoint.cs", """
+            namespace Library.App.WebApi.BorrowCopy;
 
             /// <implements>use-case/lending.borrow-copy</implements>
             public sealed class BorrowCopyEndpoint : IEndpoint
@@ -335,14 +335,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Endpoint Without Mark Has Empty Use Case Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EndpointWithoutMarkHasEmptyUseCaseId()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "WebApi", "BorrowCopyEndpoint.cs", """
-            namespace Library.WebApi.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "WebApi", "BorrowCopy"), "BorrowCopyEndpoint.cs", """
+            namespace Library.App.WebApi.BorrowCopy;
 
             public sealed class BorrowCopyEndpoint : IEndpoint
             {
@@ -364,14 +364,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Reaction Links Its Record From Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionLinksItsRecordFromItsMark()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NotifyOnBorrowHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnLoanBorrowed"), "NotifyOnBorrowHandler.cs", """
+            namespace Library.App.Application.OnLoanBorrowed;
 
             /// <implements>reaction/lending.notify-on-borrow</implements>
             public sealed class NotifyOnBorrowHandler : IEventHandler<LoanBorrowedEvent>
@@ -387,14 +387,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Reaction Without Mark Has Null Record Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionWithoutMarkHasNullRecordId()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NotifyOnBorrowHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnLoanBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnLoanBorrowed"), "NotifyOnBorrowHandler.cs", """
+            namespace Library.App.Application.OnLoanBorrowed;
 
             public sealed class NotifyOnBorrowHandler : IEventHandler<LoanBorrowedEvent>
             {
@@ -408,14 +408,14 @@ public sealed class DotnetMarkLinkTests
     }
 
     /// <summary>Job Host Links Its Job From Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void JobHostLinksItsJobFromItsMark()
     {
         using var temp = TestCli.Temp("reader-marks");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NightlyScanJob.cs", """
-            namespace Library.Application.Lending.Loans.NightlyScan;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "NightlyScan"), "NightlyScanJob.cs", """
+            namespace Library.App.Application.NightlyScan;
 
             /// <implements>job/lending.nightly-scan</implements>
             public sealed class NightlyScanJob : BackgroundService
@@ -436,8 +436,8 @@ public sealed class DotnetMarkLinkTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

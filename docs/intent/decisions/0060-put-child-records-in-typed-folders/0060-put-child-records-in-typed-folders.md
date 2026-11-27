@@ -1,6 +1,6 @@
 # Put Child Records in Typed Folders
 
-A parent record holds child records, such as the requirements of a feature or the use cases of an aggregate. This decision puts every child stored as its own file in a folder named for its type, so a reader of a parent folder sees its own files and each kind of child apart from the others.
+A parent record holds child records, such as the requirements of a feature or the use cases of an aggregate. This decision puts every child stored as its own file in a folder named for its type. A reader of a parent folder sees its own files and each kind of child apart from the others.
 
 ## Context
 
@@ -22,13 +22,13 @@ LiteSpec compared 3 options for where child records sit. The table sets each opt
 
 ## Decision
 
-A child record stored as its own file sits in its own folder. That folder is named for the child type in the plural and sits inside the parent's folder. A child stored as an entry, such as a result, scenario, permission, journey step or source, stays in its parent's file.
+A child record stored as its own file sits in its own folder. That folder is named for the child type in the plural and sits inside the parent's folder. A child stored as an entry, such as a result, scenario, permission, flow step or source, stays in its parent's file.
 
-The homes are the same for every module. Requirements sit in a requirements folder under their feature. Aggregates sit in an aggregates folder under their module. Use cases sit in a use-cases folder under their aggregate, and a use case that belongs to no aggregate sits in a use-cases folder under its module. Events and rules sit in folders under the aggregate. A product-level quality requirement sits in the product's requirements folder.
+The homes are the same for every module. Features sit in a features folder under the problem each answers. Requirements sit in a requirements folder under their feature, or in the product's requirements folder where no feature stands above them. Aggregates sit in an aggregates folder under their module. Use cases sit in a use-cases folder under their aggregate, and a use case that belongs to no aggregate sits in a use-cases folder under its module. Domain events and rules sit in folders under the aggregate. Flows sit in the product's flows folder.
 
 ## Consequences
 
-The flat module layouts are removed, so each module has one layout. The set of folders that a module may hold is closed, and a subfolder outside that set reports `record-placement-invalid`. Creation and renaming write only these homes.
+The flat module layouts are removed, so each module has one layout. The set of folders that a module may hold is closed. `model check` reports `record-placement-invalid` for a subfolder outside that set. Creation and renaming write only these homes.
 
 Identifiers do not change, because none names a type folder. Code paths keep their layer names, since the typed folders organize records and do not change how code is named. The folder reference page is generated from the folder table, so the table and the page cannot drift.
 

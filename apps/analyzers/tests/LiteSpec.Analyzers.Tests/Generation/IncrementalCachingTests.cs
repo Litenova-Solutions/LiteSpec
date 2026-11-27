@@ -9,7 +9,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class IncrementalCachingTests
 {
     /// <summary>An edit to an unrelated file does not rerun the record-reading step.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An edit to an unrelated file does not rerun the record-reading step")]
     public void UnrelatedEditDoesNotRerunRecordReading()
     {
@@ -19,12 +19,12 @@ public sealed class IncrementalCachingTests
 
                 public interface IDomainEvent;
 
-                /// <implements>event/expense.submitted</implements>
+                /// <implements>domain-event/expense.submitted</implements>
                 public sealed partial record ExpenseSubmittedEvent(string ExpenseId) : IDomainEvent;
                 """),
-            "Shop.Domain");
+            "Shop.Spending");
         var driver = GeneratorVerify.CreateDriver(
-            RecordPages.Files("xml", ("events.yaml", RecordPages.EventPage("event/expense.submitted"))), null, "layer-projects");
+            RecordPages.Files("xml", ("domain-events.yaml", RecordPages.DomainEventPage("domain-event/expense.submitted"))));
         var first = driver.RunGenerators(compilation, TestContext.Current.CancellationToken);
         var firstResult = first.GetRunResult();
         var second = first.RunGenerators(compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(

@@ -7,25 +7,39 @@ access:
   tenant: own
 fulfills:
 - requirement/borrowing.hold-pickup-window
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
-- event/hold.hold-placed
+- domain-event/hold.hold-placed
+inputs:
+- name: copyId
+  meaning: The copy the reader places a hold on.
+  type: id
+  identifies: aggregate/lending.copy
+  required: true
+  origin: caller
+  classification: internal
+- name: readerId
+  meaning: The signed-in reader waiting for the copy, read from verified claims.
+  type: id
+  identifies: actor/reader
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/library-app
+  classification: personal
 idempotency:
   mode: none
   reason: Each call places its own hold, and placing a duplicate hold is refused.
 audit:
-  level: none
-  target: No audit trail; the hold record shows each placement.
-records:
-- type: result
-  id: result/place-hold.placed
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader places a hold on the copy.
+results:
+- id: result/place-hold.placed
   title: Placed
   outcome: success
   meaning: The hold is placed.
-- type: result
-  id: result/place-hold.hold-already-waiting
+- id: result/place-hold.hold-already-waiting
   title: Hold already waiting
   outcome: refusal
-  code: lending.hold-already-waiting
-  meaning: A hold is already waiting.
+  refusal: refusal/lending.hold-already-waiting

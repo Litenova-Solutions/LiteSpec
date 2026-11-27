@@ -1,0 +1,10 @@
+type: reaction
+id: reaction/lending.send-due-notice-on-loan-borrowed
+title: Send loan due notice
+triggeredBy:
+  - domain-event/loan.loan-borrowed
+effects:
+  - runs: use-case/lending.return-copy
+    timing: async
+fulfills:
+  - requirement/borrowing.max-active-loans

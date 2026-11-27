@@ -2,8 +2,9 @@
   import { cn } from "$lib/frame";
   import { glossaryLinks } from "./glossary-links";
 
-  // Rendered prose from the CLI or from inline(): typography from the Tailwind
-  // plugin, record links as underlined buttons, glossary terms linked on first use.
+  // Rendered prose from the CLI or from inline(): the type scale, record links
+  // in the link color, code chips, and glossary terms linked on first use.
+  // Prose fills the page column; the layout owns the measure.
   type Props = { html: string; class?: string; lead?: boolean };
   let { html, class: className = "", lead = false }: Props = $props();
 </script>
@@ -12,10 +13,14 @@
   <div
     use:glossaryLinks={html}
     class={cn(
-      "prose prose-stone max-w-none dark:prose-invert prose-a:underline-offset-2 prose-code:before:content-none prose-code:after:content-none",
-      "[&_.book-ref]:underline [&_.book-ref]:decoration-strong [&_.book-ref]:underline-offset-2 [&_.book-ref:hover]:decoration-foreground",
-      "[&_.book-glossary]:underline [&_.book-glossary]:decoration-highlight [&_.book-glossary]:decoration-dotted [&_.book-glossary]:underline-offset-2",
-      lead ? "prose-lg" : "prose-sm sm:prose-base",
+      "prose max-w-none",
+      "[--tw-prose-body:var(--foreground)] [--tw-prose-headings:var(--foreground)] [--tw-prose-lead:var(--foreground)] [--tw-prose-links:var(--link)] [--tw-prose-bold:var(--foreground)] [--tw-prose-counters:var(--text-secondary)] [--tw-prose-bullets:var(--text-secondary)] [--tw-prose-hr:var(--border-subtle)] [--tw-prose-quotes:var(--foreground)] [--tw-prose-quote-borders:var(--border-subtle)] [--tw-prose-captions:var(--text-secondary)] [--tw-prose-code:var(--foreground)] [--tw-prose-pre-code:var(--foreground)] [--tw-prose-pre-bg:var(--layer)] [--tw-prose-th-borders:var(--border-subtle)] [--tw-prose-td-borders:var(--border-subtle)]",
+      "[&_a]:text-link [&_a]:no-underline [&_a]:underline-offset-2 [&_a:hover]:underline",
+      "[&_.book-glossary]:underline [&_.book-glossary]:decoration-dotted [&_.book-glossary]:decoration-border-strong [&_.book-glossary]:underline-offset-2",
+      "[&_code]:rounded-none [&_code]:bg-layer [&_code]:px-1 [&_code]:font-mono [&_code]:text-xs [&_code]:font-normal",
+      "prose-code:before:content-none prose-code:after:content-none",
+      "[&_h3]:mt-6 [&_h3]:mb-3 [&_h3]:text-sm [&_h3]:leading-6 [&_h3]:font-semibold",
+      lead ? "text-xl leading-7 font-light" : "leading-6",
       className,
     )}
   >

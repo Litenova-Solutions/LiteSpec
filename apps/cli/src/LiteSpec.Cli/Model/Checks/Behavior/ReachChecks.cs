@@ -9,16 +9,15 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The reach checks: every use case sits in a journey, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held, every permission is allowed, and no two decisions decide one record.</summary>
+/// <summary>The reach checks: every use case sits in a flow, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held and named, and every permission is granted.</summary>
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/layers#write-each-layer-from-the-layer-above-it</follows>
 /// <follows>litespec/core/intent#reach-every-intent-record-with-behavior</follows>
 /// <follows>litespec/core/access#record-every-role-an-actor-holds</follows>
 /// <follows>litespec/core/access#grant-permissions-through-roles</follows>
-/// <follows>litespec/core/model#follow-the-authority-order</follows>
 internal static class ReachChecks
 {
-    /// <summary>Reports use-case-journey-missing.</summary>
+    /// <summary>Reports use-case-flow-missing.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunReach(ProjectModel model, List<Finding> findings)
@@ -36,11 +35,11 @@ internal static class ReachChecks
             }
 
             var servesStep = useCase.Ids(RecordFields.Serves)
-                .Any(id => Identifiers.TrySplitStep(id, out _, out _));
+                .Any(id => id.StartsWith("step/", StringComparison.Ordinal));
 
             if (!servesStep)
             {
-                findings.Add(new Finding("use-case-journey-missing", $"Use case '{useCase.Id}' sits in no journey.", useCase.File, useCase.Line, SubjectOf(useCase)));
+                findings.Add(new Finding("use-case-flow-missing", $"Use case '{useCase.Id}' sits in no flow.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
         }
     }
@@ -54,11 +53,11 @@ internal static class ReachChecks
         // declares a domain guard that no caller reaches, such as one a validator pre-empts.
         var declared = model.Records
             .Where(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal")
-            .Select(record => record.Field(RecordFields.Code))
+            .Select(record => RefusalCode.Of(record))
             .Concat(model.Records
                 .Where(record => record.Type == RecordTypes.Rule)
-                .Select(record => record.Field(RecordFields.Refusal))
-                .Where(refusal => refusal is not null && !refusal.StartsWith("result/", StringComparison.Ordinal)))
+                .Select(record => RefusalCode.Of(record))
+                .Where(code => code is not null && !code.StartsWith("result/", StringComparison.Ordinal)))
             .OfType<string>()
             .ToHashSet(StringComparer.Ordinal);
 
@@ -73,21 +72,64 @@ internal static class ReachChecks
         CheckUnmatchedCalls(model, findings);
     }
 
+    /// <summary>The requirements the steps of one flow cite, and their branches cite.</summary>
+    /// <param name="flow">The flow record whose steps are read.</param>
+    /// <returns>Each requirement identifier a step or a branch of the flow cites.</returns>
+    private static List<string> StepCitesOf(Record flow)
+    {
+        if (flow.Raw.ValueKind != JsonValueKind.Object
+            || !flow.Raw.TryGetProperty(RecordFields.Steps, out var steps)
+            || steps.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        var cited = new List<string>();
+
+        foreach (var step in steps.EnumerateArray())
+        {
+            cited.AddRange(LinkStrings(step, RecordFields.Carries));
+
+            if (step.ValueKind == JsonValueKind.Object
+                && step.TryGetProperty(RecordFields.Branches, out var branches)
+                && branches.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var branch in branches.EnumerateArray())
+                {
+                    cited.AddRange(LinkStrings(branch, RecordFields.Carries));
+                }
+            }
+        }
+
+        return cited;
+    }
+
+    /// <summary>Whether a quality requirement is proved outside Behavior: it names its check, or a test proves it.</summary>
+    /// <param name="requirement">The requirement record under inspection.</param>
+    /// <param name="proved">The record ids a test proves.</param>
+    /// <returns>True when the requirement is a quality requirement with a check or a proving test; otherwise false.</returns>
+    private static bool CheckProved(Record requirement, HashSet<string> proved) =>
+        requirement.Field(RecordFields.Kind) == "quality"
+        && (requirement.Field(RecordFields.Check) is { Length: > 0 } || proved.Contains(requirement.Id));
+
     /// <summary>Reports intent-unreached.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunIntentUnreached(ProjectModel model, List<Finding> findings)
     {
         // Goals and constraints keep their own codes, so this check covers the other five.
-        // A vision promises nothing and reaches no Behavior by design, so no check reads it.
+        // A direction promises nothing and reaches no Behavior by design, so no check reads it.
+        // A served-content entry fulfills the requirements it names for its entry point.
         var fulfilled = model.Records
             .Where(record => RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal))
             .SelectMany(record => record.Ids(RecordFields.Fulfills))
+            .Concat(model.Records.SelectMany(record => record.ServedFulfills()))
             .ToHashSet(StringComparer.Ordinal);
 
-        var journeyCites = model.Records
-            .Where(record => record.Type == RecordTypes.Journey)
-            .SelectMany(record => record.Ids(RecordFields.Cites))
+        // A flow reaches the requirements its steps cite; the flow itself holds no cites.
+        var flowCites = model.Records
+            .Where(record => record.Type == RecordTypes.Flow)
+            .SelectMany(record => StepCitesOf(record))
             .ToHashSet(StringComparer.Ordinal);
 
         var served = model.Records
@@ -95,14 +137,16 @@ internal static class ReachChecks
             .SelectMany(record => record.Ids(RecordFields.Serves))
             .ToHashSet(StringComparer.Ordinal);
 
+        var proved = model.Proves.Select(link => link.Claim).ToHashSet(StringComparer.Ordinal);
+
         var reachingRequirements = new HashSet<string>(StringComparer.Ordinal);
         var reachingFeatures = new HashSet<string>(StringComparer.Ordinal);
         var reachingProblems = new HashSet<string>(StringComparer.Ordinal);
-        var reachingJourneys = new HashSet<string>(StringComparer.Ordinal);
+        var reachingFlows = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement && !record.Derived))
         {
-            if (fulfilled.Contains(requirement.Id) || journeyCites.Contains(requirement.Id))
+            if (fulfilled.Contains(requirement.Id) || flowCites.Contains(requirement.Id) || CheckProved(requirement, proved))
             {
                 reachingRequirements.Add(requirement.Id);
             }
@@ -110,7 +154,7 @@ internal static class ReachChecks
 
         foreach (var feature in model.Records.Where(record => record.Type == RecordTypes.Feature && !record.Derived))
         {
-            if (journeyCites.Contains(feature.Id) || RequirementsOf(feature.Id, model).Any(id => reachingRequirements.Contains(id)))
+            if (flowCites.Contains(feature.Id) || RequirementsOf(feature.Id, model).Any(id => reachingRequirements.Contains(id)))
             {
                 reachingFeatures.Add(feature.Id);
             }
@@ -125,7 +169,7 @@ internal static class ReachChecks
 
         var citedProblems = model.Records
             .Where(record => record.Type == RecordTypes.Requirement && reachingRequirements.Contains(record.Id))
-            .SelectMany(record => record.Ids(RecordFields.Cites))
+            .SelectMany(record => record.Ids(RecordFields.BasedOn))
             .ToHashSet(StringComparer.Ordinal);
 
         foreach (var problem in model.Records.Where(record => record.Type == RecordTypes.Problem && !record.Derived))
@@ -136,11 +180,11 @@ internal static class ReachChecks
             }
         }
 
-        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey && !record.Derived))
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow && !record.Derived))
         {
-            if (journey.StepIds().Any(step => served.Contains(step)))
+            if (flow.StepIds().Any(step => served.Contains(step)))
             {
-                reachingJourneys.Add(journey.Id);
+                reachingFlows.Add(flow.Id);
             }
         }
 
@@ -168,10 +212,10 @@ internal static class ReachChecks
             }
         }
 
+        // A flow holds solves and basedOn in 7.0.0, not cites; its steps cite requirements, so research is reached through a requirement.
         var citedResearch = model.Records
-            .Where(record => (record.Type == RecordTypes.Requirement && reachingRequirements.Contains(record.Id))
-                || (record.Type == RecordTypes.Journey && reachingJourneys.Contains(record.Id)))
-            .SelectMany(record => record.Ids(RecordFields.Cites))
+            .Where(record => record.Type == RecordTypes.Requirement && reachingRequirements.Contains(record.Id))
+            .SelectMany(record => record.Ids(RecordFields.BasedOn))
             .ToHashSet(StringComparer.Ordinal);
 
         foreach (var research in model.Records.Where(record => record.Type == RecordTypes.Research && !record.Derived))
@@ -184,14 +228,20 @@ internal static class ReachChecks
 
         foreach (var decision in model.Records.Where(record => record.Type == RecordTypes.Decision && !record.Derived && !MarkChecks.UnderImplementationDecisions(model.Config, record.File)))
         {
-            var decides = decision.Ids(RecordFields.Decides);
+            // A decision reaches Behavior through the rules and requirements that name it
+            // in basedOn: the settled records gather the reverse view the decision stated.
+            var settled = model.Records
+                .Where(record => record.Type is RecordTypes.Rule or RecordTypes.Requirement
+                    && record.Ids(RecordFields.BasedOn).Contains(decision.Id, StringComparer.Ordinal))
+                .Select(record => record.Id)
+                .ToList();
 
-            if (decides.Count == 0)
+            if (settled.Count == 0)
             {
                 continue;
             }
 
-            var reaches = decides.Any(id => DecidedReaches(model, id, reachingRequirements, reachingFeatures, reachingProblems, reachingJourneys));
+            var reaches = settled.Any(id => DecidedReaches(model, id, reachingRequirements, reachingFeatures, reachingProblems, reachingFlows));
 
             if (!reaches)
             {
@@ -200,7 +250,7 @@ internal static class ReachChecks
         }
     }
 
-    /// <summary>Reports role-orphaned.</summary>
+    /// <summary>Reports role-unused.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRoleOrphan(ProjectModel model, List<Finding> findings)
@@ -219,56 +269,41 @@ internal static class ReachChecks
         {
             if (!held.Contains(role.Id))
             {
-                findings.Add(new Finding("role-orphaned", $"Role '{role.Id}' is held by no actor.", role.File, role.Line, SubjectOf(role)));
+                findings.Add(new Finding("role-unused", $"Role '{role.Id}' is held by no actor.", role.File, role.Line, SubjectOf(role)));
             }
         }
     }
 
-    /// <summary>Reports permission-orphaned.</summary>
+    /// <summary>Reports permission-unused.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunPermissionOrphan(ProjectModel model, List<Finding> findings)
     {
-        var allowed = model.Records
-            .Where(record => record.Type == RecordTypes.Role)
-            .SelectMany(record => record.Ids(RecordFields.Allows))
-            .ToHashSet(StringComparer.Ordinal);
-
         foreach (var permission in model.Records.Where(record => record.Type == RecordTypes.Permission && !record.Derived))
         {
-            if (!allowed.Contains(permission.Id))
+            // Each permission names the roles that hold it; a permission no role grants is unused.
+            if (permission.Ids(RecordFields.GrantedTo).Count == 0)
             {
-                findings.Add(new Finding("permission-orphaned", $"Permission '{permission.Id}' is allowed by no role.", permission.File, permission.Line, SubjectOf(permission)));
+                findings.Add(new Finding("permission-unused", $"Permission '{permission.Id}' is granted by no role.", permission.File, permission.Line, SubjectOf(permission)));
             }
         }
     }
 
-    /// <summary>Reports decision-decides-duplicate.</summary>
+    /// <summary>Reports role-unused for a role no permission names.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    internal static void RunDecisionConflict(ProjectModel model, List<Finding> findings)
+    internal static void RunRoleGranted(ProjectModel model, List<Finding> findings)
     {
-        var deciders = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
+        var named = model.Records
+            .Where(record => record.Type == RecordTypes.Permission)
+            .SelectMany(record => record.Ids(RecordFields.GrantedTo))
+            .ToHashSet(StringComparer.Ordinal);
 
-        foreach (var decision in model.Records.Where(record => record.Type == RecordTypes.Decision && !record.Derived))
+        foreach (var role in model.Records.Where(record => record.Type == RecordTypes.Role && !record.Derived))
         {
-            foreach (var id in decision.Ids(RecordFields.Decides))
+            if (!named.Contains(role.Id))
             {
-                if (!deciders.TryGetValue(id, out var grouped))
-                {
-                    grouped = [];
-                    deciders[id] = grouped;
-                }
-
-                grouped.Add(decision);
-            }
-        }
-
-        foreach (var entry in deciders.Where(pair => pair.Value.Count > 1).OrderBy(pair => pair.Key, StringComparer.Ordinal))
-        {
-            foreach (var decision in entry.Value.OrderBy(record => record.Id, StringComparer.Ordinal))
-            {
-                findings.Add(new Finding("decision-decides-duplicate", $"Decision '{decision.Id}' decides '{entry.Key}', which another decision also decides.", decision.File, decision.Line, SubjectOf(decision)));
+                findings.Add(new Finding("role-unused", $"Role '{role.Id}' is named by no permission.", role.File, role.Line, SubjectOf(role)));
             }
         }
     }
@@ -352,15 +387,15 @@ internal static class ReachChecks
         return found;
     }
 
-    /// <summary>Whether a decided record reaches Behavior: a Behavior record, or a reaching requirement, feature, problem or journey.</summary>
+    /// <summary>Whether a decided record reaches Behavior: a Behavior record, or a reaching requirement, feature, problem or flow.</summary>
     /// <param name="model">The loaded project model that resolves the decided record.</param>
     /// <param name="id">The decided record identifier.</param>
     /// <param name="requirements">The reaching requirement identifiers.</param>
     /// <param name="features">The reaching feature identifiers.</param>
     /// <param name="problems">The reaching problem identifiers.</param>
-    /// <param name="journeys">The reaching journey identifiers.</param>
+    /// <param name="flows">The reaching flow identifiers.</param>
     /// <returns>True when the decided record reaches Behavior; otherwise false.</returns>
-    private static bool DecidedReaches(ProjectModel model, string id, HashSet<string> requirements, HashSet<string> features, HashSet<string> problems, HashSet<string> journeys)
+    private static bool DecidedReaches(ProjectModel model, string id, HashSet<string> requirements, HashSet<string> features, HashSet<string> problems, HashSet<string> flows)
     {
         if (!model.ById.TryGetValue(id, out var record))
         {
@@ -375,7 +410,7 @@ internal static class ReachChecks
         return (record.Type == RecordTypes.Requirement && requirements.Contains(id))
             || (record.Type == RecordTypes.Feature && features.Contains(id))
             || (record.Type == RecordTypes.Problem && problems.Contains(id))
-            || (record.Type == RecordTypes.Journey && journeys.Contains(id));
+            || (record.Type == RecordTypes.Flow && flows.Contains(id));
     }
 
     /// <summary>The roles an actor holds, from its holds list.</summary>

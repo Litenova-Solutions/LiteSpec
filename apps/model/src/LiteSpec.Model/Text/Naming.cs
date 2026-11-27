@@ -90,4 +90,59 @@ public static class Naming
 
         return built.ToString();
     }
+
+    /// <summary>
+    ///     The kebab-case plural of an aggregate name, the folder that holds everything of that aggregate
+    ///     in every layer: <c>expense</c> reads <c>expenses</c>, <c>chart-of-accounts</c> reads
+    ///     <c>charts-of-accounts</c>, <c>person</c> reads <c>people</c>, <c>counterparty</c> reads
+    ///     <c>counterparties</c>. A name with an <c>of</c> word pluralizes the word before it; any other
+    ///     name pluralizes its last word.
+    /// </summary>
+    /// <param name="name">The aggregate name in kebab case, the name part of its identifier.</param>
+    /// <returns>The plural folder name in kebab case.</returns>
+    public static string PluralKebab(string name)
+    {
+        var words = Kebab(name).Split(WordSeparators, StringSplitOptions.RemoveEmptyEntries);
+
+        if (words.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var of = Array.IndexOf(words, "of");
+        var at = of > 0 ? of - 1 : words.Length - 1;
+        words[at] = PluralWord(words[at]);
+
+        return string.Join("-", words);
+    }
+
+    /// <summary>The PascalCase plural of an aggregate name, the folder name .NET code uses: <c>IcpDeclarations</c>.</summary>
+    /// <param name="name">The aggregate name in kebab case, the name part of its identifier.</param>
+    /// <returns>The plural folder name in PascalCase.</returns>
+    public static string PluralPascal(string name) => Pascal(PluralKebab(name));
+
+    /// <summary>The plural of one lowercase English word, by the rules the folder names follow.</summary>
+    /// <param name="word">The lowercase word.</param>
+    /// <returns>The plural word.</returns>
+    private static string PluralWord(string word)
+    {
+        if (word == "person")
+        {
+            return "people";
+        }
+
+        if (word.Length > 1 && word.EndsWith("y", StringComparison.Ordinal) && "aeiou".IndexOf(word[word.Length - 2]) < 0)
+        {
+            return word.Substring(0, word.Length - 1) + "ies";
+        }
+
+        if (word.EndsWith("s", StringComparison.Ordinal) || word.EndsWith("x", StringComparison.Ordinal)
+            || word.EndsWith("z", StringComparison.Ordinal) || word.EndsWith("ch", StringComparison.Ordinal)
+            || word.EndsWith("sh", StringComparison.Ordinal))
+        {
+            return word + "es";
+        }
+
+        return word + "s";
+    }
 }

@@ -1,0 +1,13 @@
+type: rule
+id: rule/spending.receipt-filed-once
+title: Receipt Filed Once
+kind: invariant
+statement: A receipt file supports one expense across spending.
+governs:
+- use-case/spending.attach-receipt
+- aggregate/spending.expense
+- aggregate/spending.receipt
+basedOn: []
+fulfills:
+- requirement/approval.above-threshold-receipt
+rationale: A receipt proves the payment of one expense, so the same file on a second expense misstates its proof.

@@ -6,7 +6,6 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
 /// <summary>The effect-loop check: the effect graph that use cases, reactions, jobs and events declare holds no loop without a stated end.</summary>
-/// <follows>litespec/core/use-cases#keep-the-effect-graph-free-of-cycles</follows>
 /// <follows>litespec/core/principles#end-every-effect-cycle-in-a-domain-event</follows>
 internal static class EffectLoopChecks
 {
@@ -28,8 +27,9 @@ internal static class EffectLoopChecks
     }
 
     /// <summary>
-    ///     The declared effect edges: use-case effects and raises, reaction triggers
-    ///     reversed into event edges with the reaction effects, and job effects.
+    ///     The effect edges: use-case effects and raises, each raised event into the module
+    ///     events and integration events that translate it, reaction triggers reversed into
+    ///     event edges with the reaction effects, and job effects.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and its effect edges.</param>
     /// <returns>The effect graph by source identifier, with each target list in ordinal order.</returns>
@@ -82,7 +82,7 @@ internal static class EffectLoopChecks
                     var baseId = Identifiers.BaseId(trigger);
 
                     if (model.ById.TryGetValue(baseId, out var resolved)
-                        && resolved.Type is RecordTypes.Event or RecordTypes.IntegrationEvent)
+                        && resolved.Type is RecordTypes.DomainEvent or RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent)
                     {
                         Edge(baseId, record.Id);
                     }
@@ -105,6 +105,15 @@ internal static class EffectLoopChecks
                         Edge(record.Id, target);
                     }
                 }
+            }
+        }
+
+        // A raised domain event reaches each module event and each outbound integration event that translates it.
+        foreach (var published in model.Records.Where(record => record.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent))
+        {
+            foreach (var translated in published.Ids(RecordFields.Translates))
+            {
+                Edge(Identifiers.BaseId(translated), published.Id);
             }
         }
 
@@ -186,16 +195,16 @@ internal static class EffectLoopChecks
     /// <param name="rotated">The loop nodes in canonical order, starting at the smallest identifier.</param>
     /// <returns>True when the loop passes through a domain event and a reaction that states its skip condition; otherwise false.</returns>
     private static bool LoopExempt(ProjectModel model, IReadOnlyList<string> rotated) =>
-        rotated.Any(id => model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.Event)
+        rotated.Any(id => model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.DomainEvent)
         && rotated.Any(id => model.ById.TryGetValue(id, out var record)
             && record.Type == RecordTypes.Reaction
             && record.Field(RecordFields.SkippedWhen) is { Length: > 0 });
 
-    /// <summary>The one target an effect entry names, across its four verbs.</summary>
+    /// <summary>The one target an effect entry names, across its verbs.</summary>
     /// <param name="entry">The effect entry whose target is read.</param>
-    /// <returns>The first non-empty target across the four edge verbs, or null when the entry names none.</returns>
+    /// <returns>The first non-empty target across the edge verbs, or null when the entry names none.</returns>
     private static string? EffectTarget(JsonElement entry) =>
-        (Str(entry, RecordFields.Runs) ?? Str(entry, RecordFields.Sends) ?? Str(entry, RecordFields.Emits) ?? Str(entry, RecordFields.Calls)) is { Length: > 0 } target
+        (Str(entry, RecordFields.Runs) ?? Str(entry, RecordFields.Sends) ?? Str(entry, RecordFields.Calls)) is { Length: > 0 } target
             ? target
             : null;
 }

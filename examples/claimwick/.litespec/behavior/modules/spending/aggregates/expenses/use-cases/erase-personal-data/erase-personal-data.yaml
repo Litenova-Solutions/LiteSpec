@@ -2,34 +2,73 @@ type: use-case
 id: use-case/spending.erase-personal-data
 title: Erase Personal Data
 summary: Finance erases the personal data of an old expense so nothing personal is kept past its need.
-exposure: "Personal data is erased here: erasing the wrong expense cannot be undone. Finance names one expense at a time, and only past its retention."
 kind: command
 access:
   grant: permission/remove-personal-data
   tenant: own
+  runsAs: system
 fulfills:
 - requirement/approval.erased-after-retention
-reachedThrough:
+via:
 - entry-point/claimwick-app
-raises: []
-changes:
+raises:
+- domain-event/expense.personal-data-erased
+inputs:
+- name: expense
+  meaning: The decided expense whose personal data is erased.
+  type: id
+  identifies: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+writes:
 - aggregate/spending.expense
 idempotency:
-  mode: none
+  mode: state
   reason: the first call deletes the expense, so a repeat finds nothing to erase
+  replay: acts-again
+  recognizedBy: the aggregate state already holds the outcome this command sets
 audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
-records:
-- type: result
-  id: result/erase-personal-data.erased
+  exemptBecause: Erasure keeps the business facts for the tax file and trails nothing personal.
+steps:
+- statement: Finance names one decided expense.
+  cites:
+  - aggregate/spending.expense
+- statement: Spending refuses the erasure with `spending.retention-not-ended` when retention stands.
+  cites:
+  - result/erase-personal-data.retention-not-ended
+  - rule/expense.erased-after-retention
+- statement: Spending pseudonymizes the employee and raises the erased event.
+  cites:
+  - result/erase-personal-data.erased
+  - domain-event/expense.personal-data-erased
+  - aggregate/spending.expense
+results:
+- id: result/erase-personal-data.erased
   title: Erased
   outcome: success
   meaning: The personal data of the expense is erased.
-- type: scenario
-  id: scenario/erase-personal-data.erasing-personal-data-succeeds
+- id: result/erase-personal-data.retention-not-ended
+  title: Retention Not Ended
+  outcome: refusal
+  refusal: refusal/spending.retention-not-ended
+  message: The retention of this expense has not ended, so its personal data stays.
+  translations:
+    nl: De bewaartermijn van deze uitgave is nog niet verstreken, dus de persoonsgegevens blijven bewaard.
+scenarios:
+- id: scenario/erase-personal-data.erasing-personal-data-succeeds
   title: Erasing Personal Data Succeeds
   given: An expense was reimbursed and its retention ended.
   when: Finance erases the personal data of the expense.
   then: The personal data of the expense is erased.
   result: result/erase-personal-data.erased
+  exercises:
+  - rule/expense.erased-after-retention
+- id: scenario/erase-personal-data.erasing-before-retention-ends-is-refused
+  title: Erasing Before Retention Ends Is Refused
+  given: An expense was reimbursed this week.
+  when: Finance erases the personal data of the expense.
+  then: The erasure is refused because the retention of the expense has not ended.
+  result: result/erase-personal-data.retention-not-ended
+  exercises:
+  - rule/expense.erased-after-retention

@@ -3,15 +3,13 @@
 // The pipeline is: createMarkdownProcessor from @astrojs/markdown-remark with
 // no syntax highlighting and no smart quotes, then post-processing that keeps
 // the site and the standard in agreement: heading ids come from the same slug
-// the CLI uses, relative links between docs pages become site URLs, each
-// wireframe block becomes a drawn option figure with its text kept for agents,
+// the CLI uses, relative links between docs pages become site URLs,
 // and each provision heading gains its card, badges and ID.
 import { createMarkdownProcessor, type MarkdownRenderer } from "@astrojs/markdown-remark";
 import path from "node:path";
 import { escape } from "./html";
 import { pageByFile, pageUrl, slug, type Page } from "./spec";
 import { paths } from "./icons";
-import { parseWireframe, renderWireframe } from "./wireframe/index.js";
 import { decorateCodeBlocks } from "./code-blocks";
 import { inlineDiagrams } from "./diagrams";
 import { parseTrail, renderTrail } from "./trail";
@@ -20,10 +18,10 @@ let processor: MarkdownRenderer | null = null;
 
 async function renderer(): Promise<MarkdownRenderer> {
   if (!processor) {
-    // Shiki highlights every fenced block except wireframes and trails, which become drawings.
+    // Shiki highlights every fenced block except trails, which become drawings.
     // Both themes are emitted as CSS variables; code.css picks one per color scheme.
     processor = await createMarkdownProcessor({
-      syntaxHighlight: { type: "shiki", excludeLangs: ["wireframe", "trail"] },
+      syntaxHighlight: { type: "shiki", excludeLangs: ["trail"] },
       shikiConfig: { themes: { light: "github-light-default", dark: "github-dark-default" }, defaultColor: false, wrap: false },
       smartypants: false,
     });
@@ -68,144 +66,8 @@ function iconSvg(body: string): string {
   );
 }
 
-interface WireframeBlock {
-  compact: boolean;
-  text: string;
-  /** The H4 option id above the block, when the block sits under an option. */
-  option: string | null;
-  /** The H4 option name after the id, such as "Title, state, breadcrumb". */
-  optionName: string | null;
-  /** The H3 group default above the block, when the page names one. */
-  groupDefault: string | null;
-}
-
-// Collects the fenced wireframe blocks of the Markdown in order, each with the
-// option id and group default that select it, so the rendered figure can mark
-// the default option.
-function collectWireframes(markdown: string): WireframeBlock[] {
-  const blocks: WireframeBlock[] = [];
-  const lines = markdown.split("\n");
-  let inFence: string | null = null;
-  let fenceText: string[] = [];
-  let groupDefault: string | null = null;
-  let option: string | null = null;
-  let optionName: string | null = null;
-  for (const line of lines) {
-    const fence = /^(\s*```)(.*)$/.exec(line);
-    if (fence) {
-      if (inFence === null) {
-        inFence = fence[2].trim();
-        fenceText = [];
-      } else {
-        if (inFence === "wireframe" || inFence.startsWith("wireframe ")) {
-          blocks.push({
-            compact: inFence !== "wireframe",
-            text: fenceText.join("\n").replace(/\n+$/, ""),
-            option,
-            optionName,
-            groupDefault,
-          });
-        }
-        inFence = null;
-      }
-      continue;
-    }
-    if (inFence !== null) {
-      fenceText.push(line);
-      continue;
-    }
-    const h3 = /^###\s+(.+?)\s*$/.exec(line);
-    if (h3 && !line.startsWith("####")) {
-      groupDefault = null;
-      option = null;
-      optionName = null;
-      continue;
-    }
-    const h4 = /^####\s+`([^`]+)`\s*:?\s*(.*?)\s*$/.exec(line);
-    if (h4) {
-      option = h4[1];
-      optionName = h4[2] === "" ? null : h4[2];
-      continue;
-    }
-    const def = /^\*\*Default:\*\*\s+`([^`]+)`/.exec(line);
-    if (def) groupDefault = def[1];
-  }
-  return blocks;
-}
-
-// Numbers the option cards of one page, so the tab and panel ids are unique.
-let optionIndex = 0;
-
-// One option card: a header with Preview and Wireframe tabs and an expand
-// button, a Preview panel with the desktop and phone drawings, and a
-// Wireframe panel with the text and its Copy button. The tabs and the expand
-// button carry a hidden attribute the viewer script removes, and the
-// Wireframe panel is visible until that script hides it, so the card reads
-// fully without JavaScript.
-function wireframeFigure(main: WireframeBlock, compact: WireframeBlock | null): string | null {
-  let desktop: string;
-  let phone: string;
-  try {
-    desktop = renderWireframe(parseWireframe(main.text).page, false);
-    phone = renderWireframe(parseWireframe(compact ? compact.text : main.text).page, true);
-  } catch {
-    return null;
-  }
-  optionIndex += 1;
-  const uid = `opt${optionIndex}`;
-  const isDefault = main.option !== null && main.groupDefault !== null && main.option === main.groupDefault;
-  const label = main.option ?? "option";
-  const badge = isDefault ? `<span class="badge badge-rule">Default</span>` : "";
-  const name = main.optionName ? `<span class="option-name">${escape(main.optionName)}</span>` : "";
-  const compactText = compact ? `\n\nCompact layout:\n\n${compact.text}` : "";
-  const copyText = main.text + compactText;
-  return (
-    `<section class="option" aria-label="Option ${escape(label)}" data-option-id="${escape(label)}" data-option-name="${escape(main.optionName ?? "")}">` +
-    `<div class="option-head"><div class="option-title"><div class="option-title-line">${name || `<span class="option-name">${escape(label)}</span>`}${badge}</div>` +
-    (name ? `<code class="option-slug">${escape(label)}</code>` : "") +
-    `</div><div class="option-actions"><div class="option-tabs" role="tablist" aria-label="Option views" hidden>` +
-    `<button type="button" class="option-tab" role="tab" id="${uid}-preview-tab" aria-selected="true" aria-controls="${uid}-preview" data-tab="preview">${iconSvg(paths.eye)}Preview</button>` +
-    `<button type="button" class="option-tab" role="tab" id="${uid}-wireframe-tab" aria-selected="false" aria-controls="${uid}-wireframe" data-tab="wireframe">${iconSvg(paths.code)}Wireframe</button>` +
-    `</div>` +
-    `<button type="button" class="btn btn-ghost btn-icon option-expand" data-expand hidden aria-label="Open ${escape(label)} full screen">${iconSvg(paths.expand)}</button></div></div>` +
-    `<div class="option-panel" role="tabpanel" id="${uid}-preview" aria-labelledby="${uid}-preview-tab" data-panel="preview" tabindex="0">` +
-    `<div class="option-drawings">` +
-    `<figure class="option-frame" data-view="desktop"><span class="option-enlarge" aria-hidden="true" title="Click to enlarge">${iconSvg(paths.expand)}</span><div class="option-drawing" role="img" aria-label="Wireframe drawing of ${escape(label)}">${desktop}</div></figure>` +
-    `<figure class="option-frame option-frame-phone" data-view="phone"><span class="option-enlarge" aria-hidden="true" title="Click to enlarge">${iconSvg(paths.expand)}</span><div class="option-drawing" role="img" aria-label="Phone wireframe drawing of ${escape(label)}">${phone}</div></figure>` +
-    `</div></div>` +
-    `<div class="option-panel" role="tabpanel" id="${uid}-wireframe" aria-labelledby="${uid}-wireframe-tab" data-panel="wireframe" tabindex="0">` +
-    `<div class="option-code"><div class="option-code-head"><span>Wireframe text</span>` +
-    `<button type="button" class="btn btn-outline btn-sm" data-copy="${escape(copyText)}">${iconSvg(paths.copy)}<span class="copy-label">Copy</span></button></div>` +
-    `<pre><code>${escape(copyText)}\n</code></pre></div></div>` +
-    `<!--litespec-annotations-->` +
-    `</section>`
-  );
-}
-
-// Replaces the rendered wireframe code blocks in order. A compact block never
-// renders alone: it replaces the phone drawing of the option block above it.
-function renderWireframes(html: string, blocks: WireframeBlock[]): string {
-  const pattern = /<pre><code class="language-wireframe">[\s\S]*?<\/code><\/pre>/g;
-  optionIndex = 0;
-  let index = 0;
-  return html.replace(pattern, (match) => {
-    if (index >= blocks.length) return match;
-    const block = blocks[index];
-    index += 1;
-    // A compact block without an option block above it keeps its code listing.
-    if (block.compact) return match;
-    let compact: WireframeBlock | null = null;
-    if (index < blocks.length && blocks[index].compact) {
-      compact = blocks[index];
-      index += 1;
-    }
-    return wireframeFigure(block, compact) ?? match;
-  });
-}
-
 // Moves the Rationale, Cost and Reference paragraphs that follow an option
-// card into its body, so each option holds its drawings, its reasoning and
-// its wireframe text together.
+// card into its body, so each option holds its reasoning together.
 function mergeOptionAnnotations(html: string): string {
   const pattern =
     /<!--litespec-annotations-->((?:(?!<\/section>)[\s\S])*?)<\/section>((?:\s*<p><strong>(?:Rationale|Cost|Reference):<\/strong>[\s\S]*?<\/p>)+)/g;
@@ -514,21 +376,16 @@ export async function renderPage(page: Page): Promise<RenderedPage> {
   };
 
   let firstH1 = true;
-  let firstH2 = true;
   let html = code.replace(headingPattern, (match, depth: string, inner: string) => {
     const text = unescape(stripTags(inner)).replace(/\s+\{#[^}]+\}\s*$/, "").trim();
     const id = unique(slug(text));
     const level = Number(depth);
-    // The page template shows the title itself, so the Markdown H1 is dropped.
+    // The page template shows the title itself, so the Markdown H1 is dropped,
+    // and the lead paragraphs under it, up to the first H2, are the page's
+    // introduction, shown under the title.
     if (level === 1 && firstH1) {
       firstH1 = false;
-      return "";
-    }
-    // The opening Intent or Purpose section is the page's introduction: the
-    // template shows it under the title, without its heading.
-    if (level === 2 && firstH2) {
-      firstH2 = false;
-      if (text === "Intent" || text === "Purpose") return introMarker;
+      return introMarker;
     }
     const display = text.replace(/`/g, "").replace(/\s+/g, " ");
     if (level === 2) toc.push({ depth: 2, text: display, id });
@@ -546,7 +403,6 @@ export async function renderPage(page: Page): Promise<RenderedPage> {
   html = wrapIntro(html);
   html = rewriteLinks(html, page);
   html = inlineDiagrams(html, page);
-  html = renderWireframes(html, collectWireframes(page.markdown));
   html = renderTrails(html, page);
   html = mergeOptionAnnotations(html);
   html = hoistOptionIds(html);
@@ -554,8 +410,11 @@ export async function renderPage(page: Page): Promise<RenderedPage> {
   html = decorateCodeBlocks(html);
   html = wrapProvisions(html, page);
   const { intro, body } = splitIntro(html);
+  // The Stack and Concern lines sit between the title and the lead paragraphs,
+  // so they are split from the start of the introduction.
+  const lead = splitMeta(intro);
   const { meta, rest } = splitMeta(body);
-  return { html: rest, intro, toc, meta };
+  return { html: rest, intro: lead.rest.trim(), toc, meta: [...lead.meta, ...meta] };
 }
 
 // Renders a short Markdown fragment such as a page intent to inline HTML.

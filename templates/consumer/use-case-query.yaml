@@ -1,50 +1,118 @@
 type: use-case
-id: use-case/spending.list-expenses
-title: List Expenses
-summary: An employee sees their own expenses with the latest state of each.
-kind: query
+id: use-case/<module>.<name>
+title: <Title in Title Case>
+terms:
+  - <term id, or remove this line>
+summary: <what this query returns for its actor, or remove this line>
+kind: <query>
 access:
-  grant: permission/list-expenses
-  tenant: own
+  grant: <permission/<name>, self(permission/<name>), signed-in, anonymous or system>
+  tenant: <own|cross|public|none>
+  recentSignInWindow: <ISO 8601 duration or setting/<module>.<name>, or remove this line>
+  scope: <self, when the caller acts only on the record identifying them, or remove this line>
+  identityInput: <input carrying the caller identity, or remove this line>
+  preconditions:
+    - rule/<home>.<name, or remove this line>
+  runsAs: <system, when a reaction or job runs this use case beside its person grant, or remove this line>
 serves:
-- journey/submit-and-reimburse#s5
+  - step/<flow>.<act>
 fulfills:
-- requirement/approval.decided-within-five-days
-reachedThrough:
-- entry-point/claimwick-app
-raises: []
-output:
+  - requirement/<feature>.<name, or remove this line>
+computedBy:
+  - rule/<home>.<name, or remove this line>
+via:
+  - entry-point/<name>
+http:
+  method: <GET|POST|PUT|PATCH|DELETE>
+  route: <route template, such as /expenses/{expenseId}>
+raises:
+  - domain-event/<aggregate>.<name, or remove this line>
+steps:
+  - statement: <one step, in one sentence naming who acts>
+    cites:
+      - rule/<home>.<name, or remove this line>
+edgeCases:
+  - <one unusual path, in one sentence, or remove this line>
+inputs:
+  - name: <field name>
+    meaning: <what the field holds>
+    type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+    required: <true|false, or remove this line>
+    origin: <caller|claim|derived|verified-claim>
+    classification: <public|internal|personal|sensitive>
+outputs:
   include:
-    rows:
+    <group>:
       fields:
-      - name: expenses
-        meaning: "The set of rows with one row per expense: its identity, amount, currency, state and submission time, newest first."
-      classification: internal
+        - name: <field name>
+          meaning: <what the field holds>
+          type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+          identifies: <identified record id, or remove this line>
+        - name: <field name>
+          meaning: <what the field holds>
+          type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+      classification: <public|internal|personal|sensitive>
       reads:
-      - aggregate/spending.expense
+        - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>>
       freshness:
-        mode: immediate
+        mode: <immediate|snapshot|eventual>
+        within: <how old a reading may be, such as PT5S, or remove this line>
+        decidedBy: <use-case/<module>.<name> or aggregate/<module>.<name>, or remove this line>
+      visibleWhen: <when this group shows, or remove this line>
+      widenedBy: requirement/<feature>.<name, or remove this line>
 paging:
   mode: pages
-  order: Submission time, newest first.
-  cursor: The submission time and identity of the last row.
-  defaultLimit: 25
-  maxLimit: 100
+  order: <how rows order>
+  cursor: <what the cursor holds>
+  defaultLimit: <rows per page>
+  maxLimit: <largest accepted limit>
+writes:
+  - aggregate/<module>.<name, or remove this line>
 reads:
-- aggregate/spending.expense
-idempotency:
-  mode: none
-  reason: the query reads expenses without changing them
-records:
-- type: result
-  id: result/list-expenses.listed
-  title: Listed
-  outcome: success
-  meaning: The expenses are listed.
-- type: scenario
-  id: scenario/list-expenses.listing-own-expenses-succeeds
-  title: Listing Own Expenses Succeeds
-  given: An employee submitted two expenses.
-  when: The employee lists their expenses.
-  then: Both expenses are listed.
-  result: result/list-expenses.listed
+  - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
+effects:
+  - sends: notification/<module>.<name>
+    timing: <inline|after-commit|async>
+  - queries: use-case/<module>.<name>
+    timing: <inline|after-commit|async>
+consentRule: rule/<home>.<name, or remove this line>
+audit:
+  level: <required|optional|none>
+  category: <the audit category, or remove this line when the level is none>
+  target: <one input, a list of inputs, or the output field with from output, or remove this line when the level is none>
+  targetKind: <what the audit trail records for this query>
+results:
+  - id: result/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    outcome: success
+    meaning: <the ending, in one sentence>
+    recorded: <true|false, or remove this line>
+    codes:
+      - <recorded outcome code, or remove this block>
+scenarios:
+  - id: scenario/<use-case>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    given: <the situation>
+    when: <the action>
+    then: <the expected ending>
+    result: result/<use-case>.<name>
+    exercises:
+      - rule/<home>.<name, or remove this line>
+    probe:
+      as: person/<name, or remove this line for anonymous>
+      request:
+        method: <GET|POST|PUT|PATCH|DELETE>
+        path: <request path, such as /expenses/{expenseId}>
+        body: <request body, or remove this line>
+      expect:
+        status: <expected status, such as 200>
+        refusal: <refusal code, such as spending.receipt-missing, or remove this line>
+        fields:
+          - path: /state
+            equals: submitted
+          - path: /expenseId
+            present: true

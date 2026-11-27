@@ -1,0 +1,19 @@
+type: decision
+id: decision/0125-deliver-standards-through-five-agent-layers
+title: Deliver Standards Through Five Agent Layers
+context: "Decision 0038 narrowed rules output per file and change set, and agents attested their own checklists with `rules --since`. The output stayed large, the attestation proved nothing, and token cost grew with every edit because each call re-sent the standard."
+options:
+  - name: "Deliver the standard through five layers with independent verification"
+    pros: "Agents carry small context per call. Deterministic layers enforce what prose cannot. An independent check judges the result."
+    cons: "Five layers to keep: types, analyzers, hooks, MCP, and verification."
+  - name: "Keep narrowed rules output with self-attested checklists"
+    pros: "One command to keep, and each change prints its own report skeleton."
+    cons: "Large output per call, and a checklist the agent fills itself proves nothing."
+  - name: "Send the full standard on every call"
+    pros: "Nothing new to build."
+    cons: "Token cost grows with every edit, and agents skim instead of reading."
+choice: "Deliver the standard through five layers with independent verification"
+consequences: "LiteSpec reaches agents through five layers. Typed record shapes and templates carry the contract. Roslyn analyzers report violations in the editor. Deterministic hooks run checks on file events. A warm daemon serves a 4-tool MCP surface (`task_packet`, `check`, `verify`, `query`) with path-scoped rules per call. Independent behavioral and semantic verification judges the result instead of the agent attesting itself. Claimwick builds through all five layers."
+reopenedWhen: "Measured token cost or defect rate shows a layer earns nothing, or a new model generation removes the need for one layer."
+supersedes:
+- decision/0038-narrow-rules-output-per-file-and-change-set

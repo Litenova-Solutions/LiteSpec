@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Standards;
 
@@ -15,7 +16,7 @@ public sealed class InitCommandTests
 
         <!-- generated:agent-protocol -->
         When __LITESPEC_COMMAND__ disagrees, the tool wins.
-        Release __LITESPEC_VERSION__ size __SIZE__ shape __SHAPE__ stacks __STACKS__ extensions __EXTENSIONS__ layers __LAYERS__ key __SELECTION_KEY__ command __LITESPEC_COMMAND__.
+        Release __LITESPEC_VERSION__ size __SIZE__ shape __SHAPE__ stacks __STACKS__ extensions __EXTENSIONS__ layers __LAYERS__ docs __LITESPEC_DOCS__ command __LITESPEC_COMMAND__.
         <!-- /generated:agent-protocol -->
 
         ## Project Commands
@@ -35,9 +36,7 @@ public sealed class InitCommandTests
     /// <param name="expected">Whether the preset keeps the shared UI package.</param>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     [Theory(DisplayName = "init keeps the shared UI package only for a controlled web frontend")]
-    [InlineData("dotnet-react", true)]
     [InlineData("dotnet-svelte", true)]
-    [InlineData("blazor-client", false)]
     [InlineData("android-client", false)]
     [InlineData("records", false)]
     public void InitKeepsTheUiPackageOnlyForControlledFrontends(string preset, bool expected)
@@ -51,14 +50,47 @@ public sealed class InitCommandTests
         Assert.Equal(expected, project.ContainsKey("ui"));
     }
 
+    /// <summary>Init with the Android preset writes no requirement naming the route suite.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init with the Android preset writes no requirement naming the route suite")]
+    public void AndroidClientWritesNoRouteSuiteRequirement()
+    {
+        using var consumer = TestCli.Temp("init-android-ui");
+
+        var result = TestCli.Run("init", "--preset", "android-client", "--size", "small", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var folder = Path.Combine(consumer.Path, ".litespec", "intent", "requirements");
+        var namingRouteSuite = Directory.GetFiles(folder, "*.yaml", SearchOption.AllDirectories)
+            .Where(file => File.ReadAllText(file).Contains("route-suite", StringComparison.Ordinal))
+            .ToList();
+        Assert.Empty(namingRouteSuite);
+    }
+
+    /// <summary>Init with the Android preset writes the four token limit requirements.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init with the Android preset writes the four token limit requirements")]
+    public void AndroidClientWritesTheTokenLimitRequirements()
+    {
+        using var consumer = TestCli.Temp("init-android-ui");
+
+        var result = TestCli.Run("init", "--preset", "android-client", "--size", "small", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        var folder = Path.Combine(consumer.Path, ".litespec", "intent", "requirements");
+        var stems = Directory.GetDirectories(folder)
+            .Select(Path.GetFileName)
+            .Order(StringComparer.Ordinal)
+            .ToList();
+        Assert.Equal(["ui-chart-series", "ui-control-boundary", "ui-focus-indicator", "ui-text-contrast"], stems);
+    }
+
     /// <summary>Init writes a project file that validates against the project schema for each preset.</summary>
     /// <param name="preset">The preset name that selects the stack combination.</param>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Theory(DisplayName = "init writes a project file that validates against the project schema for each preset")]
     [InlineData("android-client")]
-    [InlineData("blazor-client")]
-    [InlineData("dotnet-react")]
     [InlineData("dotnet-svelte")]
     [InlineData("records")]
     public void InitOutputValidatesAgainstTheProjectSchema(string preset)
@@ -101,7 +133,7 @@ public sealed class InitCommandTests
             agents,
             StringComparison.Ordinal);
         Assert.DoesNotContain("__STACKS__", agents, StringComparison.Ordinal);
-        Assert.DoesNotContain("__SELECTION_KEY__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_DOCS__", agents, StringComparison.Ordinal);
     }
 
     /// <summary>Init fills the project name and leaves no placeholder to fill.</summary>
@@ -111,12 +143,12 @@ public sealed class InitCommandTests
     {
         using var consumer = TestCli.Temp("init-placeholders");
 
-        var result = TestCli.Run("init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path, "--name", "shop");
+        var result = TestCli.Run("init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path, "--name", "shop");
 
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("Fill these placeholders before validating", result.Stdout, StringComparison.Ordinal);
         var text = File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"));
-        Assert.Contains("apps/api/src/shop.Modules", text, StringComparison.Ordinal);
+        Assert.Contains("apps/api/src/shop.Kernel", text, StringComparison.Ordinal);
         Assert.Contains("\"@shop/ui\"", text, StringComparison.Ordinal);
         Assert.DoesNotContain("__PROJECT__", text, StringComparison.Ordinal);
         Assert.DoesNotContain("fixture", text, StringComparison.Ordinal);
@@ -139,7 +171,7 @@ public sealed class InitCommandTests
                 StringComparison.Ordinal));
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -158,29 +190,29 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         var text = File.ReadAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"));
         Assert.Contains("\"@team-expenses/ui\"", text, StringComparison.Ordinal);
-        Assert.Contains("apps/api/src/Team Expenses.Modules", text, StringComparison.Ordinal);
+        Assert.Contains("apps/api/src/Team Expenses.Kernel", text, StringComparison.Ordinal);
     }
 
-    /// <summary>Init copies the agent context, glossary, and example cast beside the project file.</summary>
+    /// <summary>Init copies the agent context, glossary, and cast beside the project file.</summary>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
-    [Fact(DisplayName = "init copies the agent context, glossary, and example cast beside the project file")]
+    [Fact(DisplayName = "init copies the agent context, glossary, and cast beside the project file")]
     public void CopiesScaffoldFilesBesideTheProjectFile()
     {
         using var consumer = TestCli.Temp("init-scaffold");
 
-        var result = TestCli.Run("init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path);
+        var result = TestCli.Run("init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
         var agents = Path.Combine(consumer.Path, "AGENTS.md");
         var glossary = Path.Combine(consumer.Path, ".litespec", "glossary.yaml");
-        var cast = Path.Combine(consumer.Path, ".litespec", "example-cast.md");
+        var cast = Path.Combine(consumer.Path, ".litespec", "cast.yaml");
         Assert.Contains(".litespec/project.yaml", File.ReadAllText(agents), StringComparison.Ordinal);
         Assert.Contains("glossary.schema.yaml", File.ReadAllText(glossary), StringComparison.Ordinal);
-        Assert.Contains("type: example-cast", File.ReadAllText(cast), StringComparison.Ordinal);
+        Assert.Contains("type: cast", File.ReadAllText(cast), StringComparison.Ordinal);
         Assert.Contains($"Wrote {agents}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {glossary}.", result.Stdout, StringComparison.Ordinal);
         Assert.Contains($"Wrote {cast}.", result.Stdout, StringComparison.Ordinal);
-        Assert.Equal("model/\nbook/\n", File.ReadAllText(Path.Combine(consumer.Path, ".litespec", ".gitignore")));
+        Assert.Equal("model/\nbook/\nverify/\naudit/\nexplore/\n", File.ReadAllText(Path.Combine(consumer.Path, ".litespec", ".gitignore")));
         Assert.Contains("Fill every <placeholder> in the copied files before validating.", result.Stdout, StringComparison.Ordinal);
     }
 
@@ -194,7 +226,7 @@ public sealed class InitCommandTests
         FixtureHome(home.Path);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -215,7 +247,7 @@ public sealed class InitCommandTests
         FixtureHome(home.Path);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--install", "tool", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--install", "tool", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -264,7 +296,7 @@ public sealed class InitCommandTests
     {
         using var consumer = TestCli.Temp("init-consumer");
 
-        var result = TestCli.Run("init", "--preset", "dotnet-react", "--size", "small", "--install", "global", "--root", consumer.Path);
+        var result = TestCli.Run("init", "--preset", "dotnet-svelte", "--size", "small", "--install", "global", "--root", consumer.Path);
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown install 'global'; use tool or standalone.", result.Stderr, StringComparison.Ordinal);
@@ -285,7 +317,7 @@ public sealed class InitCommandTests
         File.WriteAllText(tools, "{\"sentinel\": true}\n");
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -304,7 +336,7 @@ public sealed class InitCommandTests
         FixtureHome(home.Path);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -322,7 +354,7 @@ public sealed class InitCommandTests
         Assert.DoesNotContain("__STACKS__", agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__EXTENSIONS__", agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__LAYERS__", agents, StringComparison.Ordinal);
-        Assert.DoesNotContain("__SELECTION_KEY__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_DOCS__", agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__LITESPEC_COMMAND__", agents, StringComparison.Ordinal);
     }
 
@@ -339,7 +371,7 @@ public sealed class InitCommandTests
         File.WriteAllText(agents, "# Ours\n\nOur notes.\n");
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -366,7 +398,7 @@ public sealed class InitCommandTests
         File.WriteAllText(agents, existing);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -385,14 +417,14 @@ public sealed class InitCommandTests
         File.WriteAllText(Path.Combine(home.Path, "templates", "consumer", "project-agents.md"), RegionTemplate);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
         Assert.Contains("When dotnet litespec disagrees, the tool wins.", agents, StringComparison.Ordinal);
         Assert.Contains(
-            "Release 9.9.9 size small shape server stacks dotnet, react extensions none layers intent and behavior: litespec, implementation and proof: litespec key server.dotnet.react command dotnet litespec.",
+            $"Release 9.9.9 size small shape server stacks dotnet, svelte extensions none layers intent and behavior: litespec, implementation and proof: litespec docs {AgentProtocol.DocsFor(Path.Combine(home.Path, "docs"), consumer.Path)} command dotnet litespec.",
             agents,
             StringComparison.Ordinal);
     }
@@ -414,7 +446,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
         Assert.Contains(
-            "Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec key server command dotnet litespec.",
+            $"Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec docs {AgentProtocol.DocsFor(Path.Combine(home.Path, "docs"), consumer.Path)} command dotnet litespec.",
             agents,
             StringComparison.Ordinal);
     }
@@ -441,7 +473,7 @@ public sealed class InitCommandTests
             "# Ours\n\n"
             + "<!-- generated:agent-protocol -->\n"
             + "When dotnet litespec disagrees, the tool wins.\n"
-            + "Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec key server command dotnet litespec.\n"
+            + $"Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec docs {AgentProtocol.DocsFor(Path.Combine(home.Path, "docs"), consumer.Path)} command dotnet litespec.\n"
             + "<!-- /generated:agent-protocol -->\n"
             + "\nOur notes.\n",
             File.ReadAllText(agents));
@@ -480,7 +512,7 @@ public sealed class InitCommandTests
         FixtureHome(home.Path, scaffold: false);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(1, result.Status);
@@ -499,13 +531,10 @@ public sealed class InitCommandTests
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
     [Theory(DisplayName = "init writes a project file from each preset")]
-    [InlineData("dotnet-react", "small", "server", "dotnet,react", "web", "apps/web", "react")]
-    [InlineData("dotnet-react", "large", "server", "dotnet,react", "web", "apps/web", "react")]
     [InlineData("dotnet-svelte", "small", "server", "dotnet,svelte", "web", "apps/web", "svelte")]
     [InlineData("dotnet-svelte", "large", "server", "dotnet,svelte", "web", "apps/web", "svelte")]
-    [InlineData("blazor-client", "small", "client-only", "blazor", "app", "apps/app", "blazor")]
-    [InlineData("blazor-client", "large", "client-only", "blazor", "app", "apps/app", "blazor")]
     [InlineData("android-client", "small", "client-only", "android", "android", "apps/mobile/src/testshop.Android", "android")]
+    [InlineData("android-client", "large", "client-only", "android", "android", "apps/mobile/src/testshop.Android", "android")]
     public void WritesProjectFileFromPreset(
         string preset, string size, string shape, string stacks, string frontend, string path, string platform)
     {
@@ -549,7 +578,7 @@ public sealed class InitCommandTests
         FixtureHome(home.Path);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
@@ -570,7 +599,7 @@ public sealed class InitCommandTests
         File.WriteAllText(target, "{\"sentinel\": true}\n");
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(2, result.Status);
@@ -594,7 +623,7 @@ public sealed class InitCommandTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains("Unknown preset 'nope'", result.Stderr);
-        Assert.Contains("android-client, blazor-client, dotnet-react, dotnet-svelte, records", result.Stderr);
+        Assert.Contains("android-client, dotnet-svelte, records", result.Stderr);
         Assert.False(File.Exists(Path.Combine(consumer.Path, ".litespec/project.yaml")));
     }
 
@@ -608,7 +637,7 @@ public sealed class InitCommandTests
         FixtureHome(home.Path);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--size", "medium", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--size", "medium", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(2, result.Status);
@@ -626,7 +655,7 @@ public sealed class InitCommandTests
         FixtureHome(home.Path);
 
         var result = TestCli.Run(
-            ["init", "--preset", "dotnet-react", "--root", consumer.Path],
+            ["init", "--preset", "dotnet-svelte", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(2, result.Status);
@@ -704,7 +733,7 @@ public sealed class InitCommandTests
 
         if (scaffold)
         {
-            foreach (var name in new[] { "project-agents.md", "glossary.yaml", "example-cast.md" })
+            foreach (var name in new[] { "project-agents.md", "glossary.yaml", "cast.yaml" })
             {
                 File.Copy(
                     Path.Combine(TestCli.Repository, "templates", "consumer", name),
@@ -714,7 +743,7 @@ public sealed class InitCommandTests
 
         var presetDir = Path.Combine(home, "templates", "presets");
         Directory.CreateDirectory(presetDir);
-        foreach (var name in new[] { "dotnet-react", "dotnet-svelte", "blazor-client", "android-client", "records" })
+        foreach (var name in new[] { "dotnet-svelte", "android-client", "records" })
         {
             File.Copy(
                 Path.Combine(TestCli.Repository, "templates", "presets", $"{name}.yaml"),

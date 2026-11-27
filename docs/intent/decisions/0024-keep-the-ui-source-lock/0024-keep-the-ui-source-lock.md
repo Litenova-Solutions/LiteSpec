@@ -1,10 +1,10 @@
 # Keep the UI Source Lock
 
-The UI source lock is a file that records the digest of each component a project copies into its code. A digest is a fingerprint of the component's source, so a changed component changes its digest. This decision says who writes that file and how a change reaches review.
+The UI source lock is a file that records the digest of each component a project copies into its code. A digest is a short value that the tool computes from the component's source, so a changed component produces a changed digest. This decision says who writes that file and how a change reaches review.
 
 ## Context
 
-The UI source lock records the digest of each copied component, so a changed component shows in review. Teams compute those digests by hand, and no command writes them, although the check needs them to be exact.
+Teams compute those digests by hand, and no command writes them, although the check needs them to be exact.
 
 ## Options
 
@@ -22,12 +22,12 @@ LiteSpec compared 3 options for keeping the lock. The table sets each option aga
 
 ## Consequences
 
-`litespec model render` writes each component's digest from its paths. It writes the preset from the manifest baseline and the CLI version from the manifest pin. It keeps the names, addresses, statuses and dependencies that the team chose.
+`litespec model render` writes each component's digest from its paths. It writes the preset from the manifest baseline and the CLI version from the manifest pin. It keeps the names, addresses, statuses, and dependencies that the team chose.
 
-`litespec model check` remains the guard, and a changed digest shows in the pull request diff. The lock is `ui-source-lock.yaml`, in the folder that it held before.
+`litespec model check` still enforces the digests, and a changed digest shows in the pull request diff. The lock is `ui-source-lock.yaml`, in the folder that held it before.
 
 ## Revisit Conditions
 
 This decision reopens when source changes arrive that a render cannot digest from the declared paths, or when the team stops copying primitives into one shared package.
 
-A render cannot digest a change that the declared paths do not cover. The lock then keeps a digest that no longer matches the source, which is the case that would change the choice.
+A render cannot digest a change that the declared paths do not cover. The lock then keeps a digest that does not match the source, which is the case that would change the choice.

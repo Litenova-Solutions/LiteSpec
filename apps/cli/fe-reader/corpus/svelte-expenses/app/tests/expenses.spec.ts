@@ -12,7 +12,7 @@ test(
   {
     annotation: [
       { type: "proves", description: "scenario/get-expense.detail-shows-expense" },
-      { type: "journey", description: "journey/submit-and-reimburse" },
+      { type: "flow", description: "flow/submit-and-reimburse" },
     ],
   },
   async ({ page }) => {

@@ -1,0 +1,20 @@
+type: decision
+id: decision/0070-keep-one-source-for-each-fact
+title: Keep One Source for Each Fact
+context: "One fact was stated in two to four places. Retention basis, period, enforcement, and purpose stood on both the data class and the retention schedule, with no check between stated and derived forms. In one consumer retention rows and field classifications disagreed with their classes while the check reported no blocking finding."
+options:
+  - name: "Move each fact to its source and check each stated copy"
+    pros: "One source of truth holds each fact. Every stated copy has a check. Retention, exposure, and classification each read from one source."
+    cons: "Records move fields in one release. Authors state classification and membership under checks."
+  - name: "Derive every copy and forbid stating it"
+    pros: "No copy drifts from its source."
+    cons: "Isolated files stop reading whole, against decision/0069-state-each-copy-under-a-check."
+  - name: "Leave each fact where authors wrote it"
+    pros: "No record moves and no check is added."
+    cons: "Basis, period, enforcement, and purpose stay on two pages and disagree. The differing classifications report no finding."
+choice: "Move each fact to its source and check each stated copy"
+consequences: "An aggregate data class carries `period`, `periodStartsAt`, `basis`, `purpose`, `enforcedBy`, and `exceptions`. The retention schedule is computed and the book renders it from the data classes. `processors` becomes `processes` on the external system holding the data. Conflicts become data-class `exceptions`. `governs` stays on rules under a check against every link naming the rule. `exposure` states who reaches a use case through which entry points under which permission and what is at stake. Checks compare it against `reachedThrough`, `access`, and empty text. Per-field classification and data-class `fields` stay under agreement checks. `background` is the Given shared by every scenario of a use case with at least two scenarios. `onFailure` and `idempotency` are required on every reaction and job. Queries carry neither idempotency nor consistency. `consistency` is required only on a command writing more than one aggregate. `litespec/core/model#keep-the-whole-specification-in-the-records` keeps interpretation out of explanations: every fact stands in a field. `litespec/core/use-cases#declare-consistency-on-multi-aggregate-commands` states the narrowed consistency."
+reopenedWhen: "A fact with one source proves unreadable where its reader needs it. Or a required copy costs more than its check returns."
+basedOn:
+  - research/check-coverage-evidence
+  - research/behavior-containment-evidence

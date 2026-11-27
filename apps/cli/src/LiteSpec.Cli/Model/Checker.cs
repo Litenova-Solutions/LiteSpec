@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Model.Checks;
 using LiteSpec.Cli.Model.Checks.Behavior;
 using LiteSpec.Cli.Model.Checks.Governance;
 using LiteSpec.Cli.Model.Checks.Implementation;
@@ -27,7 +28,7 @@ static class Checker
     /// <summary>Fields the semantic hash skips: identity and nested entries, which carry their own hash.</summary>
     internal static readonly HashSet<string> HashExcluded = new(StringComparer.Ordinal)
     {
-        "type", "id", "title", "records",
+        "type", "id", "title", "results", "scenarios", "refusals", "permissions", "entryPoints",
     };
 
     /// <summary>
@@ -57,19 +58,25 @@ static class Checker
         RecordNameChecks.RunNames,
         RecordNameChecks.Run,
         CitationChecks.Run,
+        ProseReferenceChecks.Run,
         GateChecks.Run,
-        DepartureChecks.Run,
+        RuleStatementChecks.Run,
+        WaiverChecks.Run,
         ProofChecks.Run,
+        ProofChecks.RunStepUnimplemented,
         ProofChecks.RunUnverified,
         ProofChecks.RunProofInvalid,
+        RefusalOwnershipChecks.Run,
+        RefusalPlacementChecks.Run,
         ResultScenarioChecks.Run,
+        ScenarioResultChecks.Run,
+        GuardRaceChecks.Run,
         FulfilmentChecks.Run,
         FulfilmentChecks.RunRequirementCited,
         FulfilmentChecks.RunConstraintCited,
         LinkChecks.Run,
-        ExplanationChecks.Run,
-        ResearchSourceChecks.Run,
-        SourceLinkChecks.Run,
+        LinkDirectionChecks.Run,
+        SourcedStatementChecks.Run,
         ConstraintChecks.Run,
         FormatChecks.Run,
         TemplateValueChecks.Run,
@@ -79,24 +86,37 @@ static class Checker
         ReachChecks.RunIntentUnreached,
         ReachChecks.RunRoleOrphan,
         ReachChecks.RunPermissionOrphan,
+        ReachChecks.RunRoleGranted,
         AccessChecks.Run,
         UseCaseVerbChecks.Run,
-        ReachChecks.RunDecisionConflict,
         FolderChecks.Run,
         LocalityChecks.Run,
+        DuplicateLogicChecks.Run,
         BackendPlacementChecks.Run,
         TestPlacementChecks.Run,
         FrontendPlacementChecks.Run,
         ClosedFolderChecks.Run,
+        IdentifierPlacementChecks.Run,
+        DefinitionChecks.Run,
+        IdempotencyReplayChecks.Run,
         MarkChecks.Run,
+        ReactionSubscriptionChecks.Run,
+        OutboxDecisionChecks.Run,
+        SyncFileChecks.Run,
         ScreenChecks.Run,
+        UiBlueprintChecks.Run,
+        ScreenShowsChecks.Run,
+        TokenLimitChecks.Run,
         WriteChecks.Run,
         ResultChecks.Run,
+        MessageFieldChecks.Run,
+        RefusalDeclarationChecks.Run,
         EffectChecks.Run,
         ApiOperationChecks.Run,
+        ClientFreshnessChecks.Run,
         ReasonlessNameChecks.Run,
         RepositoryUseChecks.Run,
-        ConstituentChecks.Run,
+        PartChecks.Run,
         OperationsChecks.Run,
         SettingChecks.Run,
         DependencyChecks.Run,
@@ -105,66 +125,88 @@ static class Checker
         PrivacyChecks.RunErasure,
         PrivacyChecks.RunRetention,
         CalculationChecks.Run,
+        AutomationChecks.RunOnFailurePlacement,
         AutomationChecks.RunReactionTrigger,
+        CompensationChecks.Run,
+        AsyncSettleChecks.Run,
         MeasuredChecks.Run,
         GraphChecks.RunOrphaned,
+        GraphChecks.RunReferenceOverlap,
+        GraphChecks.RunReferenceDataPack,
+        ReferenceDataChecks.RunValueClosedSet,
+        ReferenceDataChecks.RunKeyResolves,
+        ReferenceDataChecks.RunRolePlayed,
+        ReferenceDataChecks.RunEmptySummary,
+        ReferenceDataChecks.RunCoverage,
+        ReferenceDataChecks.RunAmountSign,
+        KnowledgeChecks.RunVariationUndeclared,
+        KnowledgeChecks.RunSetMissing,
         ParentChecks.Run,
         IntentChecks.Run,
+        CastChecks.Run,
         GraphChecks.RunStepUnserved,
         EffectLoopChecks.Run,
+        ReadModelChecks.Run,
         ConsistencyChecks.RunConsistency,
         QueryChecks.RunQueryOutput,
         QueryChecks.RunPaging,
         QueryChecks.RunWidening,
+        QueryEdgeChecks.Run,
+        CommandEdgeChecks.Run,
+        AutomationAccessChecks.Run,
+        IdempotencyKeyChecks.Run,
+        ModuleEventSubscriberChecks.Run,
+        DomainEventOutcomeChecks.Run,
+        EnforcementJobChecks.Run,
+        SingleAggregateChecks.Run,
+        FreshnessChecks.Run,
         GraphChecks.RunSettingDefault,
         ConsistencyChecks.RunReservation,
         GraphChecks.RunNotificationSender,
         RequirementChecks.Run,
-        AutomationChecks.RunJobGuard,
+        AutomationChecks.RunOutcomes,
         AutomationChecks.RunSchedule,
         ProseChecks.Run,
         ConsistencyChecks.RunManyAggregates,
-        ConsistencyChecks.RunAtomicGroupDrift,
-        ConsistencyChecks.RunAtomicGroupInvalid,
+        ConsistencyChecks.RunAtomicityDrift,
+        ConsistencyChecks.RunAtomicityInvalid,
+        ConsistencyChecks.RunGuard,
+        RuleBindsChecks.Run,
         ContractChecks.RunTypedInputs,
+        ContractChecks.RunIdentifiedParts,
+        CallerIdentifierChecks.Run,
         GraphChecks.RunExercises,
         ContractChecks.RunDoors,
+        ExtensionFieldChecks.Run,
+        AuditTargetChecks.Run,
         ScopeChecks.Run,
         AgentProtocolChecks.RunRegion,
         AgentProtocolChecks.RunSkill,
         AgentProtocolChecks.RunUnreached,
+        ToolchainChecks.Run,
         DecisionChecks.RunKind,
         DecisionChecks.RunScope,
         DecisionChecks.RunHome,
         ConventionChecks.RunFolder,
-        ConventionChecks.RunScope
+        ConventionChecks.RunScope,
+        ConventionChecks.RunUnreached
     ];
 
-    /// <summary>Runs every check, partitioning findings from departures.</summary>
+    /// <summary>Runs every check, partitioning findings from waivers.</summary>
     /// <param name="model">The built project model to check.</param>
-    /// <returns>The findings that stand and the findings departures cover, each in sorted order.</returns>
+    /// <returns>The findings that stand and the findings waivers cover, each in sorted order.</returns>
     public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Covered) Check(ProjectModel model)
     {
         // The checks only read the built model, so they run in parallel, each into its
         // own list, taking the next check as a thread frees; the lists join in the order above.
         var raised = new List<Finding>[Checks.Length];
 
-        try
+        WideStack.ForEach(Checks.Length, index =>
         {
-            Parallel.ForEach(
-                Partitioner.Create(Enumerable.Range(0, Checks.Length), EnumerablePartitionerOptions.NoBuffering),
-                index =>
-                {
-                    var own = new List<Finding>();
-                    Checks[index](model, own);
-                    raised[index] = own;
-                });
-        }
-        catch (AggregateException failure) when (failure.InnerExceptions.Count > 0)
-        {
-            ExceptionDispatchInfo.Capture(failure.InnerExceptions[0]).Throw();
-            throw;
-        }
+            var own = new List<Finding>();
+            Checks[index](model, own);
+            raised[index] = own;
+        });
 
         var findings = new List<Finding>(model.Problems);
 
@@ -198,10 +240,16 @@ static class Checker
             return code != 0 ? code : string.Compare(left.Message, right.Message, StringComparison.Ordinal);
         });
 
+        // Merged codes can reach one defect from two checks: one code, place and subject report once.
+        findings = findings
+            .GroupBy(finding => (finding.Code, finding.Path, finding.Line, finding.Subject))
+            .Select(group => group.First())
+            .ToList();
+
         return Suppress(model, findings);
     }
 
-    /// <summary>Partitions findings into the ones that stand and the ones a departure covers.</summary>
+    /// <summary>Partitions findings into the ones that stand and the ones a waiver covers.</summary>
     /// <param name="model">The built project model the findings belong to.</param>
     /// <param name="findings">The findings from every check, in sorted order.</param>
     /// <returns>The standing findings and the suppressed findings.</returns>
@@ -222,7 +270,7 @@ static class Checker
     /// <summary>
     ///     The finding codes each provision governs, from the codes its Checked by
     ///     line names, and the codes each page governs, the union of its provisions' codes.
-    ///     Built once per check, so a departure covers its provision or its page.
+    ///     Built once per check, so a waiver covers its provision or its page.
     /// </summary>
     /// <returns>The finding codes governed by each provision or page identifier, or an empty map when no LiteSpec home is found.</returns>
     private static Dictionary<string, IReadOnlyList<string>> CodesOfProvision()

@@ -1,0 +1,41 @@
+type: reference-data
+id: reference-data/travel.per-diem-rates
+title: Per Diem Rates
+summary: The daily allowance for work travel in each country.
+unit: EUR per day
+requiredRoles:
+- full-day
+- partial-day
+variesBy: country
+rows:
+- value: 28
+  key: de-full-day
+  role: full-day
+  variant: germany
+  effectiveFrom: 2025-01-01
+  effectiveTo: 2025-12-31
+  source: decision/0003-travel-rates
+- value: 30
+  key: de-full-day
+  role: full-day
+  variant: germany
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 15
+  key: de-partial-day-2026
+  role: partial-day
+  variant: germany
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 25
+  key: nl-full-day-2026
+  role: full-day
+  variant: netherlands
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 12
+  key: nl-partial-day-2026
+  role: partial-day
+  variant: netherlands
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates

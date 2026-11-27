@@ -162,7 +162,7 @@ public sealed class NewDecisionTests
         Assert.Equal(0, result.Status);
         Assert.Contains("Provisions matching 'render-receipts':", result.Stdout, StringComparison.Ordinal);
         Assert.Contains(
-            "- litespec/frontend/components#render-data-states: A data component MUST render loading, empty, error, forbidden, and ready.",
+            "- litespec/packs/svelte/rendering#show-route-failure-on-the-error-surface: A route failure MUST render on `+error.svelte`, which draws the shared problem state.",
             result.Stdout,
             StringComparison.Ordinal);
         Assert.True(
@@ -182,12 +182,12 @@ public sealed class NewDecisionTests
         File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
 
         var result = TestCli.Run(
-            "new", "decision", "wombat-ledger-quarry", "--root", consumer.Path);
+            "new", "decision", "wombat-quokka-quarry", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("Provisions matching", result.Stdout, StringComparison.Ordinal);
         Assert.True(File.Exists(Path.Combine(
-            consumer.Path, ".litespec", "intent", "decisions", "0001-wombat-ledger-quarry", "0001-wombat-ledger-quarry.yaml")));
+            consumer.Path, ".litespec", "intent", "decisions", "0001-wombat-quokka-quarry", "0001-wombat-quokka-quarry.yaml")));
     }
 
     /// <summary>New decision matches a plural name word against the singular in a statement.</summary>
@@ -203,7 +203,7 @@ public sealed class NewDecisionTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "- litespec/ext/jobs#show-a-preview-before-bulk-money-actions:",
+            "- litespec/core/audit#audit-only-selected-commands:",
             result.Stdout,
             StringComparison.Ordinal);
     }

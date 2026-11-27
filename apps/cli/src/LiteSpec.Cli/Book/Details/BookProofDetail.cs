@@ -9,10 +9,10 @@ namespace LiteSpec.Cli.Book.Details;
 ///     the reachable states of an aggregate, and the fulfilling counts of a
 ///     requirement.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookProofDetail
 {
-    /// <summary>Adds the proof state of one scenario or rule from its proves links.</summary>
+    /// <summary>Adds the proof state of one scenario or rule from its proves links, with the run freshness the model carried.</summary>
     /// <param name="detail">The detail being built.</param>
     /// <param name="index">The model index.</param>
     /// <param name="id">The record id.</param>
@@ -37,12 +37,25 @@ static class BookProofDetail
             };
         }
 
-        detail["proof"] = new JsonObject
+        var proof = new JsonObject
         {
             ["state"] = State(index, id),
             ["tests"] = links.Count,
             ["test"] = test,
         };
+
+        if (index.ById.TryGetValue(id, out var record) && record["proof"] is JsonObject freshness)
+        {
+            foreach (var name in new[] { "commit", "lastPassedAt", "status", "commitsBehind", "staleReason" })
+            {
+                if (freshness.TryGetPropertyValue(name, out var value) && value is not null)
+                {
+                    proof[name] = value.DeepClone();
+                }
+            }
+        }
+
+        detail["proof"] = proof;
     }
 
     /// <summary>One scenario or rule proof state from <see cref="BookProofStates"/>: the stored state, or the proves links while the model holds none.</summary>
@@ -107,7 +120,7 @@ static class BookProofDetail
 
             detail["machine"] = machine;
         }
-        else if (type is "decision" or "external-system" or "integration-event"
+        else if (type is "decision" or "external-system" or "module-event" or "integration-event"
             && index.Tested.TryGetValue(id, out var tested))
         {
             detail["machine"] = new JsonObject

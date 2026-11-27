@@ -7,44 +7,89 @@ access:
   grant: permission/approve-expense
   tenant: own
 serves:
-- journey/submit-and-reimburse#s3
+- step/submit-and-reimburse.decide-expense
 fulfills:
 - requirement/approval.decided-within-five-days
-reachedThrough:
+via:
 - entry-point/claimwick-app
 raises:
-- event/expense.refused
-changes:
+- domain-event/expense.refused
+inputs:
+- name: expense
+  meaning: The submitted expense to refuse.
+  type: id
+  identifies: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+- name: reason
+  meaning: Why the expense falls outside the policy, shown to the employee.
+  type: text
+  required: true
+  origin: caller
+  classification: internal
+- name: approver
+  meaning: The signed-in manager deciding the expense, read from verified claims.
+  type: id
+  identifies: actor/manager
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  classification: personal
+- name: handledAt
+  meaning: The time the decision runs, read from the clock.
+  type: date-time
+  required: false
+  origin: derived
+  classification: internal
+writes:
 - aggregate/spending.expense
 idempotency:
-  mode: none
+  mode: state
   reason: the first refusal moves the expense out of the submitted state, so the aggregate refuses a second refusal
+  replay: refuses
+  recognizedBy: the aggregate state already holds the outcome this command sets
 audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
-records:
-- type: result
-  id: result/refuse-expense.rejected
+  exemptBecause: Refusals leave their trail in the expense states and events.
+steps:
+- statement: The manager opens a submitted expense and gives a reason.
+  cites:
+  - aggregate/spending.expense
+- statement: Spending refuses the refusal with `spending.not-submitted` when the expense is decided.
+  cites:
+  - result/refuse-expense.not-submitted
+  - rule/expense.decided-from-submitted
+- statement: Spending moves the expense to Refused and raises the refused event.
+  cites:
+  - result/refuse-expense.rejected
+  - domain-event/expense.refused
+  - aggregate/spending.expense
+results:
+- id: result/refuse-expense.rejected
   title: Rejected
   outcome: success
   meaning: The expense is rejected.
-- type: result
-  id: result/refuse-expense.not-submitted
+- id: result/refuse-expense.not-submitted
   title: Not Submitted
   outcome: refusal
-  code: spending.not-submitted
-  meaning: The expense is already decided.
-- type: scenario
-  id: scenario/refuse-expense.rejecting-a-submitted-expense-succeeds
+  refusal: refusal/spending.not-submitted
+  message: This expense is already decided, so there is nothing to refuse.
+  translations:
+    nl: Over deze uitgave is al beslist, dus er valt niets meer af te keuren.
+scenarios:
+- id: scenario/refuse-expense.rejecting-a-submitted-expense-succeeds
   title: Rejecting a Submitted Expense Succeeds
   given: An employee submitted an expense outside the policy.
   when: The manager rejects the expense with a reason.
   then: The expense is rejected.
   result: result/refuse-expense.rejected
-- type: scenario
-  id: scenario/refuse-expense.rejecting-a-decided-expense-is-refused
+  exercises:
+  - rule/expense.decided-from-submitted
+- id: scenario/refuse-expense.rejecting-a-decided-expense-is-refused
   title: Rejecting a Decided Expense Is Refused
   given: A manager rejected an expense.
   when: The manager rejects the expense again.
   then: The rejection is refused because the expense is already decided.
   result: result/refuse-expense.not-submitted
+  exercises:
+  - rule/expense.decided-from-submitted

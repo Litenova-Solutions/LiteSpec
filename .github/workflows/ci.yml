@@ -5,9 +5,9 @@ name: CI
 #
 # The web-assets job builds the frontend reader and the book client once and
 # uploads them. The dotnet, package and native jobs download them instead of
-# building them again. The dotnet job builds and tests the solution. The
+# building them again. The dotnet job builds the solution and runs its tests in ten parallel shards. The
 # standards job checks the generated provision index, validates the repository
-# and checks whitespace. The web job checks and tests the book client, checks
+# and checks whitespace. The web job checks the book client, checks
 # the frontend reader, and builds the site. The package job packs the
 # analyzers and the two tool packages that serve every platform. The native job
 # builds the CLI ahead of time on each platform, installs it with the install
@@ -65,11 +65,19 @@ jobs:
             apps/cli/book/dist
           if-no-files-found: error
 
-  # Builds the solution and runs its tests.
+  # Builds the solution and runs its tests, split by test class into parallel shards so
+  # the suite finishes in the time of its slowest shard. test-shard.sh puts every test
+  # class in exactly one shard. A shard whose classes are absent from a test project runs
+  # no test there, which the test platform reports as exit code 8 and the shard ignores.
   dotnet:
+    name: dotnet (shard ${{ matrix.shard }} of 10)
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     needs: web-assets
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -90,8 +98,11 @@ jobs:
       - name: Build the solution
         run: dotnet build LiteSpec.slnx --configuration ${{ inputs.configuration }}
 
-      - name: Test the solution
-        run: dotnet test --solution LiteSpec.slnx --configuration ${{ inputs.configuration }} --no-build
+      - name: Test this shard of the solution
+        run: |
+          mapfile -t filters < <(.github/scripts/test-shard.sh ${{ matrix.shard }} 10)
+          echo "Shard ${{ matrix.shard }} runs $(( ${#filters[@]} / 2 )) test classes."
+          dotnet test --solution LiteSpec.slnx --configuration ${{ inputs.configuration }} --no-build --ignore-exit-code 8 "${filters[@]}"
 
   # Checks the standard itself: the provision index, the repository validation and whitespace.
   standards:
@@ -129,7 +140,7 @@ jobs:
             git diff --check HEAD~1 HEAD
           fi
 
-  # The book client, the frontend reader and the site: the checks and tests of the three packages,
+  # The book client, the frontend reader and the site: the checks of the three packages and the site tests,
   # then the site build. The book client build is in web-assets.
   web:
     runs-on: ubuntu-24.04
@@ -146,9 +157,6 @@ jobs:
 
       - name: Check the book client
         run: pnpm --dir apps/cli/book check
-
-      - name: Test the book client
-        run: pnpm --dir apps/cli/book test
 
       - name: Check the frontend reader
         run: pnpm --dir apps/cli/fe-reader check

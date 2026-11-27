@@ -1,0 +1,8 @@
+type: domain-event
+id: domain-event/expense.personal-data-erased
+title: Expense Personal Data Erased
+meaning: The personal data of a decided expense was erased.
+fields:
+- name: expenseId
+  type: id
+  identifies: aggregate/spending.expense

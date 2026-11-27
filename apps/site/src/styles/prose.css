@@ -3,7 +3,7 @@
 @layer components {
 /* Styles for the rendered page body: every element render-markdown.ts can emit
    inside .prose, from section headings and provision cards down to links, lists,
-   tables, code and wireframe option cards. */
+   tables, code and option cards. */
 
 .prose {
   font-size: var(--text);
@@ -480,7 +480,7 @@
   color: var(--muted-fg);
 }
 
-/* Wireframe option cards */
+/* Option cards */
 
 .prose .option {
   border: 1px solid var(--border);

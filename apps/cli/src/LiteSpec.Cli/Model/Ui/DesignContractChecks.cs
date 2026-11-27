@@ -8,8 +8,8 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The design-contract checks of the UI validator: the contract the shared
 ///     package publishes, against its schema and its required sections.
 /// </summary>
-/// <follows>litespec/frontend/ui#publish-a-design-contract</follows>
-/// <follows>litespec/frontend/ui#declare-a-closed-floorplan-set</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#declare-one-visual-reference</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#compose-one-archetype-per-route</follows>
 sealed class DesignContractChecks
 {
     /// <summary>The state of the run.</summary>
@@ -18,7 +18,7 @@ sealed class DesignContractChecks
     /// <summary>The sections a design contract carries.</summary>
     static readonly string[] DesignSections =
     [
-        "Brand", "Tokens", "Patterns", "Do", "Do Not", "Motion", "Browser Support", "Voice",
+        "Baseline", "Tokens", "Page Frames", "Vocabulary", "Motion", "Browser Support",
     ];
 
     /// <summary>An H2 heading of a Markdown page.</summary>
@@ -42,8 +42,8 @@ sealed class DesignContractChecks
     // The design contract travels with the shared package, so it is read once for the
     // workspace rather than once per application. A floorplan it names outside the
     // closed set is a design decision, not a route-level choice.
-    // (litespec/frontend/ui#publish-a-design-contract,
-    // litespec/frontend/ui#declare-a-closed-floorplan-set)
+    // (litespec/packs/svelte/ui-primitives#declare-one-visual-reference,
+    // litespec/packs/svelte/ui-primitives#compose-one-archetype-per-route)
     /// <summary>
     ///     Validates the design contract the shared package publishes.
     /// </summary>
@@ -56,7 +56,7 @@ sealed class DesignContractChecks
         var contract = JsonRead.Child(package, "designContract");
         if (contract.Node is not JsonValue contractValue || !contractValue.TryGetValue<string>(out var relative))
         {
-            session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{JsonRead.Show(contract)}'", projectFile);
+            session.Add("ui-design-contract-invalid", $"[litespec/packs/svelte/ui-primitives#declare-one-visual-reference] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{JsonRead.Show(contract)}'", projectFile);
             return;
         }
 
@@ -64,22 +64,22 @@ sealed class DesignContractChecks
         var label = PathText.Relative(session.Root, file);
         if (!FileWalk.Exists(file))
         {
-            session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{relative}'", file);
+            session.Add("ui-design-contract-invalid", $"[litespec/packs/svelte/ui-primitives#declare-one-visual-reference] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{relative}'", file);
             return;
         }
 
         var metadata = session.ParseMetadata(file);
         if (metadata is null)
         {
-            session.Add("ui-design-contract-invalid", "[litespec/frontend/ui#publish-a-design-contract] design contract has no metadata block", file);
+            session.Add("ui-design-contract-invalid", "[litespec/packs/svelte/ui-primitives#declare-one-visual-reference] design contract has no metadata block", file);
             return;
         }
 
-        session.SchemaCheck("design-contract.schema.yaml", metadata, label, "litespec/frontend/ui#publish-a-design-contract", "ui-design-contract-invalid");
+        session.SchemaCheck("design-contract.schema.yaml", metadata, label, "litespec/packs/svelte/ui-primitives#declare-one-visual-reference", "ui-design-contract-invalid");
         var name = JsonRead.Child(package, "name");
         if (JsonRead.Truthy(name) && !JsonRead.StrictEqual(JsonRead.Child(metadata, "package"), name))
         {
-            session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] package must be '{JsonRead.Show(name)}'", file);
+            session.Add("ui-design-contract-invalid", $"[litespec/packs/svelte/ui-primitives#declare-one-visual-reference] package must be '{JsonRead.Show(name)}'", file);
         }
 
         var present = SectionNames(File.ReadAllText(file)).ToHashSet(StringComparer.Ordinal);
@@ -87,7 +87,7 @@ sealed class DesignContractChecks
         {
             if (!present.Contains(section))
             {
-                session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] missing required section '{section}'", file);
+                session.Add("ui-design-contract-invalid", $"[litespec/packs/svelte/ui-primitives#declare-one-visual-reference] missing required section '{section}'", file);
             }
         }
     }

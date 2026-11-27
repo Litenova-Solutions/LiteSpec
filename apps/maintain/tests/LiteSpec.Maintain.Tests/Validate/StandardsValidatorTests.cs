@@ -49,20 +49,6 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "all page classes pass")]
     public void AllPageClassesPass() => Check(null, []);
 
-    /// <summary>Pattern page with a broken wireframe.</summary>
-    /// <proves>litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header</proves>
-    [Fact(DisplayName = "pattern page with a broken wireframe")]
-    public void PatternPageWithBrokenWireframe() => Check(
-        root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "action \"Refund\"", "button \"Refund\"")),
-        [MaintainerDiagnostics.Codes.PatternInvalid]);
-
-    /// <summary>Pattern page whose heading names the pattern rather than an action.</summary>
-    /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
-    [Fact(DisplayName = "pattern page whose heading names the pattern rather than an action")]
-    public void PatternHeadingNamesThePattern() => Check(
-        root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "## Patterns\n\n### Record Header", "## Standards\n\n### Header layout")),
-        [MaintainerDiagnostics.Codes.HeadingAction]);
-
     /// <summary>Tutorial that omits what the reader built.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "tutorial that omits what the reader built")]
@@ -96,12 +82,12 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/analyzers/rules/sample.md", StandardsFixture.GuidePage),
         [MaintainerDiagnostics.Codes.PageMissingSection]);
 
-    /// <summary>Example page without an Intent.</summary>
+    /// <summary>Example page without a lead.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "example page without an Intent")]
-    public void ExamplePageWithoutIntent() => Check(
-        root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## The product\n\nA library lends copies.\n"),
-        [MaintainerDiagnostics.Codes.PageMissingSection]);
+    [Fact(DisplayName = "example page without a lead")]
+    public void ExamplePageWithoutLead() => Check(
+        root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## The Product\n\nA library lends copies.\n"),
+        [MaintainerDiagnostics.Codes.PageLeadMissing]);
 
     /// <summary>Reference page carrying an unknown section.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
@@ -116,66 +102,68 @@ public sealed partial class StandardsValidatorTests
     public void ReferenceOutOfOrder() => Check(
         root =>
         {
-            var page = StandardsFixture.ReplaceFirst(StandardsFixture.ReferencePage, "## Intent\n\nState the exact values that this repository publishes.\n\n", "");
-            page = StandardsFixture.ReplaceFirst(page, "The values above come from the repository manifest.", "State the exact values that this repository publishes.\n\n## Intent\n\nThe values above come from the repository manifest.");
+            var page = StandardsFixture.ReplaceFirst(
+                StandardsFixture.ReferencePage,
+                "## Reference\n\n| Name | Value |\n|:---|:---|\n| Sample | One published value. |\n\n## Notes\n\nThe values above come from the repository manifest.\n",
+                "## Notes\n\nThe values above come from the repository manifest.\n\n## Reference\n\n| Name | Value |\n|:---|:---|\n| Sample | One published value. |\n");
             StandardsFixture.Write(root, "docs/reference/sample.md", page);
         },
         [MaintainerDiagnostics.Codes.PageSectionOrder]);
 
     /// <summary>Command page hiding its mechanism.</summary>
-    /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
+    /// <proves>litespec/core/authoring#state-what-the-command-runs-underneath</proves>
     [Fact(DisplayName = "command page hiding its mechanism")]
     public void CommandHidingMechanism() => Check(
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Underneath\n\nNone.\n", "")),
         [MaintainerDiagnostics.Codes.PageMissingSection]);
 
     /// <summary>Command page without exit codes.</summary>
-    /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
+    /// <proves>litespec/core/authoring#state-what-the-command-runs-underneath</proves>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "command page without exit codes")]
     public void CommandWithoutExitCodes() => Check(
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Exit Codes", "## Results")),
         [MaintainerDiagnostics.Codes.PageMissingSection, MaintainerDiagnostics.Codes.PageUnknownSection]);
 
-    /// <summary>Frontend standard page with per-stack sections rejected.</summary>
+    /// <summary>Pack standard page with per-stack sections rejected.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "frontend standard page with per-stack sections rejected")]
-    public void FrontendWithPerStackSections() => Check(
+    [Fact(DisplayName = "pack standard page with per-stack sections rejected")]
+    public void PackWithPerStackSections() => Check(
         root =>
         {
-            var page = StandardsFixture.TopicPage.Replace("core/topic", "frontend/web/sample");
-            page = StandardsFixture.ReplaceFirst(page, "## Standards", "## React\n\n- React names the binding the rule below forbids.\n\n## Svelte\n\n- Svelte names the binding the rule below forbids.\n\n## Standards");
-            StandardsFixture.Write(root, "docs/frontend/web/sample.md", page);
+            var page = StandardsFixture.TopicPage.Replace("core/topic", "packs/svelte/sample");
+            page = StandardsFixture.ReplaceFirst(page, "## Standards", "## Svelte\n\n- Svelte names the binding the rule below forbids.\n\n## Android\n\n- Android names the binding the rule below forbids.\n\n## Standards");
+            StandardsFixture.Write(root, "docs/packs/svelte/sample.md", page);
             StandardsFixture.RebuildIndex(root);
         },
-        [MaintainerDiagnostics.Codes.PageUnknownSection, MaintainerDiagnostics.Codes.PageSectionOrder]);
+        [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
-    /// <summary>Per-stack section outside frontend pages.</summary>
+    /// <summary>Per-stack section on a core page.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "per-stack section outside frontend pages")]
-    public void PerStackOutsideFrontend() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Standards", "## React\n\n- React names the binding the rule below forbids.\n\n## Standards")),
+    [Fact(DisplayName = "per-stack section on a core page")]
+    public void PerStackOnCorePage() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Standards", "## Svelte\n\n- Svelte names the binding the rule below forbids.\n\n## Standards")),
         [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Stack page carrying a composition section.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "stack page carrying a composition section")]
     public void StackWithCompositionSection() => Check(
-        root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions", "## Composition\n\n- [Topic standard](../../core/topic.md)\n\n## Conventions")),
+        root => StandardsFixture.Write(root, "docs/packs/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions", "## Composition\n\n- [Topic standard](../../core/topic.md)\n\n## Conventions")),
         [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Per-stack section after standards.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "per-stack section after standards")]
     public void PerStackAfterStandards() => Check(
-        root => StandardsFixture.Write(root, "docs/frontend/web/sample.md", StandardsFixture.TopicPage.Replace("core/topic", "frontend/web/sample") + "\n## React\n\n- React names the binding the rule above forbids.\n"),
+        root => StandardsFixture.Write(root, "docs/packs/svelte/sample.md", StandardsFixture.TopicPage.Replace("core/topic", "packs/svelte/sample") + "\n## Svelte\n\n- Svelte names the binding the rule above forbids.\n"),
         [MaintainerDiagnostics.Codes.PageUnknownSection, MaintainerDiagnostics.Codes.PageSectionOrder]);
 
     /// <summary>Stack page with a concepts section.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "stack page with a concepts section")]
     public void StackWithConceptsSection() => Check(
-        root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Standards", "## Concepts\n\nThis stack defines one composition term.\n\n## Standards")),
+        root => StandardsFixture.Write(root, "docs/packs/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Standards", "## Concepts\n\nThis stack defines one composition term.\n\n## Standards")),
         []);
 
     static void CheckActionHeading(string verb)
@@ -277,21 +265,21 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#route-the-reader-before-listing-pages</proves>
     [Fact(DisplayName = "index without a routing block")]
     public void IndexWithoutRouting() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n"),
+        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\nUse this page to find repository documentation.\n"),
         [MaintainerDiagnostics.Codes.IndexMissingRouting]);
 
     /// <summary>Routing block after the first navigation group.</summary>
     /// <proves>litespec/core/authoring#route-the-reader-before-listing-pages</proves>
     [Fact(DisplayName = "routing block after the first navigation group")]
     public void RoutingAfterNavigation() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n\n## Core\n\n- [Topic](core/topic.md)\n\n" + StandardsFixture.IndexRouting),
+        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\nUse this page to find repository documentation.\n\n## Core\n\n- [Topic](core/topic.md)\n\n" + StandardsFixture.IndexRouting),
         [MaintainerDiagnostics.Codes.IndexMissingRouting]);
 
     /// <summary>Stale provision index.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "stale provision index")]
     public void StaleProvisionIndex() => Check(
-        root => StandardsFixture.Write(root, Provisions.IndexPath, "# Provision Index\n\n## Intent\n\nThis page is out of date.\n"),
+        root => StandardsFixture.Write(root, Provisions.IndexPath, "# Provision Index\n\nThis page is out of date.\n"),
         [MaintainerDiagnostics.Codes.ProvisionsStale]);
 
     /// <summary>Missing provision index.</summary>
@@ -348,10 +336,11 @@ public sealed partial class StandardsValidatorTests
         {
             MaintainerDiagnostics.Codes.AnchorBroken,
             MaintainerDiagnostics.Codes.CheckedByUnknown,
+            MaintainerDiagnostics.Codes.ProvisionCheckScope,
             MaintainerDiagnostics.Codes.ConventionDefaultSentence,
             MaintainerDiagnostics.Codes.ConventionMissingDefault,
             MaintainerDiagnostics.Codes.ConventionMissingReplacement,
-            MaintainerDiagnostics.Codes.ConventionReplacementDeviation,
+            MaintainerDiagnostics.Codes.ConventionReplacementWaiver,
             MaintainerDiagnostics.Codes.ConventionReplacementSentence,
             MaintainerDiagnostics.Codes.ExtensionActivation,
             MaintainerDiagnostics.Codes.ExtensionBaseline,
@@ -368,6 +357,7 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.StackFolder,
             MaintainerDiagnostics.Codes.StackReference,
             MaintainerDiagnostics.Codes.GlossaryDefinition,
+            MaintainerDiagnostics.Codes.LinkAnnotationMissing,
             MaintainerDiagnostics.Codes.GlossaryOrder,
             MaintainerDiagnostics.Codes.HeadingAction,
             MaintainerDiagnostics.Codes.HeadingEmptyBody,
@@ -378,14 +368,13 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.IdPageFilename,
             MaintainerDiagnostics.Codes.IdUnknownReference,
             MaintainerDiagnostics.Codes.IndexContainsProcedure,
-            MaintainerDiagnostics.Codes.IndexIntent,
+            MaintainerDiagnostics.Codes.PageLeadMissing,
             MaintainerDiagnostics.Codes.CheckedByFindingMissing,
             MaintainerDiagnostics.Codes.CommandOptionUnknown,
             MaintainerDiagnostics.Codes.ExampleRecordUnknown,
             MaintainerDiagnostics.Codes.FindingCodeUnknown,
             MaintainerDiagnostics.Codes.IndexMissingRouting,
             MaintainerDiagnostics.Codes.IndexPageMissing,
-            MaintainerDiagnostics.Codes.PatternOptionCount,
             MaintainerDiagnostics.Codes.PackagedPathLong,
             MaintainerDiagnostics.Codes.TemplateCitedUnknown,
             MaintainerDiagnostics.Codes.LayerUnlisted,
@@ -406,9 +395,10 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.PageTitleCase,
             MaintainerDiagnostics.Codes.PageTitleCount,
             MaintainerDiagnostics.Codes.PageUnknownSection,
-            MaintainerDiagnostics.Codes.PatternInvalid,
+            MaintainerDiagnostics.Codes.ProseBannedPhrase,
             MaintainerDiagnostics.Codes.ProseNonAscii,
             MaintainerDiagnostics.Codes.ProseNormativeLocation,
+            MaintainerDiagnostics.Codes.ProseParagraphLength,
             MaintainerDiagnostics.Codes.ProvisionRestatesHeading,
             MaintainerDiagnostics.Codes.ProvisionsStale,
             MaintainerDiagnostics.Codes.RecordDecisionUncited,
@@ -440,8 +430,6 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.StandardUnlabeledContent,
             MaintainerDiagnostics.Codes.TemplateIndexPath,
             MaintainerDiagnostics.Codes.TemplateSchema,
-            MaintainerDiagnostics.Codes.TemplateSourceDiffers,
-            MaintainerDiagnostics.Codes.TemplateSourceMissing,
             MaintainerDiagnostics.Codes.TemplateCitationUnknown,
             MaintainerDiagnostics.Codes.StandardStrengthModal,
             MaintainerDiagnostics.Codes.VerifyCommand,

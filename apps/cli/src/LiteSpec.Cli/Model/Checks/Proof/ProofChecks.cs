@@ -1,4 +1,6 @@
+using LiteSpec.Cli.Model.Checks.Implementation.Placement;
 using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -22,7 +24,7 @@ internal static class ProofChecks
     private static bool IsComposedFromLiteral(ProjectModel model, string code) =>
         model.Config.RefusalComposed.Any(template => RefusalTemplate.TryMatch(template, code, out var key) && model.Code.KeyLiterals.Contains(key));
 
-    /// <summary>Reports use-case-success-missing, use-case-scenario-missing, use-case-unimplemented, scenario-result-unknown, refusal-unimplemented and proves-unreached.</summary>
+    /// <summary>Reports use-case-success-missing, use-case-scenario-missing, use-case-unimplemented, reference-unknown, refusal-unimplemented and proves-unreached.</summary>
     /// <param name="model">The loaded project model that holds every record, each test and the proof links.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -54,6 +56,10 @@ internal static class ProofChecks
             {
                 findings.Add(new Finding("use-case-unimplemented", $"Use case '{useCase.Id}' has no handler, reaction or job.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }
+            else
+            {
+                CheckUseCaseFolderPresent(model, useCase, findings);
+            }
         }
 
         foreach (var scenario in model.Records.Where(record => record.Type == RecordTypes.Scenario))
@@ -73,7 +79,7 @@ internal static class ProofChecks
 
             if (!ResultBelongsToScenario(model, scenario, result))
             {
-                findings.Add(new Finding("scenario-result-unknown", $"Scenario '{scenario.Id}' ends in '{resultId}' outside its use case.", scenario.File, scenario.Line, SubjectOf(scenario)));
+                findings.Add(new Finding("reference-unknown", $"Scenario '{scenario.Id}' ends in '{resultId}' outside its use case.", scenario.File, scenario.Line, SubjectOf(scenario)));
             }
         }
 
@@ -81,9 +87,9 @@ internal static class ProofChecks
         // validation, never thrown by handler code, so only written refusals count.
         foreach (var result in results.Where(left => !left.Derived && left.Field(RecordFields.Outcome) == "refusal"))
         {
-            if (result.Field(RecordFields.Code) is { } code && !thrown.Contains(code) && !IsComposedFromLiteral(model, code))
+            if (RefusalCode.Of(result) is { } code && !thrown.Contains(code) && !IsComposedFromLiteral(model, code))
             {
-                findings.Add(new Finding("refusal-unimplemented", $"Result '{result.Id}' names code '{code}', which no code throws.", result.File, result.Line, SubjectOf(result)));
+                findings.Add(new Finding("refusal-unimplemented", $"Result '{result.Id}' names refusal '{result.Field(RecordFields.Refusal)}', which no code throws.", result.File, result.Line, SubjectOf(result)));
             }
         }
 
@@ -110,6 +116,91 @@ internal static class ProofChecks
                 }
             }
         }
+    }
+
+    /// <summary>Reports a use case holding scenarios whose Application folder is missing: its record promises behavior its module folder does not hold. Only a project following LiteSpec's code layout states the folder; a project with its own layout keeps no such folder by design. A use case the completion already reports stays with that finding, so one gap draws one finding.</summary>
+    /// <param name="model">The loaded project model that holds every use case record.</param>
+    /// <param name="useCase">The use case record whose Application folder is wanted.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUseCaseFolderPresent(ProjectModel model, Record useCase, List<Finding> findings)
+    {
+        if (model.Config.Layers.Implementation != LayerPractice.LiteSpec)
+        {
+            return;
+        }
+
+        if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name)
+            || name is null
+            || !model.RecordsByHome[name].Any(record => record.Type == RecordTypes.Scenario))
+        {
+            return;
+        }
+
+        var path = PlacementPath.PathOf(useCase);
+
+        if (path.Module is null || path.Name is null)
+        {
+            return;
+        }
+
+        var folder = path.Aggregate is null
+            ? Path.Combine("Application", Naming.Pascal(path.Name))
+            : Path.Combine("Application", PlacementPath.ExpectedAggregateFolder(model, path.Module, path.Aggregate), Naming.Pascal(path.Name));
+
+        foreach (var directory in ModuleDirectories(model, path.Module))
+        {
+            try
+            {
+                if (Directory.Exists(Path.Combine(directory, folder)))
+                {
+                    return;
+                }
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                return;
+            }
+        }
+
+        findings.Add(new Finding("use-case-unimplemented", $"Use case '{useCase.Id}' has scenarios but no '{folder.Replace(Path.DirectorySeparatorChar, '/')}/' folder.", useCase.File, useCase.Line, SubjectOf(useCase)));
+    }
+
+    /// <summary>The module folders spelling the module: one folder per matching module project, or the matching folder under the single modules project.</summary>
+    /// <param name="model">The loaded project model that holds the module roots.</param>
+    /// <param name="module">The module name the record states.</param>
+    /// <returns>The module folders as written on disk.</returns>
+    private static List<string> ModuleDirectories(ProjectModel model, string module)
+    {
+        var directories = new List<string>();
+
+        foreach (var modules in model.Config.ModulesRoots)
+        {
+            if (modules.Length == 0 || !Directory.Exists(modules))
+            {
+                continue;
+            }
+
+            if (SourceRoots.IsSingleModulesProject(modules))
+            {
+                try
+                {
+                    directories.AddRange(Directory.EnumerateDirectories(modules)
+                        .Where(child => PlacementPath.SameName(Path.GetFileName(child), module)));
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                    continue;
+                }
+            }
+            else if (!SourceRoots.IsContractsProject(modules)
+                && SourceRoots.ModuleNameOf(modules) is { } own
+                && PlacementPath.SameName(own, module))
+            {
+                directories.Add(modules);
+            }
+        }
+
+        return directories;
     }
 
     /// <summary>
@@ -141,6 +232,30 @@ internal static class ProofChecks
         var resultHome = Identifiers.TrySplit(result.Id, out _, out var right, out _) ? right : null;
 
         return scenarioHome is not null && scenarioHome == resultHome;
+    }
+
+    /// <summary>Reports a flow step served by records that no code implements. A step with no servers is owned by the step check, so one defect draws one finding.</summary>
+    /// <param name="model">The loaded project model that holds every record and each computed implements link.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunStepUnimplemented(ProjectModel model, List<Finding> findings)
+    {
+        var implemented = model.Implements.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
+
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow))
+        {
+            foreach (var step in flow.StepIds().Order(StringComparer.Ordinal))
+            {
+                var servers = model.Records
+                    .Where(record => RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal)
+                        && record.Ids(RecordFields.Serves).Contains(step, StringComparer.Ordinal))
+                    .ToList();
+
+                if (servers.Count > 0 && servers.All(server => !implemented.Contains(server.Id)))
+                {
+                    findings.Add(new Finding("step-implementation-missing", $"Flow step '{step}' is served by use cases, reactions, or jobs that no code implements.", flow.File, flow.Line, step));
+                }
+            }
+        }
     }
 
     /// <summary>Reports a use case holding scenarios with no passing proof.</summary>

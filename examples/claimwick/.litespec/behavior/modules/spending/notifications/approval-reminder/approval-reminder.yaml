@@ -3,15 +3,17 @@ id: notification/spending.approval-reminder
 title: Approval Reminder
 summary: The reminder names the expense and its waiting time. Each waiting expense earns one reminder.
 template: approval-reminder-manager
-addresses:
+audience:
 - actor/manager
-channel:
+channels:
 - email
-consent: Managers accept reminders with the approver role.
+via: external-system/mail-relay
+consentRule: rule/spending.suppressed-manager-gets-no-reminder
 frequency: once
-dedupKey: approval-reminder-{expenseId}
-params:
+deduplicationKey: approval-reminder-{expenseId}
+parameters:
 - submitterName
 locale: English only; the template ships one language.
+suppressedWhen: The approver holds a reminder preference.
 fulfills:
 - requirement/approval.decided-within-five-days

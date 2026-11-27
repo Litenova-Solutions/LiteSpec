@@ -4,12 +4,63 @@ title: Which Record Layers a Project Can Leave Out
 sources:
   - path: apps/cli/src/LiteSpec.Cli/Model/CompletionStages/CompletionCalculator.cs
     readOn: 2026-11-10
-    key: completion-calculator
+    name: completion-calculator
+    note: Read at lines 403 to 407 and lines 437 to 452.
   - path: apps/cli/src/LiteSpec.Cli/Model/Checks/Proof/ProofChecks.cs
     readOn: 2026-11-10
-    key: proof-checks
+    name: proof-checks
+    note: Read at lines 165 to 171.
   - path: schemas/record.schema.yaml
     readOn: 2026-11-10
-    key: record-schema
+    name: record-schema
+    note: Read at lines 2823 to 2835.
 question: Which record layers can a project leave out without breaking a link, and what must each claim name?
 conclusion: A project can leave out Implementation or Proof alone, because each points at Behavior and not at the other. Behavior needs Intent, and Implementation and Proof each need Behavior.
+findings:
+- statement: Implementation and Proof depend on Behavior, and Behavior depends on Intent.
+  sources:
+  - completion-calculator
+  - proof-checks
+- statement: A project keeps Intent and adds Behavior before Implementation, Proof, or both.
+  sources:
+  - completion-calculator
+  - proof-checks
+- statement: A use case counts as verified from its scenarios' passing proofs alone.
+  sources:
+  - completion-calculator
+- statement: UseCaseVerified checks proof links and the stale set, never code marks.
+  sources:
+  - completion-calculator
+- statement: A fulfiller counts as coded when verified or when the calculator finds code.
+  sources:
+  - completion-calculator
+- statement: Implementation and Proof each point at Behavior, so removing one breaks nothing in the other.
+  sources:
+  - completion-calculator
+- statement: A claim names Intent alone, Intent and Behavior, Intent and Behavior with Implementation, Intent and Behavior with Proof, or all 4 layers.
+  sources:
+  - completion-calculator
+  - proof-checks
+- statement: No other shape keeps every link whole.
+  sources:
+  - completion-calculator
+  - proof-checks
+- statement: The five-shape reading is the record's own and cites no outside source.
+  sources:
+  - completion-calculator
+  - proof-checks
+- statement: The use-case-unverified finding fires on any use case with scenarios and no passing proof.
+  sources:
+  - proof-checks
+- statement: It fires whether or not the use case carries code marks.
+  sources:
+  - proof-checks
+- statement: A team that marks code and proves no scenarios never reaches the verified stage.
+  sources:
+  - proof-checks
+- statement: The record schema leaves expiresOn optional in the waiver record.
+  sources:
+  - record-schema
+- statement: It requires exitWhen only when expiresOn is set.
+  sources:
+  - record-schema

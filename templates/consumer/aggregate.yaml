@@ -1,102 +1,45 @@
 type: aggregate
-id: aggregate/spending.expense
-title: Expense
-summary: An expense is one work cost an employee submitted.
-kind: entity
+id: aggregate/<module>.<name>
+title: <Title in Title Case>
+terms:
+  - <term id, or remove this line>
+summary: <what this aggregate keeps true, or remove this line>
+parts:
+  - <child entity or value object name, or remove this line>
 states:
-- name: Submitted
-  meaning: The expense waits for a decision.
-- name: Approved
-  meaning: A manager approved the expense.
-- name: Refused
-  meaning: A manager refused the expense.
-- name: Reimbursed
-  meaning: The reimbursed state of an expense whose payout reached the submitter.
+  - name: <State>
+    meaning: <what makes it true>
 transitions:
-- from: "-"
-  to: Submitted
-  by: use-case/spending.submit-expense
-- from: Submitted
-  to: Approved
-  by: use-case/spending.approve-expense
-- from: Submitted
-  to: Refused
-  by: use-case/spending.refuse-expense
-- from: Approved
-  to: Reimbursed
-  by: use-case/spending.reimburse-expense
+  - from: <state, or - for creation>
+    to: <state>
+    movedBy: <use-case/<module>.<name>, or remove this line>
+    after: <delay before a timed move, such as P7Y, or remove this line>
 data:
-- name: employee
-  meaning: The employee who submitted the expense.
-  classification: personal
-  dataClass: submitter-contact
-- name: amount
-  meaning: The exact amount with its currency.
-  classification: internal
-  dataClass: expense-ledger
-- name: receipt
-  meaning: The proof of payment, when one is attached.
-  classification: internal
-  dataClass: expense-ledger
-- name: state
-  meaning: The lifecycle state of the expense.
-  classification: internal
-  dataClass: expense-ledger
+  - name: <field name>
+    meaning: <what the field holds>
+    classification: <public|internal|personal|sensitive>
+    dataClass: <data class name>
 dataClasses:
-- name: submitter-contact
-  classification: personal
-  fields:
-  - employee
-  onErasure: pseudonymize
-  basis: business
-  period: P7Y
-  enforcedBy: job/spending.erase-expired-personal-data
-  purpose: Link each expense to the employee who submitted it.
-  basedOn:
-  - requirement/approval.erased-after-retention
-- name: expense-ledger
-  classification: internal
-  fields:
-  - amount
-  - receipt
-  - state
-  onErasure: retain
-  basis: statute
-  period: P7Y
-  enforcedBy: record-expiry
-  purpose: Keep the tax file defensible.
-records:
-- type: event
-  id: event/expense.submitted
-  title: Expense Submitted
-  meaning: An expense was submitted.
-  carries:
-  - expenseId
-  - amount
-  - currency
-  - employeeId
-- type: event
-  id: event/expense.approved
-  title: Expense Approved
-  meaning: An expense was approved.
-  carries:
-  - expenseId
-  - approvedBy
-  - decidedAt
-- type: event
-  id: event/expense.refused
-  title: Expense Refused
-  meaning: An expense was refused.
-  carries:
-  - expenseId
-  - refusedBy
-  - decidedAt
-- type: event
-  id: event/expense.reimbursed
-  title: Expense Reimbursed
-  meaning: An expense was reimbursed.
-  carries:
-  - expenseId
-  - amount
-  - currency
-  - reimbursedAt
+  - name: <data class name>
+    classification: <public|internal|personal|sensitive>
+    fields:
+      - <field name>
+    onErasure: <erase|pseudonymize|anonymize|retain|exempt>
+    basedOn:
+      - <constraint, requirement or decision id>
+    period: <how long the class is kept, such as P7Y>
+    periodStartsAt: <domain event, module event, integration event or aggregate date field starting the period, or a range such as creation to erasure>
+    enforcedBy:
+      - <job/<module>.<name> or use-case/<module>.<name>>
+    purpose: <why the data is kept>
+    reason: <why this class is exempt, or remove this line>
+    reach: <own-tenant|subject-wide|platform-wide, or remove this line>
+    exceptions:
+      - field: <field name>
+        onErasure: <erase|pseudonymize|anonymize|retain|exempt>
+    retentionHolds:
+      - reason: <why deletion pauses>
+        heldOn: <date the hold starts, such as 2026-03-02>
+        liftedOn: <date the hold ends, or remove this line>
+excludes:
+  - <one thing the aggregate does not hold, in one sentence, or remove this line>

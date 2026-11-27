@@ -22,7 +22,12 @@ static class NewCommand
         Usage: litespec new <type> <id> [--root <path>] [--help]
                litespec new <document-style> <name> [--root <path>]
                litespec new decision <name> [--root <path>]
+               litespec new feature <problem>.<name> [--root <path>]
                litespec new requirement <feature>.<name> [--root <path>]
+               litespec new requirement <name> [--root <path>]
+               litespec new rule <home>.<name> [--root <path>]
+               litespec new setting <module>.<name> [--root <path>]
+               litespec new domain-event <aggregate>.<name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
                litespec new use-case <id> --kind command|query [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
@@ -36,12 +41,12 @@ static class NewCommand
         lending.notify-reader; the full identifier is <type>/<id>. The file is
         written at the home its type owns, under behavior/: a reaction under
         modules/<module>/reactions/, a job under modules/<module>/jobs/,
-        a notification under modules/<module>/notifications/, a decision under
-        the decisions folder. A named record is written in its own folder beside
+        a notification under modules/<module>/notifications/, a view under
+        modules/<module>/views/, a decision under the decisions folder. A named record is written in its own folder beside
         its explanation file: modules/<module>/reactions/<name>/<name>.yaml and
         modules/<module>/reactions/<name>/<name>.md. A module file is
         modules/<module>/module.yaml; an aggregate file is
-        modules/<module>/aggregates/<aggregate>/aggregate.yaml. A use-case file starts
+        modules/<module>/aggregates/<aggregates>/aggregate.yaml. A use-case file starts
         under modules/<module>/use-cases/<name>/<name>.yaml; move the folder
         under its aggregate's use-cases/ folder once the use case names one. The
         title is one Title Case title, written to the YAML title and to the
@@ -52,11 +57,21 @@ static class NewCommand
         with the title filled in and the fixed sections of the type. The command
         refuses an identifier a record already carries.
 
-        new requirement <feature>.<name> writes a requirement file of its own in its
-        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The
-        feature record <feature> must exist; the command refuses an unknown feature.
-        A requirement takes no explanation file, because its statement is its lead;
-        add <name>.md beside it only when the requirement needs an example.
+        new feature <problem>.<name> writes a feature file of its own in its problem's features/
+        folder: intent/problems/<problem>/features/<name>/<name>.yaml. The identifier carries no problem:
+        it is feature/<name>. new requirement <feature>.<name> writes a requirement file of its own in its
+        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The feature record <feature> must
+        exist; the command refuses an unknown feature. new requirement <name> writes a product requirement at
+        intent/requirements/<name>/<name>.yaml, which cites the constraint, goal or problem it comes from.
+        On a project listing intent in explanations.layers, a new requirement
+        gets <name>.md beside its record file from templates/consumer/requirement.md.
+
+        new rule writes one folder at the home its identifier names: under its aggregate's
+        rules/ folder when the home names an aggregate, under its module's rules/ folder when the
+        home names a module, and under behavior/rules/ when it names neither. new setting writes
+        behavior/modules/<module>/settings/<name>/. new domain-event writes
+        behavior/modules/<module>/aggregates/<aggregates>/domain-events/<name>/ under the aggregate
+        its home names. Write the aggregate or module record first so the tool can find its folder.
 
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
@@ -70,7 +85,7 @@ static class NewCommand
         new <document-style> writes the .md document from its template: a tutorial
         or how-to under guide/, a command or configuration under tools/, a reference
         under reference/, an index as the README.md of its section folder,
-        a glossary or example cast under behavior/.
+        a glossary under behavior/.
         The title follows <name>. The command refuses a name whose file already exists.
 
         new result and new scenario append one entry to a use-case file's
@@ -83,14 +98,13 @@ static class NewCommand
         on a success it becomes the first of codes. The command refuses a duplicate
         id and an unknown use case.
 
-        new entry appends one rule, permission, or setting entry to its owning list file's records
-        instead of scaffolding a file. <page-id> is the file's consumer-relative path, because list
-        files carry no record identifier. The type must belong on the file: a rule on a rule-set file,
-        a permission on the permission list, a setting on a setting set. A requirement is a page of
-        its own: write it with new requirement. The entry id is <type>/<home>.<name> from the file's
-        home, or permission/<name>; the home is the file's existing entries' home, else the file stem
-        for a rule and the parent modules folder for a setting. The entry lands last with every required field filled
-        with its template example value; the file is written back in canonical
+        new entry appends one permission entry to its permission file's records
+        instead of scaffolding a file. <page-id> is the file's consumer-relative path, because the
+        permission file carries no record identifier. The file must be a permission set; the command
+        refuses another file. A rule, a setting and a domain event are pages of their own: write them
+        with new rule, new setting and new domain-event. A requirement is a page of its own: write it
+        with new requirement. The entry id is permission/<name>. The entry lands last with every
+        required field filled with its template example value; the file is written back in canonical
         form. The command refuses a duplicate id and an unknown file.
 
           --root    The consumer repository to write into. Defaults to the working directory.
@@ -201,13 +215,9 @@ static class NewCommand
                 return CommandFailure.UsageError("New feature needs a problem: use litespec new feature <problem>.<name>.", Usage, json: false);
             }
 
-            if (type == RecordTypes.Requirement && homeName is null)
-            {
-                return CommandFailure.UsageError("New requirement needs a feature: use litespec new requirement <feature>.<name>.", Usage, json: false);
-            }
-
             // A feature lives in its problem's folder, but its identifier carries no home:
             // the problem picks the folder and the identifier is feature/<name>.
+            // A requirement names its feature (<feature>.<name>); one with no feature is a product requirement.
             var identifierHome = homeName;
 
             if (type == "feature")
@@ -294,9 +304,9 @@ static class NewCommand
         }
 
         // A requirement lives in its feature's folder, so the feature record must exist first.
-        var requirementFolder = type == RecordTypes.Requirement ? RecordPages.FeatureFolder(records, homeName!) : null;
+        var requirementFolder = type == RecordTypes.Requirement && homeName is not null ? RecordPages.FeatureFolder(records, homeName) : null;
 
-        if (type == RecordTypes.Requirement && requirementFolder is null)
+        if (type == RecordTypes.Requirement && homeName is not null && requirementFolder is null)
         {
             CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <problem>.{homeName}.");
             return 2;
@@ -335,16 +345,25 @@ static class NewCommand
             node["title"] = title;
         }
 
+        // A product decision states no kind: only a technical decision under
+        // implementation/decisions does, so the template's kind placeholder leaves.
+        if (isDecision)
+        {
+            node.Remove("kind");
+        }
+
+        // A use case is a command or a query, and the scaffold carries the chosen kind.
+        if (type == RecordTypes.UseCase)
+        {
+            node["kind"] = parsed.Value("--kind") == "query" ? "query" : "command";
+        }
+
         var filled = RecordScaffold.LineFor(templateFile) + "\n" + RecordFile.Write(node);
         string? explanation = null;
 
-        // An article type, and a type on a layer the project lists, gets the explanation template for its own
-        // type, with the title filled in, so the record starts with its fixed sections. A requirement takes none:
-        // its statement is its lead.
-        if (type != RecordTypes.Requirement
-            && (RecordFile.ArticleTypes.Contains(type)
-                || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
-                    && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))))
+        // An article type gets the explanation template for its own type, with the title filled in, so the
+        // record starts with its fixed sections. Every other record type stands alone in its YAML file.
+        if (RecordFile.ArticleTypes.Contains(type))
         {
             if (ReadTemplate($"{type}.md") is not { } explanationTemplate)
             {
@@ -354,9 +373,14 @@ static class NewCommand
             explanation = FillTitle(explanationTemplate, title);
         }
 
-        var target = requirementFolder is null
-            ? RecordPages.PagePath(config, type, homeName, name)
-            : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
+        var scopedFolder = ScopedFolder(config, records, type, homeName);
+        var target = scopedFolder is not null
+            ? RecordPages.PlaceIn(scopedFolder, name, RecordFiles.Extension)
+            : type == RecordTypes.Requirement && homeName is null
+                ? Path.Combine(RecordPages.DocsRoot(config), "intent", "requirements", name, name + RecordFiles.Extension)
+                : requirementFolder is null
+                    ? RecordPages.PagePath(config, type, homeName, name)
+                    : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
 
         if (File.Exists(target))
         {
@@ -401,6 +425,49 @@ static class NewCommand
         }
 
         return 0;
+    }
+
+    /// <summary>
+    ///     The folder a scoped record starts in. A domain event sits under the aggregate its home
+    ///     names; a rule sits under that aggregate, under its module when the home names one, or
+    ///     under behavior/rules/ when the home names neither. Every other type uses the home table.
+    /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="records">Every record the model read, which finds the aggregate and module folders.</param>
+    /// <param name="type">The record type being scaffolded.</param>
+    /// <param name="home">The identifier home segment, such as the aggregate or module name.</param>
+    /// <returns>The folder that holds the record's own folder, or null when the type has no scoped home.</returns>
+    static string? ScopedFolder(ConsumerConfig config, IReadOnlyList<Record> records, string type, string? home)
+    {
+        if (home is null || type is not (RecordTypes.Rule or RecordTypes.DomainEvent))
+        {
+            return null;
+        }
+
+        var aggregate = records.FirstOrDefault(record =>
+            record.Type == RecordTypes.Aggregate
+            && !record.Derived
+            && Identifiers.TrySplit(record.Id, out _, out _, out var aggregateName)
+            && string.Equals(aggregateName, home, StringComparison.Ordinal));
+
+        if (aggregate is not null)
+        {
+            return Path.Combine(
+                Path.GetDirectoryName(aggregate.File)!,
+                type == RecordTypes.Rule ? "rules" : "domain-events");
+        }
+
+        if (type == RecordTypes.Rule)
+        {
+            var module = records.Any(record =>
+                record.Type == RecordTypes.Module
+                && !record.Derived
+                && string.Equals(record.Id, $"module/{home}", StringComparison.Ordinal));
+
+            return Path.Combine(config.BehaviorDocs, module ? Path.Combine("modules", home, "rules") : "rules");
+        }
+
+        return null;
     }
 
     /// <summary>Scaffolds one document from the template for its style, with the title following the name.</summary>

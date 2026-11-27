@@ -40,7 +40,7 @@ static class UseCaseQueries
     public static bool HasValidatedInput(Record useCase)
     {
         if (useCase.Raw.ValueKind != System.Text.Json.JsonValueKind.Object
-            || !useCase.Raw.TryGetProperty(RecordFields.Input, out var input)
+            || !useCase.Raw.TryGetProperty(RecordFields.Inputs, out var input)
             || input.ValueKind != System.Text.Json.JsonValueKind.Array)
         {
             return false;
@@ -68,7 +68,7 @@ static class UseCaseQueries
         return false;
     }
 
-    /// <summary>Whether another use case runs the use case, so it reaches its journey through that use case.</summary>
+    /// <summary>Whether another use case runs the use case, so it reaches its flow through that use case.</summary>
     /// <param name="model">The loaded project model.</param>
     /// <param name="useCase">The use case under test.</param>
     /// <returns>True when a use case names it in a runs effect; otherwise false.</returns>

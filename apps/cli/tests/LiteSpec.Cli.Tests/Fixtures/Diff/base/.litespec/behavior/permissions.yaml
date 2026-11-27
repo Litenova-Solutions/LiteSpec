@@ -1,7 +1,6 @@
-type: permission-list
+type: permission-set
 title: Permissions
-records:
-  - type: permission
-    id: permission/borrow-copy
-    title: Borrow copy
-    meaning: Borrow an available copy.
+permissions:
+- id: permission/borrow-copy
+  title: Borrow copy
+  meaning: Borrow an available copy.

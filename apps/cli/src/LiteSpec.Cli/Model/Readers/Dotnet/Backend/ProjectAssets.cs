@@ -1,0 +1,289 @@
+using System.Text.Json;
+using LiteSpec.Cli.Model.Configuration;
+using Microsoft.CodeAnalysis;
+
+namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
+
+/// <summary>The build output of a consumer backend: the project assets a restore wrote and the binaries a build wrote.</summary>
+/// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+static class ProjectAssets
+{
+    /// <summary>Every build output proving a backend was built: each project assets file with one binary per root.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The project assets files and binaries found.</returns>
+    public static IReadOnlyList<string> Evidence(ConsumerConfig config)
+    {
+        var found = new List<string>();
+
+        foreach (var root in SourceRoots.BackendRoots(config))
+        {
+            var assets = Path.Combine(root, "obj", "project.assets.json");
+
+            if (File.Exists(assets))
+            {
+                found.Add(assets);
+            }
+
+            var bin = Path.Combine(root, "bin");
+
+            if (!Directory.Exists(bin))
+            {
+                continue;
+            }
+
+            try
+            {
+                foreach (var binary in Directory.EnumerateFiles(bin, "*.dll", SearchOption.AllDirectories))
+                {
+                    found.Add(binary);
+                    break;
+                }
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Every target framework the project assets files name, distinct in read order.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The target frameworks, such as net10.0, distinct in read order.</returns>
+    public static IReadOnlyList<string> TargetFrameworks(ConsumerConfig config)
+    {
+        var found = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var root in SourceRoots.BackendRoots(config))
+        {
+            var assets = Path.Combine(root, "obj", "project.assets.json");
+
+            if (!File.Exists(assets))
+            {
+                continue;
+            }
+
+            foreach (var framework in TargetFrameworksOf(assets))
+            {
+                if (seen.Add(framework))
+                {
+                    found.Add(framework);
+                }
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Every target framework one assets file names: each target before its slash, else each project framework.</summary>
+    /// <param name="assetsFile">The project assets file.</param>
+    /// <returns>The target frameworks the file names.</returns>
+    static List<string> TargetFrameworksOf(string assetsFile)
+    {
+        var found = new List<string>();
+        JsonDocument document;
+
+        try
+        {
+            document = JsonDocument.Parse(File.ReadAllText(assetsFile));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
+        {
+            return found;
+        }
+
+        using (document)
+        {
+            if (document.RootElement.TryGetProperty("targets", out var targets)
+                && targets.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var target in targets.EnumerateObject())
+                {
+                    var slash = target.Name.IndexOf('/');
+                    var framework = slash < 0 ? target.Name : target.Name[..slash];
+
+                    if (framework.Length > 0 && !found.Contains(framework, StringComparer.OrdinalIgnoreCase))
+                    {
+                        found.Add(framework);
+                    }
+                }
+            }
+
+            if (found.Count == 0
+                && document.RootElement.TryGetProperty("project", out var project)
+                && project.ValueKind == JsonValueKind.Object
+                && project.TryGetProperty("frameworks", out var frameworks)
+                && frameworks.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var framework in frameworks.EnumerateObject())
+                {
+                    if (framework.Name.Length > 0 && !found.Contains(framework.Name, StringComparer.OrdinalIgnoreCase))
+                    {
+                        found.Add(framework.Name);
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Every package binary the project assets files name that exists on disk, as metadata references.</summary>
+    /// <param name="config">The consumer configuration naming the source roots.</param>
+    /// <returns>The package references that exist on disk.</returns>
+    public static IReadOnlyList<MetadataReference> PackageReferences(ConsumerConfig config)
+    {
+        var found = new List<MetadataReference>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var root in SourceRoots.BackendRoots(config))
+        {
+            var assets = Path.Combine(root, "obj", "project.assets.json");
+
+            if (!File.Exists(assets))
+            {
+                continue;
+            }
+
+            foreach (var binary in PackageBinaries(assets))
+            {
+                if (!seen.Add(binary) || !File.Exists(binary))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    found.Add(MetadataReference.CreateFromFile(binary));
+                }
+                catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException or BadImageFormatException)
+                {
+                    continue;
+                }
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Every package binary one assets file names: one compile asset per package, resolved through its package folder.</summary>
+    /// <param name="assetsFile">The project assets file.</param>
+    /// <returns>The package binaries the file names, whether or not they exist on disk.</returns>
+    static List<string> PackageBinaries(string assetsFile)
+    {
+        var found = new List<string>();
+        JsonDocument document;
+
+        try
+        {
+            document = JsonDocument.Parse(File.ReadAllText(assetsFile));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonException)
+        {
+            return found;
+        }
+
+        using (document)
+        {
+            if (!document.RootElement.TryGetProperty("packageFolders", out var folders)
+                || folders.ValueKind != JsonValueKind.Array
+                || !document.RootElement.TryGetProperty("targets", out var targets)
+                || targets.ValueKind != JsonValueKind.Object)
+            {
+                return found;
+            }
+
+            var folderPaths = new List<string>();
+
+            foreach (var folder in folders.EnumerateArray())
+            {
+                if (folder.ValueKind == JsonValueKind.Object
+                    && folder.TryGetProperty("path", out var path)
+                    && path.ValueKind == JsonValueKind.String
+                    && path.GetString() is { Length: > 0 } folderPath)
+                {
+                    folderPaths.Add(NormalizeSeparators(folderPath));
+                }
+            }
+
+            // Every target restores the same packages, so the first target names them all.
+            foreach (var target in targets.EnumerateObject())
+            {
+                if (target.Value.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var library in target.Value.EnumerateObject())
+                    {
+                        if (library.Value.ValueKind == JsonValueKind.Object
+                            && CompileAsset(library.Value) is { } asset)
+                        {
+                            foreach (var folderPath in folderPaths)
+                            {
+                                found.Add(Path.Combine(folderPath, asset));
+                            }
+                        }
+                    }
+                }
+
+                break;
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>One assets-file path with both separators read as folder separators, so a file written on Windows still resolves on Unix.</summary>
+    /// <param name="path">The path as the assets file names it.</param>
+    /// <returns>The path with every separator replaced by the platform separator.</returns>
+    static string NormalizeSeparators(string path) =>
+        path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+
+    /// <summary>One binary of a package library: a reference asset first, else the first compile or runtime asset.</summary>
+    /// <param name="library">The package library entry of the assets target.</param>
+    /// <returns>The binary path under its package folder, or null when the entry names none.</returns>
+    static string? CompileAsset(JsonElement library)
+    {
+        if (!library.TryGetProperty("type", out var kind)
+            || kind.ValueKind != JsonValueKind.String
+            || kind.GetString() != "package"
+            || !library.TryGetProperty("path", out var packagePath)
+            || packagePath.ValueKind != JsonValueKind.String
+            || packagePath.GetString() is not { Length: > 0 } package)
+        {
+            return null;
+        }
+
+        foreach (var table in new[] { "compile", "runtime" })
+        {
+            if (!library.TryGetProperty(table, out var assets) || assets.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            string? first = null;
+
+            foreach (var asset in assets.EnumerateObject())
+            {
+                if (asset.Name.EndsWith("/_._", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (asset.Name.StartsWith("ref/", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Path.Combine(NormalizeSeparators(package), NormalizeSeparators(asset.Name));
+                }
+
+                first ??= asset.Name;
+            }
+
+            if (first is not null)
+            {
+                return Path.Combine(NormalizeSeparators(package), NormalizeSeparators(first));
+            }
+        }
+
+        return null;
+    }
+}

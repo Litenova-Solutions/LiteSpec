@@ -5,10 +5,10 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Governance;
 
-/// <summary>The gate checks: every decision names what it decides or what it rests on, and a negating rule keeps its restriction in its name.</summary>
+/// <summary>The gate checks: every product decision is named by what it settles, every technical decision names what it rests on, and a negating rule keeps its restriction in its name.</summary>
 /// <follows>litespec/core/model#name-what-every-decision-decides</follows>
 /// <follows>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</follows>
-/// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
+/// <follows>litespec/core/waivers#record-accepted-gaps-as-waivers</follows>
 /// <follows>litespec/core/domain-model#keep-the-negation-word-in-the-rule-name</follows>
 internal static class GateChecks
 {
@@ -40,9 +40,14 @@ internal static class GateChecks
         foreach (var decision in model.Records.Where(candidate =>
             candidate.Type == RecordTypes.Decision && !MarkChecks.UnderImplementationDecisions(model.Config, candidate.File)))
         {
-            if (!decision.Ids(RecordFields.Decides).Any())
+            // A product decision is settled by the rules and requirements that name it in
+            // basedOn; a decision no settled record names settles nothing.
+            var settled = model.Records.Any(record => record.Type is RecordTypes.Rule or RecordTypes.Requirement
+                && record.Ids(RecordFields.BasedOn).Contains(decision.Id, StringComparer.Ordinal));
+
+            if (!settled)
             {
-                findings.Add(new Finding("decision-decides-missing", $"Decision '{decision.Id}' names nothing it decides.", decision.File, decision.Line, SubjectOf(decision)));
+                findings.Add(new Finding("decision-decides-missing", $"Decision '{decision.Id}' is named by no rule or requirement in basedOn.", decision.File, decision.Line, SubjectOf(decision)));
             }
         }
 

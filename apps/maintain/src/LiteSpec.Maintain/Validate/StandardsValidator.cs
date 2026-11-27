@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.CommandLine;
+using LiteSpec.Maintain.ProvisionIndex;
 using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Standards;
 
@@ -16,7 +17,8 @@ internal static class StandardsValidator
         Usage: litespec-maintain validate [--root <path>] [--format json]
 
         Validates the authoring contract over the LiteSpec repository at --root,
-        which defaults to the LiteSpec checkout.
+        which defaults to the LiteSpec checkout. Style diagnostics print as
+        warnings and do not affect the exit code.
 
           --root <path>   The repository root. Defaults to the LiteSpec checkout.
           --format json   Write one JSON object on stdout instead of human-readable lines.
@@ -92,6 +94,28 @@ internal static class StandardsValidator
                 Add(relative, PageText.LineNumber(prose, nonAscii), MaintainerDiagnostics.Codes.ProseNonAscii, PageText.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
             }
 
+            // A runnable starter is the consumer's own project: its files stay ASCII, but its
+            // README and docs are the consumer's, so no LiteSpec page rule applies to them.
+            if (relative.StartsWith("templates/bootstrap/", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            // Long paragraphs and banned phrases are mechanical style-card
+            // lints over the same prose, so they run beside the ASCII scan.
+            if (ProseLints.IsProseTarget(relative))
+            {
+                foreach (var paragraph in ProseLints.FindLongParagraphs(reader))
+                {
+                    Add(relative, paragraph.FirstLine, MaintainerDiagnostics.Codes.ProseParagraphLength, $"prose paragraph holds {paragraph.WordCount} words; at most {ProseLints.MaxParagraphWords}");
+                }
+
+                foreach (var hit in ProseLints.FindBannedPhrases(reader))
+                {
+                    Add(relative, hit.Line, MaintainerDiagnostics.Codes.ProseBannedPhrase, $"banned phrase \"{hit.Phrase}\"");
+                }
+            }
+
             parsedPages.Add(new ParsedPage(relative, reader, context.Pages.ParsePage(relative, reader)));
         }
 
@@ -116,6 +140,10 @@ internal static class StandardsValidator
         context.Manifest.CheckManifest(activeIds, provisionsByPage);
         context.Manifest.CheckAnalyzerRelease(parsedPages);
         context.Records.CheckRecords(parsedPages, activeIds);
+
+        // The link annotations are the contract the Links table is generated from, so a
+        // missing one is reported where the table is read.
+        LinkTable.Check(resolved, Add);
 
         // The provision index and its data file are derived. A stale page would send a
         // reader to the wrong heading, so the gate compares both with the active standards.
@@ -174,6 +202,7 @@ internal static class StandardsValidator
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.yaml", "litespec.manifest.yaml");
         context.Manifest.CheckSchemaIds();
         context.Fields.CheckFieldNaming();
+        context.Fields.CheckFieldCatalog();
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
         context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.yaml", "templates/consumer/project.yaml");
@@ -183,7 +212,6 @@ internal static class StandardsValidator
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
         context.Templates.CheckTemplateIndex();
         context.Templates.CheckConsumerTemplates();
-        context.Templates.CheckTemplateSources();
         context.Repository.CheckGeneratedCounts(parsedPages);
         context.ValueStyle.CheckValueStyle();
 
@@ -244,7 +272,8 @@ internal static class StandardsValidator
             return 2;
         }
 
-        var errors = result.Diagnostics;
+        var errors = result.Diagnostics.Where(diagnostic => !MaintainerDiagnostics.IsWarning(diagnostic.Code)).ToList();
+        var warnings = result.Diagnostics.Where(diagnostic => MaintainerDiagnostics.IsWarning(diagnostic.Code)).ToList();
 
         // A machine reader needs the file, the line, and the stable code as fields. A
         // reader that has to parse the human lines back apart breaks the first time a
@@ -256,13 +285,8 @@ internal static class StandardsValidator
                 ["tool"] = "validate",
                 ["root"] = root,
                 ["ok"] = errors.Count == 0,
-                ["errors"] = new JsonArray([.. errors.Select(diagnostic => (JsonNode?)new JsonObject
-                {
-                    ["file"] = diagnostic.Relative,
-                    ["line"] = diagnostic.Line,
-                    ["code"] = diagnostic.Code,
-                    ["message"] = diagnostic.Message,
-                })]),
+                ["errors"] = new JsonArray([.. errors.Select(DiagnosticJson)]),
+                ["warnings"] = new JsonArray([.. warnings.Select(DiagnosticJson)]),
             });
             return errors.Count == 0 ? 0 : 1;
         }
@@ -272,13 +296,38 @@ internal static class StandardsValidator
             Console.Error.WriteLine($"{diagnostic.Relative}:{diagnostic.Line} [{diagnostic.Code}] {diagnostic.Message}");
         }
 
+        foreach (var diagnostic in warnings)
+        {
+            Console.Error.WriteLine($"{diagnostic.Relative}:{diagnostic.Line} [{diagnostic.Code}] {diagnostic.Message} (warning)");
+        }
+
         if (errors.Count > 0)
         {
-            Console.Error.WriteLine($"LiteSpec authoring checks failed with {errors.Count} error(s).");
+            var summary = warnings.Count == 0
+                ? $"LiteSpec authoring checks failed with {errors.Count} error(s)."
+                : $"LiteSpec authoring checks failed with {errors.Count} error(s) and {warnings.Count} warning(s).";
+            Console.Error.WriteLine(summary);
             return 1;
+        }
+
+        if (warnings.Count > 0)
+        {
+            Console.WriteLine($"LiteSpec authoring checks passed with {warnings.Count} warning(s).");
+            return 0;
         }
 
         Console.WriteLine("LiteSpec authoring checks passed.");
         return 0;
     }
+
+    /// <summary>Writes one diagnostic as its JSON object.</summary>
+    /// <param name="diagnostic">The diagnostic to write.</param>
+    /// <returns>The JSON object.</returns>
+    private static JsonNode DiagnosticJson(StandardsDiagnostic diagnostic) => new JsonObject
+    {
+        ["file"] = diagnostic.Relative,
+        ["line"] = diagnostic.Line,
+        ["code"] = diagnostic.Code,
+        ["message"] = diagnostic.Message,
+    };
 }

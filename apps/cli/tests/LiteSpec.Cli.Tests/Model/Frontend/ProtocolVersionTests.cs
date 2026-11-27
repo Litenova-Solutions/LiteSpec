@@ -15,7 +15,7 @@ namespace LiteSpec.Cli.Tests.Model.Frontend;
 public sealed class ProtocolVersionTests
 {
     /// <summary>The Protocol Version The Reader States Is The One The CLI Checks.</summary>
-    /// <proves>litespec/core/release#qualify-the-reader-with-known-good-and-known-bad-fixtures</proves>
+    /// <proves>litespec/core/release#qualify-each-stack-reader-with-fixtures</proves>
     [Fact]
     public void TheReaderStatesTheProtocolVersionTheCLIChecks()
     {

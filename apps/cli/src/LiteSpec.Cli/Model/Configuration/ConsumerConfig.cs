@@ -28,9 +28,6 @@ sealed class ConsumerConfig
     /// <summary>Gets the glossary.</summary>
     public string GlossaryPath { get; private set; } = "";
 
-    /// <summary>Gets the UI pattern catalog, from <c>paths.uiPatterns</c> or its default: YAML under the record root, but not a record.</summary>
-    public string UiPatternCatalog { get; private set; } = "";
-
     /// <summary>Gets where behavior records live.</summary>
     public string BehaviorDocs { get; private set; } = "";
 
@@ -60,26 +57,29 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, string> RefusalAliases { get; private set; } =
         new Dictionary<string, string>(StringComparer.Ordinal);
 
-    /// <summary>Gets the modules project holding every module, or the Application project under layer-projects.</summary>
-    public string ModulesRoot { get; private set; } = "";
+    /// <summary>Gets the URI prefix of every problem type, from <c>problemTypeBase</c>; empty when the declaration names none.</summary>
+    public string ProblemTypeBase { get; private set; } = "";
 
-    /// <summary>Gets the Domain project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
-    public string DomainRoot { get; private set; } = "";
+    /// <summary>Gets the module and Contracts projects, one of each per module, or the single modules project when the project keeps it.</summary>
+    public IReadOnlyList<string> ModulesRoots { get; private set; } = [];
+
+    /// <summary>Gets the first module project, for callers outside the model that still read a single root.</summary>
+    public string ModulesRoot => ModulesRoots.Count > 0 ? ModulesRoots[0] : "";
 
     /// <summary>Gets the WebApi host projects, in declaration order.</summary>
     public IReadOnlyList<string> WebApiRoots { get; private set; } = [];
 
-    /// <summary>Gets the Infrastructure project, under layer-projects only; empty in the module layout unless the declaration names it.</summary>
-    public string InfrastructureRoot { get; private set; } = "";
-
     /// <summary>Gets the background worker host projects, in declaration order.</summary>
     public IReadOnlyList<string> WorkerRoots { get; private set; } = [];
 
-    /// <summary>Gets a value indicating whether the project selects the layer-projects extension, so the five project roots apply.</summary>
-    public bool IsLayerProjects { get; private set; }
+    /// <summary>Gets the Kernel project holding the business values every module speaks.</summary>
+    public string KernelRoot { get; private set; } = "";
 
-    /// <summary>Gets the shared kernel project holding what every module builds on.</summary>
-    public string SharedKernelRoot { get; private set; } = "";
+    /// <summary>Gets the Platform project holding the technical capabilities with no business words.</summary>
+    public string PlatformRoot { get; private set; } = "";
+
+    /// <summary>Gets the Kernel project, for callers outside the model that still read the shared kernel root.</summary>
+    public string SharedKernelRoot => KernelRoot;
 
     /// <summary>Gets where tests live.</summary>
     public IReadOnlyList<string> TestRoots { get; private set; } = [];
@@ -105,8 +105,17 @@ sealed class ConsumerConfig
     /// <summary>Gets the declared frontends.</summary>
     public IReadOnlyList<FrontendConfig> Frontends { get; private set; } = [];
 
+    /// <summary>Gets the file sets <c>litespec sync</c> writes from the records, from <c>sync</c>.</summary>
+    public IReadOnlyList<SyncTarget> Sync { get; private set; } = [];
+
     /// <summary>Gets the generated client's sources.</summary>
     public string ApiClientSrc { get; private set; } = "";
+
+    /// <summary>Gets the shared UI package root, from <c>ui.package.path</c>; empty when the project declares none.</summary>
+    public string SharedUiPackageRoot { get; private set; } = "";
+
+    /// <summary>Gets the screen composition limits the checks read, from <c>ui.limits</c> or their defaults.</summary>
+    public UiLimits UiLimits { get; private set; } = UiLimits.Defaults;
 
     /// <summary>Gets where test result files live.</summary>
     public string TestResultsDir { get; private set; } = "";
@@ -116,9 +125,6 @@ sealed class ConsumerConfig
 
     /// <summary>Gets the record layers the project claims in <c>layers</c>; every layer with LiteSpec's practice when the project file names none, which the schema check reports.</summary>
     public LayerClaims Layers { get; private set; } = LayerClaims.All;
-
-    /// <summary>Gets the record layers whose every record page carries an explanation file, from <c>explanations.layers</c>; empty when the project file names none.</summary>
-    public IReadOnlyList<string> ExplanationLayers { get; private set; } = [];
 
     /// <summary>Gets a value indicating whether the project claims Implementation or Proof, so the stack readers read code, screens, tests and test runs.</summary>
     public bool ReadsCode => Layers.Implementation is not null || Layers.Proof is not null;
@@ -134,6 +140,12 @@ sealed class ConsumerConfig
 
     /// <summary>Gets the extension ids the project selects in <c>selectedExtensions</c>.</summary>
     public IReadOnlyList<string> Extensions { get; private set; } = [];
+
+    /// <summary>Gets the tenant glossary term id the top-level <c>tenancy</c> block names in <c>tenant</c>; empty when the project declares no tenancy.</summary>
+    public string TenancyTenantTerm { get; private set; } = "";
+
+    /// <summary>Gets the top-level <c>verify</c> block: the API host, the sign-in requests, the probe values and the persistence and production settings.</summary>
+    public VerifyConfig Verify { get; private set; } = VerifyConfig.Empty;
 
     /// <summary>Gets the mark style the project declares.</summary>
     public MarkStyle Marks { get; private set; } = MarkStyle.Xml;
@@ -166,12 +178,10 @@ sealed class ConsumerConfig
         var document = RecordText.Parse(text, RecordText.IsYaml(file)) as JsonObject ?? new JsonObject();
         config.Marks = projectPaths.Settings.Marks;
         config.Layers = projectPaths.Settings.Layers;
-        config.ExplanationLayers = projectPaths.Settings.Explanations.Layers;
 
         var paths = ObjectAt(document, "paths");
         var dotnet = ObjectAt(ObjectAt(document, "stackConfig"), "dotnet");
         var problems = new List<Finding>();
-        var layerProjects = SelectsExtension(document, "layer-projects");
         var selectsDotnet = SelectsDotnet(document);
 
         void ReportMissing(string field, string pattern, string resolved, bool declared)
@@ -188,16 +198,6 @@ sealed class ConsumerConfig
                 Reader = Finding.RoslynReader,
                 ReaderIsQualified = true,
             });
-        }
-
-        string DeclaredRootOrEmpty(string field)
-        {
-            if (StringAt(dotnet, field) is { } pattern)
-            {
-                return DeclaredRoot(field, pattern, reportDefault: false);
-            }
-
-            return "";
         }
 
         string DeclaredRoot(string field, string fallback, bool reportDefault)
@@ -224,7 +224,7 @@ sealed class ConsumerConfig
             return fallbackResolved;
         }
 
-        IReadOnlyList<string> DeclaredRoots(string field, string fallback)
+        IReadOnlyList<string> DeclaredRoots(string field, params string[] fallbacks)
         {
             if (dotnet is not null && dotnet[field] is { } value)
             {
@@ -274,7 +274,22 @@ sealed class ConsumerConfig
                 }
             }
 
-            return [Resolve(config.Root, fallback)];
+            // A default pattern that matches no folder contributes nothing: a missing
+            // default stays silent, so only folders on disk become roots.
+            var found = new List<string>();
+
+            foreach (var fallback in fallbacks)
+            {
+                foreach (var resolved in Expand(config.Root, fallback))
+                {
+                    if (Directory.Exists(resolved) && !found.Contains(resolved, StringComparer.OrdinalIgnoreCase))
+                    {
+                        found.Add(resolved);
+                    }
+                }
+            }
+
+            return found;
         }
 
         // Records live under the record roots that paths.docs names, which default
@@ -282,14 +297,24 @@ sealed class ConsumerConfig
         // the shared reader the analyzers use too.
         config.RecordRoots = [.. projectPaths.DocsRoots.Select(Native)];
         config.GlossaryPath = Native(projectPaths.GlossaryPath);
-        config.UiPatternCatalog = Combine(config.Root, ReadString(paths, "uiPatterns", CatalogChecks.DefaultCatalog));
         config.BehaviorDocs = Native(projectPaths.BehaviorDocs);
-        config.ModulesRoot = DeclaredRoot("modules", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*.Modules", reportDefault: true);
-        config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain", reportDefault: true) : DeclaredRootOrEmpty("domain");
-        config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi");
-        config.InfrastructureRoot = layerProjects ? DeclaredRoot("infrastructure", "apps/api/src/*.Infrastructure", reportDefault: true) : DeclaredRootOrEmpty("infrastructure");
-        config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker");
-        config.SharedKernelRoot = DeclaredRoot("sharedKernel", "apps/api/src/*.SharedKernel", reportDefault: false);
+        var modulesFallback = "apps/api/src/Modules/*";
+        config.ModulesRoots = DeclaredRoots("modules", modulesFallback);
+
+        var modulesMissing = selectsDotnet
+            && (dotnet is null || dotnet["modules"] is null)
+            && !AnyExists(config.ModulesRoots);
+
+        if (modulesMissing)
+        {
+            var resolved = config.ModulesRoots.Count > 0 ? config.ModulesRoots[0] : Resolve(config.Root, modulesFallback);
+            ReportMissing("modules", modulesFallback, resolved, declared: false);
+        }
+
+        config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi", "apps/api/src/Hosts/*.WebApi");
+        config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker", "apps/api/src/Hosts/*.Worker");
+        config.KernelRoot = DeclaredRoot("kernel", "apps/api/src/*.Kernel", reportDefault: false);
+        config.PlatformRoot = DeclaredRoot("platform", "apps/api/src/*.Platform", reportDefault: false);
 
         if (StringAt(dotnet, "templateStore") is { } storePath)
         {
@@ -312,8 +337,19 @@ sealed class ConsumerConfig
 
         config.TestRoots = ReadRoots(config.Root, paths, "testRoots", []);
         config.Frontends = ReadFrontends(config.Root, document);
+        config.Sync = ReadSyncTargets(document);
+        config.Verify = VerifyConfig.Read(ObjectAt(document, "verify"));
         config.ApiClientSrc = Path.Combine(
             Combine(config.Root, ReadString(paths, "apiClient", "packages/api")), "src");
+
+        if (ObjectAt(document, "ui") is { } ui
+            && ObjectAt(ui, "package") is { } package
+            && StringAt(package, "path") is { } packagePath)
+        {
+            config.SharedUiPackageRoot = Combine(config.Root, packagePath);
+        }
+
+        config.UiLimits = UiLimits.Read(document);
         config.TestResultsDir = Combine(config.Root, ReadString(paths, "testResults", "TestResults"));
         config.ContractPath = ReadString(paths, "contract", "") is { Length: > 0 } contract ? Combine(config.Root, contract) : null;
 
@@ -349,7 +385,12 @@ sealed class ConsumerConfig
             }
 
             config.Extensions = ids;
-            config.IsLayerProjects = ids.Contains("layer-projects", StringComparer.Ordinal);
+        }
+
+        // Tenancy is part of Core: the top-level tenancy block names the glossary term of one tenant.
+        if (ObjectAt(document, "tenancy") is { } tenancy && JsonValues.PropString(tenancy, "tenant") is { Length: > 0 } tenantTerm)
+        {
+            config.TenancyTenantTerm = tenantTerm;
         }
 
         if (ObjectAt(document, "proof") is { } proof)
@@ -373,6 +414,11 @@ sealed class ConsumerConfig
             config.RefusalStatuses = ReadStatuses(refusals);
             config.RefusalAliases = ReadAliases(refusals);
             config.RefusalComposed = [.. ReadNames(refusals, "composed").Where(RefusalTemplate.IsWellFormed)];
+        }
+
+        if (StringAt(document, "problemTypeBase") is { } problemTypeBase)
+        {
+            config.ProblemTypeBase = problemTypeBase;
         }
 
         if (ObjectAt(document, "screenshots") is { } screenshots)
@@ -415,39 +461,12 @@ sealed class ConsumerConfig
     private static string? StringAt(JsonNode? node, string field) =>
         node is JsonObject container && JsonValues.AsString(container[field]) is { Length: > 0 } text ? text : null;
 
-    /// <summary>Whether the declaration selects the extension id in selectedExtensions.</summary>
-    /// <param name="root">The declaration root object.</param>
-    /// <param name="id">The extension id to test for.</param>
-    /// <returns>True when selectedExtensions names the id as a string or an object with that id.</returns>
-    private static bool SelectsExtension(JsonObject root, string id)
-    {
-        if (root["selectedExtensions"] is not JsonArray extensions)
-        {
-            return false;
-        }
-
-        foreach (var entry in extensions)
-        {
-            if (JsonValues.AsString(entry) == id)
-            {
-                return true;
-            }
-
-            if (entry is JsonObject container && JsonValues.PropString(container, "id") == id)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /// <summary>Whether the declaration selects a stack whose sources the .NET reader reads.</summary>
     /// <param name="root">The declaration root object.</param>
-    /// <returns>True when the stacks array names dotnet, blazor or android.</returns>
+    /// <returns>True when the stacks array names dotnet or android.</returns>
     private static bool SelectsDotnet(JsonObject root) =>
         root["stacks"] is JsonArray stacks
-        && stacks.Any(entry => JsonValues.AsString(entry) is "dotnet" or "blazor" or "android");
+        && stacks.Any(entry => JsonValues.AsString(entry) is "dotnet" or "android");
 
     /// <summary>Reads a string array field, keeping only its string entries.</summary>
     /// <param name="container">The JSON object holding the field.</param>
@@ -566,10 +585,49 @@ sealed class ConsumerConfig
                 string? Optional(string field) =>
                     StringAt(frontend, field) is { } text ? Combine(root, text) : null;
 
+                FrontendClientConfig? Client()
+                {
+                    if (ObjectAt(frontend, "client") is not { } client
+                        || StringAt(client, "contract") is not { } contract
+                        || StringAt(client, "generated") is not { } generated)
+                    {
+                        return null;
+                    }
+
+                    return new FrontendClientConfig(Combine(root, contract), Combine(root, generated));
+                }
+
                 found.Add(new FrontendConfig(
                     named, Combine(root, located), platform,
-                    Optional("refusalDictionary"), Optional("routeSuite"), Optional("visualGoldens"),
-                    JsonValues.PropString(frontend, "entryPoint")));
+                    Optional("routeSuite"), Optional("visualGoldens"),
+                    JsonValues.PropString(frontend, "entryPoint"), Client()));
+            }
+        }
+
+        return found;
+    }
+
+    /// <summary>Reads the file sets <c>litespec sync</c> writes, the top-level sync array.</summary>
+    /// <param name="document">The project file object.</param>
+    /// <returns>The declared targets in declaration order, or an empty list when none are declared.</returns>
+    private static List<SyncTarget> ReadSyncTargets(JsonObject document)
+    {
+        if (document["sync"] is not JsonArray targets)
+        {
+            return [];
+        }
+
+        var found = new List<SyncTarget>();
+
+        foreach (var target in targets.OfType<JsonObject>())
+        {
+            if (JsonValues.PropString(target, "kind") is { Length: > 0 } kind
+                && JsonValues.PropString(target, "stack") is { Length: > 0 } stack
+                && JsonValues.PropString(target, "path") is { Length: > 0 } path)
+            {
+                found.Add(new SyncTarget(
+                    kind, stack, path,
+                    JsonValues.PropString(target, "namespace") ?? ""));
             }
         }
 
@@ -587,6 +645,22 @@ sealed class ConsumerConfig
     /// <param name="path">The absolute path with forward slashes, as <see cref="ProjectPaths" /> resolves it.</param>
     /// <returns>The absolute path with the operating system's separators.</returns>
     private static string Native(string path) => Path.GetFullPath(path.Replace('/', Path.DirectorySeparatorChar));
+
+    /// <summary>Whether any path in the list names a folder that exists.</summary>
+    /// <param name="roots">The absolute paths to test.</param>
+    /// <returns>True when any path names a folder that exists.</returns>
+    private static bool AnyExists(IReadOnlyList<string> roots)
+    {
+        for (var index = 0; index < roots.Count; index++)
+        {
+            if (Directory.Exists(roots[index]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>
     ///     Resolves one path, expanding a single segment wildcard to the first match.

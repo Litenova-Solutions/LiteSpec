@@ -64,7 +64,7 @@ static class BookShell
 
         var percent = BookIntentCoverage.PercentOf(coverage).ToString(CultureInfo.InvariantCulture);
         return summary
-            + $"<p>Intent coverage: {coverage.Reached} of {coverage.Total} requirements and journey steps reached ({percent}%).</p>";
+            + $"<p>Intent coverage: {coverage.Reached} of {coverage.Total} Intent items reached ({percent}%).</p>";
     }
 
     /// <summary>Escapes one HTML text span, leaving an apostrophe as itself, as the shell has always printed it.</summary>

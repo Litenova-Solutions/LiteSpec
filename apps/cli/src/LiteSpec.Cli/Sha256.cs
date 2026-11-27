@@ -12,7 +12,7 @@ namespace LiteSpec.Cli;
 ///     only the C library. Tests check it against the FIPS 180-4 vectors and the platform hash.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
-/// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</follows>
 sealed class Sha256
 {
     /// <summary>The length of a hash in bytes.</summary>

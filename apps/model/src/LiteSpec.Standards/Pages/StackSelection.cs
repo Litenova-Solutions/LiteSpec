@@ -14,8 +14,8 @@ public static class StackSelection
 {
     /// <summary>One shipped stack: its id, folder, kind, and pairing rules.</summary>
     /// <param name="Id">The stack id a project names.</param>
-    /// <param name="Folder">The stack folder, such as <c>docs/backend/dotnet</c>.</param>
-    /// <param name="Kind"><c>backend</c> or <c>frontend</c>, from the folder's area.</param>
+    /// <param name="Folder">The stack folder, such as <c>docs/packs/dotnet</c>.</param>
+    /// <param name="Kind"><c>backend</c> or <c>frontend</c>, from the manifest's kind property.</param>
     /// <param name="Requires">Stacks a project must also select with this one.</param>
     /// <param name="PairsWith">The only backend stacks a frontend stack works beside.</param>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "StackSelection.Stack names one shipped stack in the manifest model; renaming the public nested type breaks every host that reads the stack list.")]
@@ -24,7 +24,7 @@ public static class StackSelection
     /// <summary>One page of the page index: its file, route, style, area, title, intent and H2 sections.</summary>
     /// <param name="FilePath">The docs-relative file path, such as <c>docs/core/scope.md</c>.</param>
     /// <param name="Route">The path under docs without the extension, such as <c>core/scope</c>.</param>
-    /// <param name="Style">The page style: standard, stack, extension, pattern, index and the rest.</param>
+    /// <param name="Style">The page style: standard, stack, extension, index and the rest.</param>
     /// <param name="Area">The first folder under docs, such as <c>core</c>.</param>
     /// <param name="Title">The first H1 text, or the route when the page has none.</param>
     /// <param name="Intent">The first paragraph of the Intent, Purpose or Name section.</param>
@@ -32,7 +32,7 @@ public static class StackSelection
     private sealed record IndexedPage(string FilePath, string Route, string Style, string Area, string Title, string Intent, IReadOnlyList<string> Sections);
 
     /// <summary>One layer the site publishes: its key, its title and the pages it holds.</summary>
-    /// <param name="Key">The layer key, such as <c>core</c> or <c>backend/dotnet</c>.</param>
+    /// <param name="Key">The layer key, such as <c>core</c> or <c>packs/dotnet</c>.</param>
     /// <param name="Title">The layer title.</param>
     /// <param name="Files">The docs-relative pages in the layer, in reading order.</param>
     private sealed record PublishedLayer(string Key, string Title, IReadOnlyList<string> Files);
@@ -57,7 +57,13 @@ public static class StackSelection
         {
             var stack = node as JsonObject;
             var folder = Text(stack?["folder"]) ?? "";
-            result.Add(new Stack(id, folder, KindFor(folder), Strings(stack?["requires"]), Strings(stack?["pairsWith"])));
+            var kind = Text(stack?["kind"]);
+            if (kind is not "backend" and not "frontend")
+            {
+                kind = KindFor(folder);
+            }
+
+            result.Add(new Stack(id, folder, kind, Strings(stack?["requires"]), Strings(stack?["pairsWith"])));
         }
 
         return result;
@@ -65,7 +71,7 @@ public static class StackSelection
 
     /// <summary>
     ///     Computes the pages a selection applies: the always-applied areas, each selected
-    ///     stack's folder chain, the named shape's backend pages, and each selected
+    ///     stack's folder, the named shape's backend pages, and each selected
     ///     extension's page. Returns <c>docs/...</c> relative paths sorted ordinally.
     ///     Pages stay applied while their replaced provisions drop out: read the applied
     ///     provisions through <see cref="AppliedProvisions"/>.
@@ -96,8 +102,7 @@ public static class StackSelection
                 continue;
             }
 
-            var area = stack.Kind == "backend" ? "docs/backend" : "docs/frontend";
-            foreach (var folder in ChainFolders(stack.Folder, area).SelectMany(folder => CompanionFolders(root, folder).Prepend(folder)))
+            foreach (var folder in StackFolders(stack).SelectMany(folder => CompanionFolders(root, folder).Prepend(folder)))
             {
                 foreach (var page in PagesDirectlyIn(root, folder))
                 {
@@ -175,15 +180,36 @@ public static class StackSelection
         return provisions;
     }
 
-    /// <summary>Derives a stack's kind from its folder's area, or empty when outside both areas.</summary>
+    /// <summary>Derives a stack's kind from its folder, or empty when outside every known area.</summary>
     /// <param name="folder">The stack folder.</param>
-    /// <returns>The stack kind, or empty when the folder sits outside both areas.</returns>
+    /// <returns>The stack kind, or empty when the folder sits outside every known area.</returns>
     public static string KindFor(string folder) =>
-        folder == "docs/backend" || folder.StartsWith("docs/backend/", StringComparison.Ordinal) ? "backend"
-        : folder == "docs/frontend" || folder.StartsWith("docs/frontend/", StringComparison.Ordinal) ? "frontend"
+        folder == "docs/packs/dotnet" || folder.StartsWith("docs/packs/dotnet/", StringComparison.Ordinal)
+            || folder == "docs/backend" || folder.StartsWith("docs/backend/", StringComparison.Ordinal) ? "backend"
+        : folder == "docs/packs/svelte" || folder.StartsWith("docs/packs/svelte/", StringComparison.Ordinal)
+            || folder == "docs/packs/android" || folder.StartsWith("docs/packs/android/", StringComparison.Ordinal)
+            || folder == "docs/frontend" || folder.StartsWith("docs/frontend/", StringComparison.Ordinal) ? "frontend"
         : "";
 
-    // A stack applies its folder and every folder up to its area root, so a page
+    /// <summary>Lists the folders a selected stack applies: its own folder for a pack, or its folder chain for a legacy area folder.</summary>
+    /// <param name="stack">The selected stack.</param>
+    /// <returns>The folders the stack applies, before companions.</returns>
+    static IEnumerable<string> StackFolders(Stack stack)
+    {
+        if (stack.Folder.StartsWith("docs/packs/", StringComparison.Ordinal))
+        {
+            yield return stack.Folder;
+            yield break;
+        }
+
+        var area = stack.Kind == "backend" ? "docs/backend" : "docs/frontend";
+        foreach (var folder in ChainFolders(stack.Folder, area))
+        {
+            yield return folder;
+        }
+    }
+
+    // A legacy stack applies its folder and every folder up to its area root, so a page
     // directly in any of those folders is reached and anything deeper is not.
     /// <summary>Lists a stack folder and every folder up to its area root.</summary>
     /// <param name="folder">The stack folder.</param>
@@ -209,8 +235,8 @@ public static class StackSelection
     /// <summary>
     ///     The folders that apply with <paramref name="folder"/>: each subfolder, at any
     ///     depth, that is not an <c>ext/</c> folder and holds no stack. A stack folder is
-    ///     one with a <c>stack.md</c> page, so <c>docs/frontend/patterns</c> applies with
-    ///     <c>docs/frontend</c> while <c>docs/frontend/web</c>, which holds stacks, does not.
+    ///     one with a <c>stack.md</c> page, so a companion folder applies with its pack
+    ///     folder while a folder holding a <c>stack.md</c> of its own does not.
     /// </summary>
     /// <param name="root">The LiteSpec release root.</param>
     /// <param name="folder">The folder that applies.</param>
@@ -304,7 +330,7 @@ public static class StackSelection
             var applied = AppliedPages(root, manifest, choice.Shape, choice.Stacks, []);
             var appliedSet = new HashSet<string>(applied, StringComparer.Ordinal);
             var selectionLayers = layers
-                .Where(layer => !layer.Key.StartsWith("ext/", StringComparison.Ordinal) && !layer.Key.StartsWith("patterns/", StringComparison.Ordinal))
+                .Where(layer => !layer.Key.StartsWith("ext/", StringComparison.Ordinal))
                 .Where(layer => layer.Files.Any(file => appliedSet.Contains(file)))
                 .Select(layer => layer.Key);
             Append(selections, new JsonObject
@@ -443,11 +469,6 @@ public static class StackSelection
             return "decision";
         }
 
-        if (rel.StartsWith("docs/frontend/patterns/", StringComparison.Ordinal))
-        {
-            return "pattern";
-        }
-
         return segments[1] switch
         {
             "tools" or "maintain" => "command",
@@ -499,8 +520,8 @@ public static class StackSelection
     }
 
     /// <summary>
-    ///     Lists the layers the site publishes, in order: the always-applied areas, each shared folder and stack folder,
-    ///     each pattern page, and each extension.
+    ///     Lists the layers the site publishes, in order: the always-applied areas, each
+    ///     stack folder, and each extension.
     /// </summary>
     /// <param name="root">The LiteSpec release root.</param>
     /// <param name="manifest">The manifest object.</param>
@@ -516,31 +537,11 @@ public static class StackSelection
         var layers = new List<PublishedLayer>
         {
             new("core", "Core, Workspace and Quality", coreAreas.SelectMany(Direct).ToList()),
-            new("backend", "Backend Principles", Direct("docs/backend")),
-            new("frontend", "Frontend Principles", Direct("docs/frontend")),
         };
-        var groups = new HashSet<string>(StringComparer.Ordinal);
         foreach (var stack in stacks)
         {
-            // The folders between the area root and the stack folder, such as docs/frontend/web.
-            foreach (var folder in ChainFolders(stack.Folder, $"docs/{stack.Kind}").Reverse().Skip(1).SkipLast(1))
-            {
-                var key = folder["docs/".Length..];
-                if (key is "backend" or "frontend" || !groups.Add(key))
-                {
-                    continue;
-                }
-
-                layers.Add(new PublishedLayer(key, $"{Capitalize(key.Split('/')[^1])} Shared Pages", Direct(folder)));
-            }
-
             var stackFiles = new[] { stack.Folder }.Concat(CompanionFolders(root, stack.Folder)).SelectMany(Direct).ToList();
             layers.Add(new PublishedLayer(stack.Folder["docs/".Length..], $"{Capitalize(stack.Id)} Stack", stackFiles));
-        }
-
-        foreach (var page in pages.Where(page => page.Style == "pattern"))
-        {
-            layers.Add(new PublishedLayer($"patterns/{page.Route.Split('/')[^1]}", page.Title, [page.FilePath]));
         }
 
         foreach (var (id, node) in manifest["extensions"] as JsonObject ?? new JsonObject())

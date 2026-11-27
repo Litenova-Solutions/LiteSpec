@@ -1,0 +1,18 @@
+type: decision
+id: decision/0003-travel-rates
+title: Travel Rates
+summary: Work travel is reimbursed with a per-diem allowance and a mileage rate per country.
+context: Employees travel to clients and file the cost. Each country pays its own daily allowance and mileage rate, and the rates change on their own schedule. The submission reads the row in force for the travel date and country.
+options:
+- name: Single worldwide rate
+  pros: One row covers every trip.
+  cons: The rate fits no country well.
+- name: Per-country rates
+  pros: Each country pays its own rate.
+  cons: Each country needs its own rows.
+- name: Actuals only
+  pros: Nobody sets a rate.
+  cons: Every meal needs its own receipt.
+choice: Per-country rates
+consequences: Travel rates live in per-country tables that vary by country. New rates arrive as new rows with the old rows end-dated.
+reopenedWhen: Finance sees rates that no longer fit a country.

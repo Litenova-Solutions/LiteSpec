@@ -1,6 +1,7 @@
 type: decision
 id: decision/0026-one-name-for-each-concept
 title: One Name for Each Concept
+context: "Several words in the standard and the tools name two things: level, rule, implemented, met, and the record identifier. Readers meet each overlap in the book and in tool output."
 options:
   - name: "One name per concept, with duplicates removed and words renamed only where they name another concept"
     pros: "Each word means one thing in every layer, and the names readers already know stay."
@@ -12,5 +13,5 @@ options:
     pros: "No name changes and no citation moves."
     cons: "Readers keep meeting two meanings for one word, the drift this release removes."
 choice: "One name per concept, with duplicates removed and words renamed only where they name another concept"
-consequences: "The check level keeps its name, with the values `G`, `S` and `A`, and the duplicate `severity` field goes. A finding's `outcome` (`blocking`, `reported` or `covered`) carries the result, and `covered` replaces `known`. The completion stages are `unfulfilled`, `specified`, `coded` and `verified`: `implemented` becomes `coded`, and `met` is not a stage, so a requirement reaches `verified` when every fulfiller is verified and its measure passes. Provision strength is `required`, `default` or `advisory`, replacing `rule`, `default` and `advice`, so `rule` names only the record. The qualified identifier goes, and a record's placement shows as its folder path and its `module`."
+consequences: "The check level keeps its name, with the values `G`, `S`, and `A`, and the duplicate `severity` field goes. A finding's `outcome` (`blocking`, `reported`, or `covered`) carries the result, and `covered` replaces `known`. The completion stages are `unfulfilled`, `specified`, `coded`, and `verified`. `implemented` becomes `coded`, and `met` is not a stage, so a requirement reaches `verified` when every fulfiller is verified and its measure passes. Provision strength is `required`, `default`, or `advisory`, replacing `rule`, `default`, and `advice`, so `rule` names only the record. The qualified identifier goes, and a record's placement shows as its folder path and its `module`."
 reopenedWhen: "A concept appears that no existing word names without a second meaning."

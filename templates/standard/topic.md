@@ -3,13 +3,11 @@
 **Stack:** any
 **Concern:** workspace
 
-## Intent
-
-State what this page owns and the reader it concerns. Name the one boundary it sets and the page it sits beside.
+Name what this page owns and who it concerns. State the single boundary it draws and the page it sits beside, so a reader arriving from a link can tell whether this is the page they need.
 
 ## Concepts
 
-Define each term the Standards below use, one term per concept. Obligations belong in Standards.
+Define every term the Standards below rely on, one term per concept. Hold obligations out of this section; they belong in Standards.
 
 ## Standards
 
@@ -21,11 +19,11 @@ Define each term the Standards below use, one term per concept. Obligations belo
 
 **Statement:** The reader MUST satisfy one testable obligation that this page owns.
 
-**Rationale:** Explain why the obligation exists and what goes wrong without it.
+**Rationale:** Give the reason the obligation exists and describe what goes wrong without it.
 
 **Example:** Show one compliant case the reader can point at.
 
-**Reviewed for:** Which change adds a case this obligation does not allow? Look at the files the change touches beside this page.
+**Reviewed for:** Which change adds a case this obligation forbids? Look at the files the change touches beside this page.
 
 ## Conventions
 
@@ -35,8 +33,8 @@ Define each term the Standards below use, one term per concept. Obligations belo
 
 **Strength:** default
 
-**Default:** State one replaceable default this page sets.
+**Default:** Write one replaceable default this page sets.
 
-**Replacement:** Name the local convention that replaces this default, and where the project records it.
+**Replacement:** Name the local convention that replaces the default, and where the project records it.
 
-**Reviewed for:** Does the page carry the default, or its named local replacement?
+**Reviewed for:** Does the page carry the default or its named local replacement? Look at the page beside the project's local conventions.

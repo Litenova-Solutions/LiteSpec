@@ -3,9 +3,7 @@
 **Stack:** any
 **Concern:** operations
 
-## Intent
-
-State the optional capability and its boundary.
+Name the optional capability this extension adds and draw its boundary: what it covers and what remains with the baseline.
 
 ## Activation
 
@@ -13,11 +11,11 @@ Activation scope: `{local|project}`.
 
 Applicable specification kinds: `<type>`.
 
-Activate this extension when one exact current condition applies.
+Name the one exact current condition that activates this extension.
 
 ## Baseline Relationship
 
-This extension replaces `{litespec/page#state-one-action}`, or states that it replaces no baseline provision. It switches on `<optional type>`, or states that it switches on none.
+Name the baseline provision this extension replaces, `{litespec/page#state-one-action}`, or state that it replaces none. Name the `<optional type>` it switches on, or state that it switches on none.
 
 ## Standards
 
@@ -31,9 +29,9 @@ This extension replaces `{litespec/page#state-one-action}`, or states that it re
 
 **Statement:** The activated extension MUST perform one testable action.
 
-**Rationale:** Explain the extension-specific constraint.
+**Rationale:** Give the extension-specific reason behind the action.
 
-**Example:** Show one compliant extension artifact or behavior.
+**Example:** Show one compliant artifact or behavior the extension produces.
 
 **Checked by:** `litespec-maintain validate` reports this provision satisfied on the page that carries it.
 
@@ -47,11 +45,11 @@ This extension replaces `{litespec/page#state-one-action}`, or states that it re
 
 **Applies to:** artifact: test
 
-**Default:** State one replaceable extension default.
+**Default:** Write one replaceable default this extension sets.
 
-**Replacement:** Name the local convention that replaces this default, and where the project records it.
+**Replacement:** Name the local convention that replaces the default, and where the project records it.
 
-**Reviewed for:** Does the page carry the default or its named local replacement?
+**Reviewed for:** Does the page carry the default or its named local replacement? Look at the page beside the project's local conventions.
 
 ## Dependencies
 

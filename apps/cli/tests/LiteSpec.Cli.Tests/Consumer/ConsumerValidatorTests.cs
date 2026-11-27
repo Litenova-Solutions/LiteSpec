@@ -13,7 +13,7 @@ public sealed partial class ConsumerValidatorTests
 {
     /// <summary>One <c>model check</c> finding line: its path, line, level, code and message.</summary>
     static readonly Regex FindingLine = new(
-        @"^(?<path>.+?):(?<line>\d+) \[(?<level>G|S|A)( unchanged)?\] \[(?<code>[a-z0-9-]+)\] (?<message>.*)$",
+        @"^(?<path>.+?):(?<line>\d+) \[(?<level>G|S|R)( unchanged)?\] \[(?<code>[a-z0-9-]+)\] (?<message>.*)$",
         RegexOptions.Compiled);
 
     /// <summary>
@@ -79,7 +79,7 @@ public sealed partial class ConsumerValidatorTests
         Assert.True(problems.Count == 0, result.Output);
     }
 
-    /// <summary>Asserts a failing run: exit 1 with some consumer problem carrying the expectation. Every consumer finding blocks, so the exit follows.</summary>
+    /// <summary>Asserts a failing run: exit 1 with some consumer problem carrying the expectation. Blocking findings fail the run, so the exit follows.</summary>
     /// <param name="result">The completed model check run.</param>
     /// <param name="expected">The text one problem line must contain.</param>
     static void AssertProblem(CliResult result, string expected)
@@ -87,6 +87,18 @@ public sealed partial class ConsumerValidatorTests
         var problems = Problems(result);
         Assert.Equal(1, result.Status);
         Assert.Contains(problems, problem => problem.Contains(expected, StringComparison.Ordinal));
+    }
+
+    /// <summary>Asserts a review consumer problem: listed by <c>model review</c> with exit zero, absent from <c>model check</c>.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    /// <param name="expected">The text one problem line must contain.</param>
+    static void AssertReview(string root, string expected)
+    {
+        var reviewed = RunReview(root);
+        Assert.Equal(0, reviewed.Status);
+        var listed = Problems(reviewed);
+        Assert.Contains(listed, problem => problem.Contains(expected, StringComparison.Ordinal));
+        Assert.All(Problems(RunConsumer(root)), problem => Assert.DoesNotContain(expected, problem));
     }
 
     /// <summary>Asserts no consumer problem names the diagnostic.</summary>
@@ -104,6 +116,12 @@ public sealed partial class ConsumerValidatorTests
         return TestCli.Run(args);
     }
 
+    static CliResult RunReview(string root, params string[] extra)
+    {
+        string[] args = ["model", "review", "--root", root, ..extra];
+        return TestCli.Run(args);
+    }
+
     static CliResult RunConsumer(string root, TempFolder home, params string[] extra)
     {
         string[] args = ["model", "check", "--root", root, ..extra];
@@ -113,7 +131,7 @@ public sealed partial class ConsumerValidatorTests
     static JsonObject PathsOf(JsonObject project) => (JsonObject)project["paths"]!;
 
     /// <summary>Fixture validates as written.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "fixture validates as written")]
     public void FixtureValidatesAsWritten()
     {
@@ -196,6 +214,16 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project => project["reviewedLiteSpecVersion"] = ConsumerFixture.ManifestVersion + "-rc.1");
         var problems = Problems(RunConsumer(folder.Path));
         Assert.DoesNotContain(problems, problem => problem.Contains("does not match the installed LiteSpec tool release", StringComparison.Ordinal));
+    }
+
+    /// <summary>A dev-feed build of the installed release validates and is not drift.</summary>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
+    [Fact(DisplayName = "reviewed dev-feed build of the installed release")]
+    public void ReviewedDevFeedBuildOfTheInstalledRelease()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateProject(folder.Path, project => project["reviewedLiteSpecVersion"] = ConsumerFixture.ManifestVersion + "-dev.20261125215523");
+        AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>Extension the manifest does not ship.</summary>

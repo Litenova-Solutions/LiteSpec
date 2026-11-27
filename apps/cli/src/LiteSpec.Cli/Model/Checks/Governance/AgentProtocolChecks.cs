@@ -56,18 +56,17 @@ internal static class AgentProtocolChecks
             return;
         }
 
-        if (AgentProtocol.ExpectedRegion(model) is not { } expected)
+        if (AgentProtocol.ExpectedRegionPattern(model) is not { } expected)
         {
             return;
         }
 
-        // Both sides are compared with LF endings, so a CRLF page never drifts on its line endings alone.
-        // A candidate and its final release render the same region apart from the version suffix, so neither drifts on it.
-        var release = LiteSpecHome.Version ?? string.Empty;
-        var actual = ReleaseVersion.WithoutCandidateSuffix(match.Value.Replace("\r\n", "\n", StringComparison.Ordinal), release);
-        var wanted = ReleaseVersion.WithoutCandidateSuffix(expected.Replace("\r\n", "\n", StringComparison.Ordinal), release);
+        // Both sides are compared with LF endings, so a CRLF page never drifts on its line endings alone. The package
+        // version and the docs folder depend on the install that rendered the region, so each matches any one-line value.
+        var actual = match.Value.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        var wanted = expected.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
 
-        if (actual != wanted)
+        if (actual.Length != wanted.Length || actual.Where((line, index) => !LineMatches(line, wanted[index])).Any())
         {
             findings.Add(new Finding(DriftCode, "The agent-protocol region in AGENTS.md differs from what model render writes.", file, LineOf(LineStarts(text), match.Index), null));
         }
@@ -131,5 +130,31 @@ internal static class AgentProtocolChecks
         }
 
         findings.Add(new Finding(UnreachedCode, "CLAUDE.md does not import AGENTS.md, so Claude Code never reads the agent protocol.", file, 1, null));
+    }
+
+    /// <summary>
+    ///     Whether one region line matches its expected line. A line holding the package version or docs marker matches
+    ///     when it starts with the text before the marker and ends with the text after it, since both values depend on the
+    ///     install that rendered the region; every other line matches only itself.
+    /// </summary>
+    /// <param name="actual">The line in the project's region.</param>
+    /// <param name="wanted">The expected line, which may hold one marker.</param>
+    /// <returns>True when the line matches.</returns>
+    static bool LineMatches(string actual, string wanted)
+    {
+        foreach (var marker in new[] { AgentProtocol.PackageMarker, AgentProtocol.DocsMarker })
+        {
+            var at = wanted.IndexOf(marker, StringComparison.Ordinal);
+            if (at >= 0)
+            {
+                var prefix = wanted[..at];
+                var suffix = wanted[(at + marker.Length)..];
+                return actual.Length > prefix.Length + suffix.Length
+                    && actual.StartsWith(prefix, StringComparison.Ordinal)
+                    && actual.EndsWith(suffix, StringComparison.Ordinal);
+            }
+        }
+
+        return string.Equals(actual, wanted, StringComparison.Ordinal);
     }
 }

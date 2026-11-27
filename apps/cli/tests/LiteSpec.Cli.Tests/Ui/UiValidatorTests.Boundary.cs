@@ -5,44 +5,44 @@ namespace LiteSpec.Cli.Tests.Ui;
 /// </summary>
 public sealed partial class UiValidatorTests
 {
-    // Application boundary (litespec/frontend/components#compose-composites-in-page-code).
+    // Application boundary (litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives).
 
     /// <summary>An Application Importing The Primitive Library.</summary>
-    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void AnApplicationImportingThePrimitiveLibrary()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.AppCaseWith("import { Dialog } from \"@base-ui/react/dialog\";\nexport function Case() {\n  return <Dialog />;\n}\n"),
+            fixture.AppCaseWith("<script>\nimport { Dialog } from \"bits-ui\";\n</script>\n<Dialog />\n"),
             "imports the primitive library directly");
     }
 
     /// <summary>An Application Importing A Table Library.</summary>
-    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void AnApplicationImportingATableLibrary()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
-            fixture.AppCaseWith("import { flexRender } from \"@tanstack/react-table\";\nexport function Case() {\n  return <main>{flexRender}</main>;\n}\n"),
+            fixture.AppCaseWith("<script>\nimport { flexRender } from \"@tanstack/svelte-table\";\n</script>\n<h1>Orders</h1>\n"),
             "imports the table library directly");
     }
 
     /// <summary>A Library Name Inside A Doc Comment Is Prose.</summary>
-    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void ALibraryNameInsideADocCommentIsProse()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.AppCaseWith(
-            "/** Reads a value from `@base-ui/react` in the composite that wraps it. */\nexport function Case() {\n  return <main>Orders</main>;\n}\n"));
+            "<!-- Reads a value from `bits-ui` in the composite that wraps it. -->\n<h1>Orders</h1>\n"));
     }
 
-    // Application stylesheet (litespec/frontend/ui#keep-tokens-in-one-definition).
+    // Application stylesheet (litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale).
 
     /// <summary>An Application Stylesheet Importing The Package Tokens.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void AnApplicationStylesheetImportingThePackageTokens()
     {
@@ -51,7 +51,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Writing A Value From A Token.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void AnApplicationStylesheetWritingAValueFromAToken()
     {
@@ -61,7 +61,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Declaring A Literal Value.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void AnApplicationStylesheetDeclaringALiteralValue()
     {
@@ -72,7 +72,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Importing Nothing.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void AnApplicationStylesheetImportingNothing()
     {
@@ -83,7 +83,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>An Application Stylesheet Importing A Third Party Sheet.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void AnApplicationStylesheetImportingAThirdPartySheet()
     {
@@ -93,10 +93,10 @@ public sealed partial class UiValidatorTests
             "import 'bootstrap/dist/css/bootstrap.css' is outside the shared package");
     }
 
-    // Shared stylesheets (litespec/frontend/ui#keep-tokens-in-one-definition).
+    // Shared stylesheets (litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale).
 
     /// <summary>A Shared Stylesheet Written From Tokens.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void ASharedStylesheetWrittenFromTokens()
     {
@@ -107,7 +107,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Shared Stylesheet Carrying A Literal Colour.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void ASharedStylesheetCarryingALiteralColour()
     {
@@ -120,7 +120,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Shared Stylesheet Carrying A Hex Colour.</summary>
-    /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-spacing-on-the-4px-and-8px-scale</proves>
     [Fact]
     public void ASharedStylesheetCarryingAHexColour()
     {

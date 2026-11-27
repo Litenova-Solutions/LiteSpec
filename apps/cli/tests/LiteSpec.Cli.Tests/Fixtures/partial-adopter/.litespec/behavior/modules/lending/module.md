@@ -2,9 +2,9 @@
 
 Lending tracks loans and copies.
 
-## Responsibilities
+## Covers
 
-Fixture text for the Responsibilities section.
+Fixture text for the Covers section.
 
 ## Boundaries
 

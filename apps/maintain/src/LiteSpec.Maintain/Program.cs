@@ -1,5 +1,6 @@
 using LiteSpec.Maintain.Changelog;
 using LiteSpec.Maintain.ProvisionIndex;
+using LiteSpec.Maintain.PublishLocal;
 using LiteSpec.Maintain.Validate;
 using LiteSpec.Standards;
 
@@ -14,6 +15,7 @@ const string usage = """
       validate      Check the authoring contract of the LiteSpec repository.
       provisions    Write or check docs/reference/provisions.md.
       changelog     Write the provision changes since a git ref into CHANGELOG.md.
+      publish-local Pack the checkout's CLI and analyzers for a consumer's local feed, or pin it to a CI build.
 
     Run 'litespec-maintain <command> --help' for a command's options.
     'litespec-maintain --version' prints the LiteSpec release of the checkout.
@@ -34,6 +36,7 @@ return args[0] switch
     "validate" => StandardsValidator.Run(rest),
     "provisions" => ProvisionsCommand.Run(rest),
     "changelog" => ChangelogCommand.Run(rest),
+    "publish-local" => PublishLocalCommand.Run(rest),
     _ => Unknown(args[0]),
 };
 

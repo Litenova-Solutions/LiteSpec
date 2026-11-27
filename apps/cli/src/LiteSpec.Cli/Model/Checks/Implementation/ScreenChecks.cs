@@ -1,9 +1,13 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Cli.Model.Screens;
+using LiteSpec.Cli.Model.Ui;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.FindingText;
 using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
@@ -12,29 +16,99 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 /// <summary>
 ///     The screen checks: every page has its screen record, a screen's offers
 ///     match its computed calls, a screen serves only steps its use cases serve,
-///     every browser or device step has a screen, every reachable refusal is
-///     shown, browser proofs confirm and are not duplicated, and a use case is
+///     every browser or device step has a screen, browser proofs confirm and are not duplicated, and a use case is
 ///     reached on each frontend that serves its entry point.
 /// </summary>
 /// <follows>litespec/core/edges#give-every-page-its-screen-record</follows>
 internal static class ScreenChecks
 {
-    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, refusal-sentence-missing, reader-missing and proves-duplicate.</summary>
+    /// <summary>Reports screen-unimplemented, screen-offers-drift, screen-serves-drift, step-screen-missing, reader-missing, proves-duplicate, a route outside its stack's routes root, frontend-refusal-unknown and frontend-permission-unknown.</summary>
     /// <param name="model">The loaded project model that holds every record, each screen and each browser test.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckScreenImplemented(model, findings);
         CheckRouteRecorded(model, findings);
+        CheckRoutePlaced(model, findings);
         CheckScreenCalls(model, findings);
         CheckScreenServes(model, findings);
         CheckStepUnscreened(model, findings);
-        CheckResultUnshown(model, findings);
         CheckBrowserProofs(model, findings);
         CheckProvesDuplicated(model, findings);
         CheckRouteSuiteMarks(model, findings);
         CheckFrontendMarkScope(model, findings);
+        CheckFrontendRefusals(model, findings);
+        CheckFrontendPermissions(model, findings);
+        CheckRouteBudgets(model, findings);
     }
+
+    /// <summary>The maximum number of lines in one Svelte route file before splitting the screen.</summary>
+    private const int MaxRouteLines = 350;
+
+    /// <summary>The maximum number of top-level surface sections, cards or drawers in one route file.</summary>
+    private const int MaxScreenSections = 3;
+
+    /// <summary>Reports each Svelte route file that exceeds the route line budget or top-level section budget.</summary>
+    /// <param name="model">The loaded project model that holds each frontend.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRouteBudgets(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var frontend in model.Config.Frontends.OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
+        {
+            if (string.IsNullOrWhiteSpace(frontend.Path) || !Directory.Exists(frontend.Path))
+            {
+                continue;
+            }
+
+            foreach (var file in Ui.FileWalk.Walk(frontend.Path, path =>
+                string.Equals(Path.GetFileName(path), "+page.svelte", StringComparison.OrdinalIgnoreCase))
+                .Order(StringComparer.Ordinal))
+            {
+                string[] lines;
+
+                try
+                {
+                    lines = File.ReadAllLines(file);
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+                {
+                    continue;
+                }
+
+                if (lines.Length > MaxRouteLines)
+                {
+                    findings.Add(new Finding(
+                        "route-line-limit",
+                        $"Route '{PathText.Relative(model.Config.Root, file)}' is {lines.Length} lines long; keep each route at or below {MaxRouteLines} lines.",
+                        file, 1, null)
+                    {
+                        Reader = Finding.TypeScriptReader,
+                        ReaderIsQualified = model.TypeScriptQualified,
+                    });
+                }
+
+                var stripped = CommentStripped(string.Join('\n', lines));
+                var sections = SurfaceContainerPattern().Count(stripped);
+
+                if (sections > MaxScreenSections)
+                {
+                    findings.Add(new Finding(
+                        "screen-section-limit",
+                        $"Route '{PathText.Relative(model.Config.Root, file)}' renders {sections} surface sections; keep each screen at or below {MaxScreenSections} sections.",
+                        file, 1, null)
+                    {
+                        Reader = Finding.TypeScriptReader,
+                        ReaderIsQualified = model.TypeScriptQualified,
+                    });
+                }
+            }
+        }
+    }
+
+    /// <summary>Matches top-level surface container tags in a Svelte route template.</summary>
+    /// <returns>The compiled surface container regex.</returns>
+    private static Regex SurfaceContainerPattern() =>
+        new(@"<(?:SectionCard|Card\.Root|Drawer)\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>
     ///     A frontend mark naming a use case or screen outside that frontend's
@@ -67,7 +141,7 @@ internal static class ScreenChecks
 
                 var inScope = record.Type switch
                 {
-                    RecordTypes.UseCase => record.Ids(RecordFields.ReachedThrough).Any(entryPoints.Contains),
+                    RecordTypes.UseCase => record.Ids(RecordFields.Via).Any(entryPoints.Contains),
                     RecordTypes.Screen => FrontendRecords.EntryPointOf(record) is { } point && entryPoints.Contains(point),
                     _ => true,
                 };
@@ -239,7 +313,56 @@ internal static class ScreenChecks
         }
     }
 
-    /// <summary>Reports each screen whose offered use cases differ from the use cases its routes call.</summary>
+    /// <summary>Reports each route entry outside its stack's routes root: the web routes root or the Android Screens folder. A route in no declared frontend states no root, so it is left out.</summary>
+    /// <param name="model">The loaded project model that holds each frontend and route element.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRoutePlaced(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var element in model.Code.Elements.Where(element => element.Kind == CodeKind.FrontendRoute))
+        {
+            var frontend = model.Config.Frontends.FirstOrDefault(candidate =>
+                element.File.StartsWith(candidate.Path + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase));
+
+            if (frontend is null || RoutesRootOf(frontend) is not { } root)
+            {
+                continue;
+            }
+
+            if (UnderPath(element.File, root))
+            {
+                continue;
+            }
+
+            var reader = ReaderForElement(model, element);
+            var mark = element.Marks.Count > 0 ? element.Marks[0] : null;
+            var subject = mark is not null && mark.RecordId.Length > 0 ? mark.RecordId : null;
+            var file = mark?.File ?? element.File;
+            var line = mark?.Line ?? element.Line;
+            var shown = Path.GetFileName(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+            findings.Add(new Finding(
+                "code-placement-drift",
+                $"Route '{element.Class}' sits outside the '{shown}/' root.",
+                file, line, subject)
+            {
+                Reader = reader,
+                ReaderIsQualified = reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
+            });
+        }
+    }
+
+    /// <summary>The routes root of one frontend: the web routes root or the Android Screens folder.</summary>
+    /// <param name="frontend">The frontend whose routes root is wanted.</param>
+    /// <returns>The absolute routes root, or null when the platform states none.</returns>
+    private static string? RoutesRootOf(FrontendConfig frontend) =>
+        frontend.Platform.ToLowerInvariant() switch
+        {
+            "svelte" => frontend.RoutesRoot,
+            "android" => Path.Combine(frontend.Path, "Screens"),
+            _ => null,
+        };
+
+    /// <summary>Reports each screen whose offers miss a reached use case or lack an offer for a use case its routes' own files reach: a layout call satisfies an offer but never requires one.</summary>
     /// <param name="model">The loaded project model that holds each screen record and computed screen.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenCalls(ProjectModel model, List<Finding> findings)
@@ -254,21 +377,25 @@ internal static class ScreenChecks
             }
 
             var offers = new HashSet<string>(screen.Ids(RecordFields.Offers), StringComparer.Ordinal);
-            var calls = new HashSet<string>(routes.SelectMany(route => route.UseCases), StringComparer.Ordinal);
+            var reached = new HashSet<string>(routes.SelectMany(route => route.UseCases), StringComparer.Ordinal);
+            var own = new HashSet<string>(routes.SelectMany(route => route.OwnUseCases()), StringComparer.Ordinal);
 
-            if (offers.SetEquals(calls))
+            var missing = offers.Except(reached).Order(StringComparer.Ordinal).ToList();
+            var extra = own.Except(offers).Order(StringComparer.Ordinal).ToList();
+
+            if (missing.Count == 0 && extra.Count == 0)
             {
                 continue;
             }
 
             var parts = new List<string>();
 
-            foreach (var id in offers.Except(calls).Order(StringComparer.Ordinal))
+            foreach (var id in missing)
             {
                 parts.Add($"offers '{id}' but its route does not call it");
             }
 
-            foreach (var id in calls.Except(offers).Order(StringComparer.Ordinal))
+            foreach (var id in extra)
             {
                 parts.Add($"calls '{id}' but does not offer it");
             }
@@ -286,7 +413,7 @@ internal static class ScreenChecks
         }
     }
 
-    /// <summary>Reports each journey step a screen serves that none of its offered use cases serves.</summary>
+    /// <summary>Reports each flow step a screen serves that none of its offered use cases serves.</summary>
     /// <param name="model">The loaded project model that holds each screen and use case record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScreenServes(ProjectModel model, List<Finding> findings)
@@ -316,16 +443,16 @@ internal static class ScreenChecks
         }
     }
 
-    /// <summary>Reports each journey step served by a browser or device use case that no screen serves.</summary>
-    /// <param name="model">The loaded project model that holds each journey, screen and use case record.</param>
+    /// <summary>Reports each flow step served by a browser or device use case that no screen serves.</summary>
+    /// <param name="model">The loaded project model that holds each flow, screen and use case record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckStepUnscreened(ProjectModel model, List<Finding> findings)
     {
         var screened = new HashSet<string>(ScreenRecords(model).SelectMany(screen => screen.Ids(RecordFields.Serves)), StringComparer.Ordinal);
 
-        foreach (var journey in model.Records.Where(record => record.Type == RecordTypes.Journey))
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow))
         {
-            foreach (var step in journey.StepIds())
+            foreach (var step in flow.StepIds())
             {
                 if (screened.Contains(step))
                 {
@@ -334,7 +461,7 @@ internal static class ScreenChecks
 
                 var servedByBrowser = model.Records
                     .Where(record => record.Type == RecordTypes.UseCase && record.Ids(RecordFields.Serves).Contains(step, StringComparer.Ordinal))
-                    .Any(useCase => useCase.Ids(RecordFields.ReachedThrough).Any(id =>
+                    .Any(useCase => useCase.Ids(RecordFields.Via).Any(id =>
                         model.ById.TryGetValue(id, out var point)
                         && point.Type == RecordTypes.EntryPoint
                         && point.Field(RecordFields.Kind) is "browser" or "device"));
@@ -343,130 +470,12 @@ internal static class ScreenChecks
                 {
                     findings.Add(new Finding(
                         "step-screen-missing",
-                        $"Journey step '{step}' is served by a browser or device use case but by no screen.",
-                        journey.File, journey.Line, step));
+                        $"Flow step '{step}' is served by a browser or device use case but by no screen.",
+                        flow.File, flow.Line, step));
                 }
             }
         }
     }
-
-    /// <summary>Reports each reachable refusal that its frontend dictionary and browser tests leave without a sentence.</summary>
-    /// <param name="model">The loaded project model that holds each screen, frontend and browser test.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckResultUnshown(ProjectModel model, List<Finding> findings)
-    {
-        // A frontend's dictionary and asserted codes are read once, however many routes it serves.
-        var dictionaries = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        var assertedBy = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-
-        foreach (var screen in ScreenRecords(model))
-        {
-            foreach (var route in ReadScreensFor(model, screen.Id))
-            {
-                var frontend = model.Config.Frontends.FirstOrDefault(candidate => candidate.Name == route.Frontend);
-
-                if (frontend is null)
-                {
-                    continue;
-                }
-
-                if (!dictionaries.TryGetValue(frontend.Name, out var dictionary))
-                {
-                    dictionary = RefusalDictionaryKeys(frontend);
-                    dictionaries[frontend.Name] = dictionary;
-                }
-
-                if (!assertedBy.TryGetValue(frontend.Name, out var asserted))
-                {
-                    asserted = new HashSet<string>(
-                        model.BrowserTests
-                            .Where(test => test.Frontend == frontend.Name)
-                            .SelectMany(test => test.Codes),
-                        StringComparer.Ordinal);
-                    assertedBy[frontend.Name] = asserted;
-                }
-
-                foreach (var useCaseId in screen.Ids(RecordFields.Offers))
-                {
-                    if (!Identifiers.TrySplit(useCaseId, out _, out _, out var useCaseName) || useCaseName.Length == 0)
-                    {
-                        continue;
-                    }
-
-                    foreach (var result in model.RecordsByHome[useCaseName].Where(record =>
-                        record.Type == RecordTypes.Result
-                        && !record.Derived
-                        && record.Field(RecordFields.Outcome) == "refusal"))
-                    {
-                        var code = result.Field(RecordFields.Code);
-
-                        if (code is null || dictionary.Contains(code) || asserted.Contains(code))
-                        {
-                            continue;
-                        }
-
-                        findings.Add(new Finding(
-                            "refusal-sentence-missing",
-                            $"Screen '{screen.Id}' reaches refusal '{code}' of '{useCaseId}' but has no sentence in frontend '{frontend.Name}'s refusal dictionary and no browser test asserting its code.",
-                            screen.File, screen.Line, SubjectOf(screen))
-                        {
-                            Reader = route.Reader,
-                            ReaderIsQualified = route.Reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
-                        });
-                    }
-                }
-            }
-        }
-    }
-
-    /// <summary>The refusal codes a frontend's dictionary holds a sentence for, read from its file or folder.</summary>
-    /// <param name="frontend">The frontend configuration that names the refusal dictionary file or folder.</param>
-    /// <returns>The refusal codes the dictionary holds a sentence for, or an empty set when it names none.</returns>
-    private static HashSet<string> RefusalDictionaryKeys(FrontendConfig frontend)
-    {
-        var keys = new HashSet<string>(StringComparer.Ordinal);
-        var path = frontend.RefusalDictionary;
-
-        if (path is null)
-        {
-            return keys;
-        }
-
-        IEnumerable<string> files = File.Exists(path)
-            ? [path]
-            : Directory.Exists(path)
-                ? Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories)
-                : [];
-
-        foreach (var file in files)
-        {
-            string text;
-
-            try
-            {
-                text = File.ReadAllText(file);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            foreach (Match match in DictionaryKey.Matches(text))
-            {
-                var code = match.Groups["code"].Value.Length > 0 ? match.Groups["code"].Value : match.Groups["code2"].Value;
-
-                if (code.Length > 0)
-                {
-                    keys.Add(code);
-                }
-            }
-        }
-
-        return keys;
-    }
-
-    /// <summary>Finds each refusal code key in a dictionary file, as a quoted key or a heading.</summary>
-    private static readonly Regex DictionaryKey = new(@"(?:^|[\s{,\""'])[""']?(?<code>[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+)[""']?\s*[:=]|^#{1,6}\s+(?<code2>[a-z][a-z0-9-]*(?:\.[a-z0-9-]+)+)\s*$", RegexOptions.Compiled | RegexOptions.Multiline);
 
     /// <summary>Reports each browser test claim that its screens and assertions leave unreached or that names no provable record.</summary>
     /// <param name="model">The loaded project model that holds each browser test and record.</param>
@@ -573,6 +582,245 @@ internal static class ScreenChecks
                 ReaderIsQualified = extra.Reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
             });
         }
+    }
+
+    /// <summary>Reports each refusal code a browser test names that no use case refusal declares.</summary>
+    /// <param name="model">The loaded project model that holds every result record and browser test.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendRefusals(ProjectModel model, List<Finding> findings)
+    {
+        var declared = DeclaredRefusalCodes(model);
+
+        foreach (var test in model.BrowserTests
+            .OrderBy(candidate => candidate.File, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.Line))
+        {
+            foreach (var code in test.Codes.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+            {
+                if (declared.Contains(code))
+                {
+                    continue;
+                }
+
+                findings.Add(new Finding(
+                    "frontend-refusal-unknown",
+                    $"Browser test '{test.Title}' names refusal code '{code}', which no use case refusal declares.",
+                    test.File, test.Line, null)
+                {
+                    Reader = test.Reader,
+                    ReaderIsQualified = test.Reader == Finding.TypeScriptReader ? model.TypeScriptQualified : true,
+                });
+            }
+        }
+    }
+
+    /// <summary>Every refusal code the use cases declare: each refusal result's wire code, each derived generic code, and the seven generic codes no file writes.</summary>
+    /// <param name="model">The loaded project model that holds every result record and derived refusal.</param>
+    /// <returns>The declared refusal codes.</returns>
+    private static HashSet<string> DeclaredRefusalCodes(ProjectModel model)
+    {
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var result in model.Records
+            .Where(record => record.Type == RecordTypes.Result && record.Field(RecordFields.Outcome) == "refusal"))
+        {
+            if (RefusalCode.Of(result) is { } code)
+            {
+                declared.Add(code);
+            }
+        }
+
+        foreach (var codes in model.DerivedRefusals.Values)
+        {
+            declared.UnionWith(codes);
+        }
+
+        declared.UnionWith(Refusals.RefusalSetReader.DerivedCodes);
+
+        return declared;
+    }
+
+    /// <summary>Reports each permission a frontend source names that no permission record declares.</summary>
+    /// <param name="model">The loaded project model that holds every permission record and frontend.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendPermissions(ProjectModel model, List<Finding> findings)
+    {
+        var declared = DeclaredPermissionIds(model);
+
+        foreach (var frontend in model.Config.Frontends.OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
+        {
+            foreach (var file in FrontendSources(model, frontend).Order(StringComparer.Ordinal))
+            {
+                CheckFrontendPermissionFile(model, frontend.Name, file, declared, findings);
+            }
+        }
+    }
+
+    /// <summary>Every permission identifier the permission records declare.</summary>
+    /// <param name="model">The loaded project model that holds every permission set record.</param>
+    /// <returns>The declared permission identifiers.</returns>
+    private static HashSet<string> DeclaredPermissionIds(ProjectModel model)
+    {
+        var declared = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var record in model.Records
+            .Where(candidate => candidate.Type == RecordTypes.PermissionSet
+                && candidate.Raw.ValueKind == JsonValueKind.Object))
+        {
+            if (!record.Raw.TryGetProperty(RecordFields.Permissions, out var permissions)
+                || permissions.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entry in permissions.EnumerateArray())
+            {
+                if (Str(entry, RecordFields.Id) is { Length: > 0 } id
+                    && Identifiers.TrySplit(id, out var prefix, out _, out var name)
+                    && prefix == "permission"
+                    && name.Length > 0)
+                {
+                    declared.Add(id);
+                }
+            }
+        }
+
+        // A permissions.yaml file holds its permissions as entries with no set identity of its own, so the
+        // builder loads each entry as a permission record rather than as one permission-set record.
+        declared.UnionWith(model.Records
+            .Where(candidate => candidate.Type == RecordTypes.Permission && candidate.Id.Length > 0)
+            .Select(candidate => candidate.Id));
+
+        return declared;
+    }
+
+    /// <summary>Every authored frontend source that can name a permission: the Svelte, TypeScript and JavaScript sources beside the generated records file and client, and the .NET and Kotlin sources.</summary>
+    /// <param name="model">The loaded project model that supplies the consumer root.</param>
+    /// <param name="frontend">The frontend whose sources are wanted.</param>
+    /// <returns>The absolute source file paths.</returns>
+    private static List<string> FrontendSources(ProjectModel model, FrontendConfig frontend)
+    {
+        if (!Directory.Exists(frontend.Path))
+        {
+            return [];
+        }
+
+        var generated = frontend.Client?.Generated;
+
+        return Ui.FileWalk.Walk(frontend.Path, file =>
+            {
+                var extension = Path.GetExtension(file);
+
+                if (!string.Equals(extension, ".svelte", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".ts", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".js", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".cs", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".razor", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(extension, ".kt", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                if (string.Equals(Path.GetFileName(file), "litespec-records.ts", StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                return generated is null || !Ui.FileWalk.Within(generated, file);
+            })
+            .Select(file => Path.GetFullPath(file))
+            .ToList();
+    }
+
+    /// <summary>Reports each permission identifier the frontend file names outside comments that no permission record declares, once per identifier per line.</summary>
+    /// <param name="model">The loaded project model that supplies the consumer root and reader qualification.</param>
+    /// <param name="frontend">The frontend name the finding names.</param>
+    /// <param name="file">The absolute source file path.</param>
+    /// <param name="declared">The declared permission identifiers.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFrontendPermissionFile(ProjectModel model, string frontend, string file, HashSet<string> declared, List<Finding> findings)
+    {
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        var reported = new HashSet<(int Line, string Id)>();
+
+        foreach (Match match in PermissionReference().Matches(CommentStripped(text)))
+        {
+            var id = match.Value;
+
+            if (declared.Contains(id) || !reported.Add((LineOf(text, match.Index), id)))
+            {
+                continue;
+            }
+
+            var line = LineOf(text, match.Index);
+            var typescript = IsWebSource(file);
+
+            findings.Add(new Finding(
+                "frontend-permission-unknown",
+                $"Frontend '{frontend}' names permission '{id}', which no permission record declares.",
+                file, line, null)
+            {
+                Reader = typescript ? Finding.TypeScriptReader : Finding.RoslynReader,
+                ReaderIsQualified = typescript ? model.TypeScriptQualified : true,
+            });
+        }
+    }
+
+    /// <summary>A permission reference: the permission prefix with a kebab-case name.</summary>
+    /// <returns>The permission reference pattern.</returns>
+    private static Regex PermissionReference() =>
+        new(@"permission/[a-z0-9][a-z0-9-]*", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>The source with its line, block and markup comments removed, so a commented permission names nothing.</summary>
+    /// <param name="text">The source text.</param>
+    /// <returns>The source text without comments.</returns>
+    private static string CommentStripped(string text) =>
+        CommentPattern().Replace(text, match => new string(' ', match.Length));
+
+    /// <summary>The comment spans of the frontend sources: line comments, block comments and markup comments.</summary>
+    /// <returns>The comment pattern.</returns>
+    private static Regex CommentPattern() =>
+        new(@"//[^\n]*|/\*.*?\*/|<!--.*?-->", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.CultureInvariant);
+
+    /// <summary>Whether the file is a web source the TypeScript reader owns: Svelte, TypeScript or JavaScript.</summary>
+    /// <param name="file">The source file path.</param>
+    /// <returns>True for web sources; otherwise false.</returns>
+    private static bool IsWebSource(string file)
+    {
+        var extension = Path.GetExtension(file);
+
+        return string.Equals(extension, ".svelte", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(extension, ".ts", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(extension, ".js", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>The 1-based line of a match in the source text.</summary>
+    /// <param name="text">The source text.</param>
+    /// <param name="index">The match index the line is wanted for.</param>
+    /// <returns>The 1-based line number.</returns>
+    private static int LineOf(string text, int index)
+    {
+        var line = 1;
+
+        for (var at = 0; at < index && at < text.Length; at++)
+        {
+            if (text[at] == '\n')
+            {
+                line++;
+            }
+        }
+
+        return line;
     }
 
     /// <summary>The reader of the route that marks the screen, or TypeScript when none does.</summary>

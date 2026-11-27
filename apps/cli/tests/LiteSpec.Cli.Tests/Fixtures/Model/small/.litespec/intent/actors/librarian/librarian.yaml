@@ -6,3 +6,9 @@ kind: person
 belongsToTeam: false
 holds:
 - role/librarian
+responsibilities:
+- The librarian registers copies on their home shelves.
+- The librarian retires copies that leave lending.
+knowledge:
+- The product assumes the librarian knows the home shelf of each copy.
+- The product assumes the librarian knows the barcode of each copy.

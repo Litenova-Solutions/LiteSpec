@@ -1,0 +1,17 @@
+.agents/
+bin/
+obj/
+node_modules/
+.vs/
+*.user
+.svelte-kit/
+build/
+dist/
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+
+# The gate supplies LiteSpec.Analyzers from a local feed; keep the feed folder
+# but not the packages it downloads.
+local-packages/*.nupkg

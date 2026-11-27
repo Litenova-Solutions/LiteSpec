@@ -12,8 +12,8 @@ internal static class ParentChecks
     /// <summary>Types whose parent is the identifier home, so a missing home is reported here.</summary>
     private static readonly HashSet<string> HomeParentedTypes = new(StringComparer.Ordinal)
     {
-        "use-case", "reaction", "job", "notification", "setting", "aggregate",
-        "rule", "event", "result", "scenario", "screen",
+        "use-case", "reaction", "job", "notification", "setting", "read-model", "reference-data", "aggregate",
+        "rule", "domain-event", "module-event", "result", "scenario", "screen",
     };
 
     /// <summary>Whether the record reports a missing identifier home through the parent check.</summary>
@@ -50,8 +50,8 @@ internal static class ParentChecks
                 case "feature":
                     CheckFeatureParent(model, record, findings);
                     break;
-                case "journey":
-                    CheckJourneyParent(model, record, findings);
+                case "flow":
+                    CheckFlowParent(model, record, findings);
                     break;
                 case "scenario":
                     CheckScenarioParent(model, record, findings);
@@ -67,13 +67,16 @@ internal static class ParentChecks
                 case "job":
                 case "notification":
                 case "setting":
+                case "read-model":
+                case "reference-data":
                 case "aggregate":
+                case "module-event":
                     CheckModuleHome(model, record, unreadableModules, findings);
                     break;
                 case "rule":
                     CheckRuleHome(model, record, aggregates, unreadableModules, findings);
                     break;
-                case "event":
+                case "domain-event":
                     CheckEventHome(record, aggregates, findings);
                     break;
                 default:
@@ -91,99 +94,110 @@ internal static class ParentChecks
         if (RecordPlacement.ProblemOf(record.File) is not { } problem)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Feature '{record.Id}' sits outside a problem's features folder, so it has no parent problem.",
                 record.File, record.Line, SubjectOf(record)));
         }
         else if (!model.ById.ContainsKey($"problem/{problem}"))
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Feature '{record.Id}' sits in the folder of problem '{problem}', which holds no problem record.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
 
-    /// <summary>Reports a journey serving no goal.</summary>
-    /// <param name="model">The loaded project model that resolves each serves target.</param>
-    /// <param name="record">The journey record whose serves field is inspected.</param>
+    /// <summary>Reports a flow whose reason, serves, solves or basedOn, names no goal, problem or constraint.</summary>
+    /// <param name="model">The loaded project model that resolves each reason target.</param>
+    /// <param name="record">The flow record whose serves, solves and basedOn fields are inspected.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckJourneyParent(ProjectModel model, Record record, List<Finding> findings)
+    private static void CheckFlowParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        var serves = record.Ids(RecordFields.Serves);
+        var reasons = record.Ids(RecordFields.Serves).Concat(record.Ids(RecordFields.Solves)).Concat(record.Ids(RecordFields.BasedOn)).ToList();
 
-        if (serves.Count == 0)
+        if (reasons.Count == 0)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
-                $"Journey '{record.Id}' has no parent and 'serves' names no goal.",
+                "record-placement-invalid",
+                $"Flow '{record.Id}' has no parent and names neither 'serves', 'solves' nor 'basedOn'.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
 
-        if (serves.Any(target =>
-            model.ById.TryGetValue(target, out var resolved) && resolved.Type == RecordTypes.Goal))
+        if (reasons.Any(target =>
+            model.ById.TryGetValue(target, out var resolved)
+            && resolved.Type is RecordTypes.Goal or RecordTypes.Problem or RecordTypes.Constraint))
         {
             return;
         }
 
-        // A dangling serves target is reference-unknown, so one defect draws one finding.
-        if (serves.Any(target => !ServesResolves(model, target)))
+        // A dangling reason target is reference-unknown, so one defect draws one finding.
+        if (reasons.Any(target => !model.ById.ContainsKey(target)))
         {
             return;
         }
 
         findings.Add(new Finding(
-            "record-parent-missing",
-            $"Journey '{record.Id}' has no parent and 'serves' names no goal.",
+            "record-placement-invalid",
+            $"Flow '{record.Id}' has no parent and names no goal, problem or constraint.",
             record.File, record.Line, SubjectOf(record)));
     }
 
-    /// <summary>Whether the serves target names a record or an existing journey step.</summary>
-    /// <param name="model">The loaded project model that resolves the target record and its journey steps.</param>
-    /// <param name="target">The serves identifier under test.</param>
-    /// <returns>True when the target names a record or a step of an existing journey; otherwise false.</returns>
-    private static bool ServesResolves(ProjectModel model, string target)
-    {
-        if (model.ById.ContainsKey(target))
-        {
-            return true;
-        }
-
-        return Identifiers.TrySplitStep(target, out var journeyId, out _)
-            && model.ById.TryGetValue(journeyId, out var journey)
-            && journey.StepIds().Contains(target, StringComparer.Ordinal);
-    }
-
-    /// <summary>Reports a scenario naming no result, else a use case no record holds.</summary>
-    /// <param name="model">The loaded project model that resolves the use case named by the home.</param>
-    /// <param name="record">The scenario record whose result field and home are inspected.</param>
+    /// <summary>
+    ///     Reports a scenario whose home names no use case, reaction or job. A use case scenario names its result;
+    ///     a reaction or job scenario names its result or its outcome.
+    /// </summary>
+    /// <param name="model">The loaded project model that resolves the use case, reaction or job named by the home.</param>
+    /// <param name="record">The scenario record whose result, outcome and home are inspected.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckScenarioParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        if (record.Ids(RecordFields.Result).Count == 0)
-        {
-            findings.Add(new Finding(
-                "record-parent-missing",
-                $"Scenario '{record.Id}' has no parent and 'result' names no result.",
-                record.File, record.Line, SubjectOf(record)));
-            return;
-        }
-
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Scenario '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
 
-        if (ModelBuilder.UseCaseOf(model, home) is null)
+        // A scenario stored in a reaction or job file belongs to that record, even when a use case shares the name.
+        var inAutomationFile = model.Records.Any(candidate =>
+            candidate.File == record.File
+            && candidate.Type is RecordTypes.Reaction or RecordTypes.Job);
+
+        if (!inAutomationFile && ModelBuilder.UseCaseOf(model, home) is not null)
+        {
+            if (record.Ids(RecordFields.Result).Count == 0)
+            {
+                findings.Add(new Finding(
+                    "record-placement-invalid",
+                    $"Scenario '{record.Id}' has no parent and 'result' names no result.",
+                    record.File, record.Line, SubjectOf(record)));
+            }
+
+            return;
+        }
+
+        var automation = inAutomationFile || model.Records.Any(candidate =>
+            candidate.Type is RecordTypes.Reaction or RecordTypes.Job
+            && Identifiers.TrySplit(candidate.Id, out _, out _, out var name)
+            && name == home);
+
+        if (!automation)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
-                $"Scenario '{record.Id}' has no parent and its home '{home}' names no use case.",
+                "record-placement-invalid",
+                $"Scenario '{record.Id}' has no parent and its home '{home}' names no use case, reaction or job.",
+                record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (!record.Has(RecordFields.Result) && !record.Has(RecordFields.Outcome))
+        {
+            findings.Add(new Finding(
+                "record-placement-invalid",
+                $"Scenario '{record.Id}' has no parent and names neither result nor outcome.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -197,7 +211,7 @@ internal static class ParentChecks
         if (FrontendRecords.EntryPointOf(record) is not { } entryPoint)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Screen '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -208,7 +222,7 @@ internal static class ParentChecks
             var home = entryPoint[(RecordTypes.EntryPoint.Length + 1)..];
 
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Screen '{record.Id}' has no parent and its home '{home}' names no entry point.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -223,7 +237,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Result '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -232,7 +246,7 @@ internal static class ParentChecks
         if (ModelBuilder.UseCaseOf(model, home) is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Result '{record.Id}' has no parent and its home '{home}' names no use case.",
                 record.File, record.Line, SubjectOf(record)));
         }
@@ -266,7 +280,7 @@ internal static class ParentChecks
         return unreadable;
     }
 
-    /// <summary>Reports a module-homed record naming a module no record holds, unless the module file could not be read.</summary>
+    /// <summary>Reports a module-homed record naming a module no record holds, unless the module file could not be read. A reference-data home names a module or a knowledge area.</summary>
     /// <param name="model">The loaded project model that resolves the module named by the home.</param>
     /// <param name="record">The module-homed record whose home is inspected.</param>
     /// <param name="unreadableModules">The modules whose own record file the reader could not read.</param>
@@ -280,19 +294,27 @@ internal static class ParentChecks
             RecordTypes.Job => "Job",
             RecordTypes.Notification => "Notification",
             RecordTypes.Setting => "Setting",
+            RecordTypes.ReadModel => "Read model",
+            RecordTypes.ReferenceData => "Reference data",
+            RecordTypes.ModuleEvent => "Module event",
             _ => "Aggregate",
         };
 
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"{label} '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
         }
 
         if (model.ById.ContainsKey($"module/{home}"))
+        {
+            return;
+        }
+
+        if (record.Type == RecordTypes.ReferenceData && model.ById.ContainsKey($"knowledge-area/{home}"))
         {
             return;
         }
@@ -304,8 +326,10 @@ internal static class ParentChecks
         }
 
         findings.Add(new Finding(
-            "record-parent-missing",
-            $"{label} '{record.Id}' has no parent and its home '{home}' names no module.",
+            "record-placement-invalid",
+            record.Type == RecordTypes.ReferenceData
+                ? $"{label} '{record.Id}' has no parent and its home '{home}' names no module or knowledge area."
+                : $"{label} '{record.Id}' has no parent and its home '{home}' names no module.",
             record.File, record.Line, SubjectOf(record)));
     }
 
@@ -320,7 +344,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Rule '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -338,7 +362,7 @@ internal static class ParentChecks
         }
 
         findings.Add(new Finding(
-            "record-parent-missing",
+            "record-placement-invalid",
             $"Rule '{record.Id}' has no parent and its home '{home}' names no module, aggregate or product.",
             record.File, record.Line, SubjectOf(record)));
     }
@@ -352,7 +376,7 @@ internal static class ParentChecks
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Event '{record.Id}' has no parent and its identifier names no home.",
                 record.File, record.Line, SubjectOf(record)));
             return;
@@ -361,7 +385,7 @@ internal static class ParentChecks
         if (!aggregates.Contains(home))
         {
             findings.Add(new Finding(
-                "record-parent-missing",
+                "record-placement-invalid",
                 $"Event '{record.Id}' has no parent and its home '{home}' names no aggregate.",
                 record.File, record.Line, SubjectOf(record)));
         }

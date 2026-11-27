@@ -4,16 +4,15 @@ using Microsoft.CodeAnalysis;
 namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
-///     Reports one traceability diagnostic from its finding tier: a finding a
-///     live departure covers stays silent, an advisory tier A finding reports
-///     as a warning, and every other finding reports as an error. The Roslyn
-///     reader is always qualified, so a tier S finding blocks.
+///     Reports one traceability diagnostic as an error: a finding a live
+///     waiver covers stays silent, and every other finding fails the build.
+///     The Roslyn reader is always qualified, so a tier S finding blocks.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal static class TraceabilityReporter
 {
     /// <summary>
-    ///     Reports the finding unless a live departure covers it. The message names the code element and the record id.
+    ///     Reports the finding unless a live waiver covers it. The message names the code element and the record id.
     /// </summary>
     /// <param name="state">The compilation's traceability context.</param>
     /// <param name="report">How the diagnostic is reported.</param>
@@ -42,10 +41,6 @@ internal static class TraceabilityReporter
             return;
         }
 
-        var effective = string.Equals(finding.Tier, "A", System.StringComparison.Ordinal)
-            ? DiagnosticSeverity.Warning
-            : DiagnosticSeverity.Error;
-
-        report(Diagnostic.Create(descriptor, location, effective, null, null, messageArgs));
+        report(Diagnostic.Create(descriptor, location, DiagnosticSeverity.Error, null, null, messageArgs));
     }
 }

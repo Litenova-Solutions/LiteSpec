@@ -7,57 +7,105 @@ access:
   grant: permission/approve-expense
   tenant: own
 serves:
-- journey/submit-and-reimburse#s3
+- step/submit-and-reimburse.decide-expense
 fulfills:
 - requirement/approval.nobody-approves-own-expense
-reachedThrough:
+via:
 - entry-point/claimwick-app
 raises:
-- event/expense.approved
-changes:
+- domain-event/expense.approved
+inputs:
+- name: expense
+  meaning: The submitted expense to approve.
+  type: id
+  identifies: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+- name: approver
+  meaning: The signed-in manager deciding the expense, read from verified claims.
+  type: id
+  identifies: actor/manager
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  classification: personal
+- name: handledAt
+  meaning: The time the decision runs, read from the clock.
+  type: date-time
+  required: false
+  origin: derived
+  classification: internal
+writes:
 - aggregate/spending.expense
 idempotency:
-  mode: none
+  mode: state
   reason: the first approval moves the expense out of the submitted state, so the aggregate refuses a second approval
+  replay: refuses
+  recognizedBy: the aggregate state already holds the outcome this command sets
 audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
-records:
-- type: result
-  id: result/approve-expense.approved
+  exemptBecause: Approvals leave their trail in the expense states and events.
+steps:
+- statement: The manager opens a submitted expense.
+  cites:
+  - aggregate/spending.expense
+- statement: Spending refuses the approval with `spending.own-expense` when the approver submitted it.
+  cites:
+  - result/approve-expense.own-expense
+  - rule/expense.approver-is-not-submitter
+- statement: Spending refuses the approval with `spending.not-submitted` when the expense is decided.
+  cites:
+  - result/approve-expense.not-submitted
+  - rule/expense.decided-from-submitted
+- statement: Spending moves the expense to Approved and raises the approved event.
+  cites:
+  - result/approve-expense.approved
+  - domain-event/expense.approved
+  - aggregate/spending.expense
+edgeCases:
+- Spending refuses approval of the manager's own expense with `spending.own-expense`.
+results:
+- id: result/approve-expense.approved
   title: Approved
   outcome: success
   meaning: The expense is approved.
-- type: result
-  id: result/approve-expense.own-expense
+- id: result/approve-expense.own-expense
   title: Own Expense
   outcome: refusal
-  code: spending.own-expense
-  meaning: The approver submitted the expense.
-- type: result
-  id: result/approve-expense.not-submitted
+  refusal: refusal/spending.own-expense
+  message: You submitted this expense, so another manager must decide it.
+  translations:
+    nl: Je hebt deze uitgave zelf ingediend, dus een andere manager moet erover beslissen.
+- id: result/approve-expense.not-submitted
   title: Not Submitted
   outcome: refusal
-  code: spending.not-submitted
-  meaning: The expense is already decided.
-- type: scenario
-  id: scenario/approve-expense.approving-a-submitted-expense-succeeds
+  refusal: refusal/spending.not-submitted
+  message: This expense is already decided, so there is nothing to approve.
+  translations:
+    nl: Over deze uitgave is al beslist, dus er valt niets meer goed te keuren.
+scenarios:
+- id: scenario/approve-expense.approving-a-submitted-expense-succeeds
   title: Approving a Submitted Expense Succeeds
   given: An employee submitted an expense with its receipt.
   when: The manager approves the expense.
   then: The expense is approved.
   result: result/approve-expense.approved
-- type: scenario
-  id: scenario/approve-expense.approving-an-own-expense-is-refused
+  exercises:
+  - rule/expense.approver-is-not-submitter
+  - rule/expense.decided-from-submitted
+- id: scenario/approve-expense.approving-an-own-expense-is-refused
   title: Approving an Own Expense Is Refused
   given: A manager submitted an expense with its receipt.
   when: The manager approves the expense.
   then: The approval is refused because the approver submitted the expense.
   result: result/approve-expense.own-expense
-- type: scenario
-  id: scenario/approve-expense.approving-a-decided-expense-is-refused
+  exercises:
+  - rule/expense.approver-is-not-submitter
+- id: scenario/approve-expense.approving-a-decided-expense-is-refused
   title: Approving a Decided Expense Is Refused
   given: A manager approved an expense.
   when: The manager approves the expense again.
   then: The approval is refused because the expense is already decided.
   result: result/approve-expense.not-submitted
+  exercises:
+  - rule/expense.decided-from-submitted

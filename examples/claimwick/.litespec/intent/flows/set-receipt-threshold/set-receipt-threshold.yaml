@@ -1,0 +1,17 @@
+type: flow
+id: flow/set-receipt-threshold
+title: Set Receipt Threshold
+actor: actor/manager
+summary: A manager sets the receipt threshold that finance agreed with the managers, so small expenses stay light to submit. The flow starts when the agreed threshold is ready to set and ends when the policy holds it. A good flow leaves the policy with one threshold for every expense.
+basedOn:
+- constraint/tax-receipt-retention
+startedWhen: Finance has agreed a new receipt threshold with the managers.
+finishedWhen: The policy holds the new receipt threshold.
+steps:
+- id: step/set-receipt-threshold.set-threshold
+  title: Set Threshold
+  statement: The manager sets the receipt threshold for the policy.
+  actor: actor/manager
+  failure: The manager enters a negative threshold, so the policy keeps its threshold and the manager can enter a new one.
+  carries:
+  - requirement/approval.above-threshold-receipt

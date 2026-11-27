@@ -12,9 +12,9 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 ///     watched, and every operations file points at its decision.
 /// </summary>
 /// <follows>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</follows>
-/// <follows>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</follows>
+/// <follows>litespec/ext/delivery#tie-alert-thresholds-to-requirement-measures</follows>
 /// <follows>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</follows>
-/// <follows>litespec/ext/delivery#point-each-operations-file-at-its-decision</follows>
+/// <follows>litespec/ext/delivery#link-each-operations-file-to-its-decision</follows>
 internal static class OperationsChecks
 {
     /// <summary>Runs alert-link-missing, alert-threshold-drift, quality-alert-missing and the operations-file marks.</summary>
@@ -208,7 +208,7 @@ internal static class OperationsChecks
     /// <summary>
     ///     Checks one follows mark in an operations file: it names a provision of
     ///     the carried release on an applied page, which no selected extension
-    ///     replaces, or a decision or departure.
+    ///     replaces, or a decision or waiver.
     /// </summary>
     /// <param name="model">The loaded project model that holds the admitted provisions, the applied pages and provisions and every record.</param>
     /// <param name="relative">The operations file path relative to the consumer root, shown in each finding.</param>
@@ -241,11 +241,11 @@ internal static class OperationsChecks
             return;
         }
 
-        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("departure/", StringComparison.Ordinal))
+        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("waiver/", StringComparison.Ordinal))
         {
-            if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Departure))
+            if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Waiver))
             {
-                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or departure.", mark.File, mark.Line, id));
+                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or waiver.", mark.File, mark.Line, id));
             }
 
             return;
@@ -253,11 +253,11 @@ internal static class OperationsChecks
 
         if (!model.ById.TryGetValue(id, out var other))
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, departure, or convention.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, waiver, or convention.", mark.File, mark.Line, id));
         }
         else
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, departure, or convention.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, waiver, or convention.", mark.File, mark.Line, id));
         }
     }
 

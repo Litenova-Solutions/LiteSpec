@@ -2,11 +2,15 @@ type: use-case
 id: use-case/lending.list-loans
 title: List loans
 kind: query
-reachedThrough:
-  - entry-point/library-app
-records:
-  - type: result
-    id: result/list-loans.listed
-    title: Listed
-    outcome: success
-    meaning: The loans are listed.
+via:
+- entry-point/library-app
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
+steps:
+- statement: The reader asks for their loans.
+- statement: Lending lists the loans.
+results:
+- id: result/list-loans.listed
+  title: Listed
+  outcome: success
+  meaning: The loans are listed.

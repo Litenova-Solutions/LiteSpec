@@ -1,0 +1,20 @@
+type: decision
+id: decision/0119-audit-the-rendered-page
+title: Audit the Rendered Page
+context: "Records and wireframes cannot judge what exists only in the rendered page: a field wider than its value, an action group at mixed sizes, two primary actions on one view, a tab row wrapping past one row, a table clipping at a narrow width, neighbouring layers sharing one fill, or a code where a name belongs. The route suite could assert these, but it is consumer-authored Playwright that no LiteSpec check reads, so a missing assertion fails silently. Nothing in the standard opens a route in a browser and reports what it shows."
+options:
+  - name: "Require the assertions in the consumer route suite"
+    pros: "No new command; each product asserts its own pages in the suite it already runs."
+    cons: "No LiteSpec check reads the suite, so a product that never writes an assertion passes as quietly as one that writes them all."
+  - name: "Ship a rendered-page audit command with ten codes"
+    pros: "One command opens every route at the stated widths and schemes and reports the same ten findings on every product, so a missing page and a failing page both show."
+    cons: "A browser audit to keep, with routes, widths, schemes and sign-in state to configure per product."
+  - name: "Judge rendered pages by human review only"
+    pros: "No tooling to build or keep; a reviewer sees what any audit would assert."
+    cons: "Review effort grows with every route and every width, and unreviewed routes ship unseen."
+choice: "Ship a rendered-page audit command with ten codes"
+consequences: "The command `litespec ui audit` opens each route at the given widths and schemes and reports `surface-nesting-invalid`, `surface-contrast-failed`, `field-surface-missing`, `field-width-invalid`, `action-group-invalid`, `primary-action-duplicate`, `column-alignment-invalid`, `text-code-invalid`, `tab-label-invalid` and `table-clip-invalid`. Each screen is still reviewed from screenshots at phone, laptop and wide widths in each declared scheme before it is reported done."
+reopenedWhen: "The audit cannot reach a product's routes, or its findings duplicate route-suite assertions closely enough that one of the two stops earning its keep."
+supersedes:
+- decision/0117-compose-screens-from-checked-structure
+- decision/0118-layer-surfaces-by-role

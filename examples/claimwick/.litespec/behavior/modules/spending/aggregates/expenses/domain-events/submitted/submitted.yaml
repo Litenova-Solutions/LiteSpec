@@ -1,0 +1,24 @@
+type: domain-event
+id: domain-event/expense.submitted
+title: Expense Submitted
+meaning: An expense was submitted.
+fields:
+- name: expenseId
+  type: id
+  identifies: aggregate/spending.expense
+- name: amount
+  type: decimal
+- name: currency
+  type: text
+- name: employeeId
+  type: id
+  identifies: actor/employee
+- name: lineItemIds
+  type: list
+  items:
+    fields:
+    - name: lineItemId
+      meaning: One line of the submitted expense.
+      type: id
+      identifies: aggregate/spending.expense#line-item
+      required: true

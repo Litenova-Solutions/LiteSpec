@@ -43,7 +43,7 @@ public sealed class TestedAssertionTests
         Assert.False(link.GetProperty("confirmed").GetBoolean());
     }
 
-    const string RequirementPath = ".litespec/intent/problems/slow-desk-loans/features/performance/requirements/borrow-latency/borrow-latency.yaml";
+    const string RequirementPath = ".litespec/intent/problems/slow-borrowing/features/performance/requirements/borrow-latency/borrow-latency.yaml";
     const string ProofPath = "apps/api/tests/Library.Integration.Tests/Tested/TestedProofTests.cs";
 
     static void WriteTrx(string root, string testName)
@@ -96,7 +96,7 @@ public sealed class TestedAssertionTests
           "kind": "quality",
           "statement": "Borrowing answers fast.",
           "rationale": "Readers leave when borrowing is slow.",
-          "cites": ["goal/more-borrowing"]
+          "basedOn": ["goal/more-borrowing"]
         }
         """;
 

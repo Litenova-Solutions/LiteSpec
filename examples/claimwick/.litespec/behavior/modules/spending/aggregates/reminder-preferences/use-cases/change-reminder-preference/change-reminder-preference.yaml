@@ -1,0 +1,105 @@
+type: use-case
+id: use-case/spending.change-reminder-preference
+title: Change Reminder Preference
+summary: A manager sets whether they get an approval reminder for a waiting expense.
+kind: command
+access:
+  grant: permission/manage-reminder-preference
+  tenant: own
+serves:
+- step/submit-and-reimburse.set-reminder-preference
+fulfills:
+- requirement/approval-reminders.remind-approver-after-three-days
+via:
+- entry-point/claimwick-app
+raises: []
+inputs:
+- name: manager
+  meaning: The manager the preference belongs to.
+  type: id
+  identifies: actor/manager
+  required: true
+  origin: caller
+  classification: personal
+- name: receivesReminders
+  meaning: Whether the manager gets an approval reminder for a waiting expense.
+  type: boolean
+  required: true
+  origin: caller
+  classification: internal
+- name: reason
+  meaning: Why the manager skips reminders, kept with the preference.
+  type: text
+  required: false
+  origin: caller
+  classification: internal
+- name: changer
+  meaning: The signed-in caller changing the preference, the manager the preference belongs to or finance, read from verified claims.
+  type: id
+  identifies: actor/manager
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  classification: personal
+- name: changerIsFinance
+  meaning: Whether the changer holds the finance role, computed from the changer's verified roles.
+  type: boolean
+  required: false
+  origin: derived
+  classification: internal
+- name: handledAt
+  meaning: The time the change runs, read from the clock.
+  type: date-time
+  required: false
+  origin: derived
+  classification: internal
+writes:
+- aggregate/spending.reminder-preference
+idempotency:
+  mode: state
+  reason: a repeat sets the same choice for the same manager, leaving the same preference in place
+  replay: acts-again
+  recognizedBy: the aggregate state already holds the outcome this command sets
+audit:
+  exemptBecause: The preference holds its choice; the change trails nothing further.
+steps:
+- statement: The manager sends whether they get reminders.
+  cites:
+  - aggregate/spending.reminder-preference
+- statement: Spending refuses the change with `spending.not-preference-owner` when the changer differs.
+  cites:
+  - result/change-reminder-preference.not-preference-owner
+  - rule/reminder-preference.changed-by-owner-or-finance
+- statement: Spending records the choice or removes the preference.
+  cites:
+  - result/change-reminder-preference.preference-set
+  - aggregate/spending.reminder-preference
+results:
+- id: result/change-reminder-preference.preference-set
+  title: Preference Set
+  outcome: success
+  meaning: The reminder preference is set.
+- id: result/change-reminder-preference.not-preference-owner
+  title: Not Preference Owner
+  outcome: refusal
+  refusal: refusal/spending.not-preference-owner
+  message: Only the manager this preference belongs to, or finance, may change it.
+  translations:
+    nl: Alleen de manager van wie deze voorkeur is, of finance, mag deze wijzigen.
+scenarios:
+- id: scenario/change-reminder-preference.setting-a-preference-succeeds
+  title: Setting a Preference Succeeds
+  given: A manager covers two teams and wants no approval reminders.
+  when: The manager asks for no reminders with a reason.
+  then: The manager's preference is set and waiting expenses earn no reminder for them.
+  result: result/change-reminder-preference.preference-set
+  exercises:
+  - rule/reminder-preference.changed-by-owner-or-finance
+- id: scenario/change-reminder-preference.changing-another-managers-preference-is-refused
+  title: Changing Another Manager's Preference Is Refused
+  given: A manager with no finance duties names another manager's preference.
+  when: The manager changes the other manager's preference.
+  then: The change is refused because the changer is neither the manager the preference belongs to nor finance.
+  result: result/change-reminder-preference.not-preference-owner
+  exercises:
+  - rule/reminder-preference.changed-by-owner-or-finance

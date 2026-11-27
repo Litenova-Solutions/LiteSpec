@@ -1,0 +1,28 @@
+type: read-model
+id: read-model/module.name
+title: <Title in Title Case>
+summary: <what this module keeps about another module's state, and which query reads it>
+keyedBy: aggregate/<module>.<name>
+fields:
+- name: <field name>
+  meaning: <what the field holds>
+  type: id
+  identifies: <identified record id>
+  from: module-event/sample.entry#sampleField
+  classification: <public|internal|personal|sensitive>
+- name: <field name>
+  meaning: <what the field holds>
+  type: <text|integer|decimal|money|boolean|date|date-time|duration|email|choice|id|list|file>
+  from: module-event/sample.entry#sampleField
+  accumulate: <latest|sum|count, or remove this line>
+  classification: <public|internal|personal|sensitive>
+  erasedBy: module-event/module.name
+# A choice field carries choices. from names the published event and field the value is copied from.
+removedBy:
+- module-event/module.name
+freshness:
+  mode: <immediate|snapshot|eventual>
+  within: <how old a reading may be, such as PT5S, or remove this line>
+  decidedBy: <use-case/<module>.<name> or aggregate/<module>.<name>, or remove this line>
+terms:
+- <term id, or remove this line>

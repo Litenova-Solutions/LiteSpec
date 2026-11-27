@@ -1,6 +1,6 @@
 # Bind the Docs to the Tools and the Example
 
-LiteSpec's documentation states facts about its tools, such as finding codes, templates and the record IDs that the example uses. This decision makes `validate` check each such fact against the data the tools hold. It also generates the reference tables from that data, so a doc fact that drifts from the tools fails the check instead of misleading a reader.
+LiteSpec's documentation states facts about its tools, such as finding codes, templates and the record IDs that the example uses. This decision makes `validate` check each such fact against the data the tools hold. It also generates the reference tables from that data, so a fact that drifts from the tools fails the check instead of misleading a reader.
 
 ## Context
 
@@ -27,7 +27,7 @@ Explanatory prose stays hand-written.
 `validate` reports these problems:
 
 - A cited finding code that the finding table lacks.
-- A `Checked by` line that names no finding code.
+- A `Checked by` line that lists no finding code.
 - A cited template that does not exist.
 - An example record ID that the example lacks.
 - A page that the index omits.

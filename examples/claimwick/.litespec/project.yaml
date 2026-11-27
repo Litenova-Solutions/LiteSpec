@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/7.0.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: Claimwick
@@ -12,7 +12,8 @@ layers:
   behavior: litespec
   implementation: litespec
   proof: litespec
-reviewedLiteSpecVersion: 6.0.0
+problemTypeBase: https://claimwick.dev/problems/
+reviewedLiteSpecVersion: 7.0.0
 paths:
   docs: .litespec
   behaviorDocs: .litespec/behavior
@@ -28,13 +29,32 @@ paths:
   - .litespec/proof/sbom
 stackConfig:
   dotnet:
-    modules: apps/api/src/Claimwick.Modules
-    sharedKernel: apps/api/src/Claimwick.SharedKernel
-    templateStore: apps/api/src/Claimwick.Modules/Spending/Application/MessageTemplates.cs
+    modules: apps/api/src/Modules/*
+    kernel: apps/api/src/Claimwick.Kernel
+    platform: apps/api/src/Claimwick.Platform
+    webapi:
+    - apps/api/src/Hosts/Claimwick.WebApi
+    templateStore: apps/api/src/Modules/Claimwick.Spending/Application/Notifications/ApprovalReminder/MessageTemplates.cs
+sync:
+- kind: refusal-codes
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+- kind: permissions
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
+- kind: event-decisions
+  stack: dotnet
+  path: apps/api/src/Modules/Claimwick.{Module}
+  namespace: Claimwick.{Module}
 frontends:
 - name: web
   path: apps/web
   platform: svelte
+  client:
+    contract: packages/api/openapi.json
+    generated: packages/api/src/generated
   entryPoint: entry-point/claimwick-app
   routeSuite: apps/web/tests/routes
   ui:
@@ -50,6 +70,13 @@ ui:
     designContract: packages/ui/DESIGN.md
     publicExports:
     - '@claimwick/ui/expenses'
+verify:
+  baseUrl: http://localhost:5000
+  signIn:
+  - method: GET
+    path: /auth/development/{person}
+  values:
+    expense: 9f2c1a3e4b5d4e6f8a7b1c2d3e4f5a6b
 selectedExtensions: []
 dependencies:
   licenses:

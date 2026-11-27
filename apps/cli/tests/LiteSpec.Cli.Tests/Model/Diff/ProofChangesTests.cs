@@ -4,7 +4,7 @@ using LiteSpec.Cli.Model.Diff;
 
 namespace LiteSpec.Cli.Tests.Model.Diff;
 
-/// <summary>Proves a proving test method changed without its scenario reports proof-hash-drift as advisory, and only on the base comparison.</summary>
+/// <summary>Proves a proving test method changed without its scenario reports proof-hash-drift as blocking, and only on the base comparison.</summary>
 public sealed class ProofChangesTests
 {
     const string Scenario = "scenario/borrow-copy.borrowing-an-available-copy-succeeds";
@@ -12,10 +12,10 @@ public sealed class ProofChangesTests
     const string ScenarioPath = ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-proof-scenario.yaml";
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
-    /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift as an advisory finding on the scenario.</summary>
+    /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift as a blocking finding on the scenario.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void TestMethodChangedWithoutScenarioReportsAdvisoryFinding()
+    public void TestMethodChangedWithoutScenarioReportsBlockingFinding()
     {
         using var temp = ModelFixture.Prepare("small");
         var baseModel = Prove(temp.Path);
@@ -26,7 +26,7 @@ public sealed class ProofChangesTests
         var finding = Assert.Single(ProofChanges.Find(baseModel, head));
 
         Assert.Equal("proof-hash-drift", finding.Code);
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("S", finding.Tier);
         Assert.Equal(Scenario, finding.Subject);
         Assert.Equal(Path.Combine(temp.Path, ScenarioPath.Replace('/', Path.DirectorySeparatorChar)), finding.Path);
     }
@@ -77,19 +77,34 @@ public sealed class ProofChangesTests
         Assert.DoesNotContain(Checker.Check(head).Findings, finding => finding.Code == "proof-hash-drift");
     }
 
-    /// <summary>A passing run records the proving test method hash in the ledger beside the scenario and test hashes.</summary>
+    /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift from the two models, with no hashes in the ledger.</summary>
     /// <proves>litespec/core/agent#protect-proofs-from-implementation-edits</proves>
     [Fact]
-    public void PassingRunRecordsTheMethodHash()
+    public void MethodDriftIsFoundFromTheModelsWithoutLedgerHashes()
     {
         using var temp = ModelFixture.Prepare("small");
-        Prove(temp.Path);
+        var baseModel = Prove(temp.Path);
 
+        // The ledger carries the run commit, the outcome and the run, and no hashes.
         using var ledger = System.Text.Json.JsonDocument.Parse(File.ReadAllText(
             Path.Combine(temp.Path, ".litespec", "proof", "proofs.json")));
         var entry = ledger.RootElement.GetProperty(Scenario);
 
-        Assert.Matches("^[0-9a-f]{16}$", entry.GetProperty("method").GetString()!);
+        Assert.True(entry.TryGetProperty("commit", out _));
+        Assert.True(entry.TryGetProperty("outcome", out _));
+        Assert.True(entry.TryGetProperty("run", out _));
+        Assert.False(entry.TryGetProperty("method", out _));
+        Assert.False(entry.TryGetProperty("scenario", out _));
+        Assert.False(entry.TryGetProperty("test", out _));
+
+        Write(temp.Path, ProofPath, ProofFile.Replace("RegisterACopy(\"copy-1\")", "RegisterACopy(\"copy-2\")", StringComparison.Ordinal));
+
+        var head = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
+        var finding = Assert.Single(ProofChanges.Find(baseModel, head));
+
+        Assert.Equal("proof-hash-drift", finding.Code);
+        Assert.Equal("S", finding.Tier);
+        Assert.Equal(Scenario, finding.Subject);
     }
 
     /// <summary>Writes the scenario and proving test, reads one passing run, saves the ledger, and returns the built base model.</summary>

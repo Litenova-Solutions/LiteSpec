@@ -1,16 +1,15 @@
 # Overview
 
-## Intent
-
-The Workspace pages state the shape every repository built with LiteSpec shares: the canonical monorepo tree, the names that expose architectural role, the packages each layer, from Domain to the API host, may take, and where each configuration value lives. Every project applies them, whatever its size, shape, or technology stacks.
+The Workspace pages define the shape every LiteSpec repository shares: one monorepo tree, names that state architectural role, the packages each layer from Domain to the API host takes, and one home for each configuration value. Every project applies them, whatever its size, shape, or technology stacks.
 
 ## How the Pages Fit Together
 
-[Workspace Structure](structure.md) states the tree, and the other three pages state what lives where inside it: [Naming and Code Style](naming.md) fixes names and suffixes, [Dependencies](dependencies.md) fixes which layer may take which package, and [Configuration](config.md) fixes where each value lives and who owns it. The .NET stack refines these pages for its own projects and packages; its [stack page](../backend/dotnet/stack.md) is the entry point.
+[Workspace Structure](structure.md) defines the tree, and the other four pages define what lives inside it: [Naming and Code Style](naming.md) sets names and suffixes, [Class Design](design.md) sets one responsibility per class, one capability per set of interfaces, and composition over helper base classes, [Dependencies](dependencies.md) sets which layer takes which package, and [Configuration](config.md) sets where each value lives and who owns it. The .NET stack refines these pages for its own projects and packages, starting from its [stack page](../packs/dotnet/stack.md).
 
 ## Pages
 
-- [Workspace Structure](structure.md): the canonical monorepo tree for applications, packages, docs, and tests.
-- [Naming and Code Style](naming.md): names, suffixes, and file conventions that expose intent and role.
-- [Dependencies](dependencies.md): layer dependencies, package ownership, and approval of new packages.
-- [Configuration](config.md): version pins, compiler rules, environment access, and secret handling.
+- [Workspace Structure](structure.md): the canonical monorepo tree for applications, packages, documentation, tests, and records.
+- [Naming and Code Style](naming.md): the names, suffixes, and file conventions that state intent and role.
+- [Class Design](design.md): the design rules behind the names: one responsibility per class, one capability per set of interfaces, and composition over helper base classes.
+- [Dependencies](dependencies.md): which layer takes which package, who owns each package, and what a new package needs before it is added.
+- [Configuration](config.md): where each value lives, who owns it, and how a wrong value fails.

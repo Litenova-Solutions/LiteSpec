@@ -9,14 +9,14 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class DotnetBackendReaderTests
 {
     /// <summary>Code Property Literal Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void CodePropertyLiteralIsCollected()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "CopyNotAvailableException.cs", """
-            namespace Library.Domain.Lending.Loans.Exceptions;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Exceptions"), "CopyNotAvailableException.cs", """
+            namespace Library.App.Domain.Loans.Exceptions;
 
             public sealed class CopyNotAvailableException()
                 : DomainException("The copy is not available.")
@@ -29,14 +29,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Const Code Field Is Collected.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ConstCodeFieldIsCollected()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "BotCheckFailure.cs", """
-            namespace Library.Domain.Requests;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Requests"), "BotCheckFailure.cs", """
+            namespace Library.App.Domain.Requests;
 
             public static class BotCheckFailure
             {
@@ -48,14 +48,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Dotted Literals Outside Code Members Are Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void DottedLiteralsOutsideCodeMembersAreIgnored()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public sealed class BorrowCopyCommandHandler
             {
@@ -79,14 +79,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Exception Arguments And Named Codes Declare.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ExceptionArgumentsAndNamedCodesDeclare()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "ReturnCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.ReturnCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "ReturnCopy"), "ReturnCopyCommandHandler.cs", """
+            namespace Library.App.Application.ReturnCopy;
 
             public sealed class ReturnCopyCommandHandler
             {
@@ -109,14 +109,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Every Dotted Literal Counts As Thrown.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void EveryDottedLiteralCountsAsThrown()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "Gate.cs", """
-            namespace Library.Application.Pipeline;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "Pipeline"), "Gate.cs", """
+            namespace Library.App.Application.Pipeline;
 
             public sealed class Gate
             {
@@ -130,14 +130,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Plain Label Code Value Is Ignored.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void PlainLabelCodeValueIsIgnored()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "MerchantOwnerRole.cs", """
-            namespace Library.Domain.Sales;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Sales"), "MerchantOwnerRole.cs", """
+            namespace Library.App.Domain.Sales;
 
             public sealed record MerchantOwnerRole : MerchantRole
             {
@@ -149,22 +149,22 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Repository Implementation Is Read From Infrastructure.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void RepositoryImplementationIsReadFromInfrastructure()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "ILoanRepository.cs", """
+            namespace Library.App.Domain.Loans;
 
             public interface ILoanRepository
             {
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, "Infrastructure", "LoanRepository.cs", """
-            namespace Library.Infrastructure.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Infrastructure", "Persistence"), "LoanRepository.cs", """
+            namespace Library.App.Infrastructure.Persistence;
 
             public sealed class LoanRepository : ILoanRepository
             {
@@ -179,22 +179,22 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Repository Implementation Outside Infrastructure Is Not Read.</summary>
-    /// <proves>litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories</proves>
+    /// <proves>litespec/core/backend-persistence#stage-aggregate-writes-through-domain-repositories</proves>
     [Fact]
     public void RepositoryImplementationOutsideInfrastructureIsNotRead()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "ILoanRepository.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "ILoanRepository.cs", """
+            namespace Library.App.Domain.Loans;
 
             public interface ILoanRepository
             {
                 Loan Load(Guid id);
             }
             """);
-        WriteSource(temp.Path, "App", "LoanRepository.cs", """
-            namespace Library.Application.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "LoanRepository.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             public sealed class LoanRepository : ILoanRepository
             {
@@ -212,8 +212,8 @@ public sealed class DotnetBackendReaderTests
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "BorrowCopyCommandHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             [Spending.Implements("use-case/lending.borrow-copy")]
             public sealed class BorrowCopyCommandHandler : ICommandHandler<BorrowCopyCommand>
@@ -236,19 +236,19 @@ public sealed class DotnetBackendReaderTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     /// <summary>A Code Inside A Message Declares Nothing.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ACodeInsideAMessageDeclaresNothing()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "Startup.cs", """
-            namespace Library.Application;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "Startup.cs", """
+            namespace Library.App.Application;
 
             public static class Startup
             {
@@ -261,16 +261,16 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>An Event States Its Record Id.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void AnEventStatesItsRecordId()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("Domain", "Lending", "Loans", "Events"), "LoanRenewedEvent.cs", """
-            namespace Library.Domain.Lending.Loans.Events;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans", "Events"), "LoanRenewedEvent.cs", """
+            namespace Library.App.Domain.Loans.Events;
 
-            /// <implements>event/loan.extended</implements>
+            /// <implements>domain-event/loan.extended</implements>
             public sealed record LoanRenewedEvent : IDomainEvent
             {
             }
@@ -278,18 +278,18 @@ public sealed class DotnetBackendReaderTests
 
         var domainEvent = Assert.Single(new DotnetBackendReader().Read(ConsumerConfig.Load(temp.Path)).Events);
 
-        Assert.Equal("event/loan.extended", domainEvent.EventId);
+        Assert.Equal("domain-event/loan.extended", domainEvent.EventId);
     }
 
     /// <summary>On Handler With A Tag Links To Its Reaction.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerWithATagLinksToItsReaction()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
@@ -304,14 +304,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Without A Tag Is Discovered Without A Record.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerWithoutATagIsDiscoveredWithoutARecord()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
             {
@@ -324,21 +324,21 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Reaction With The Handler Shape Is Discovered Without The Suffix.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void ReactionWithTheHandlerShapeIsDiscoveredWithoutTheSuffix()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NotifyOnCopyBorrowedReaction.cs", """
-            namespace Library.Application;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "NotifyOnCopyBorrowedReaction.cs", """
+            namespace Library.App.Application;
 
             public sealed class NotifyOnCopyBorrowedReaction : IDomainEventReaction<CopyBorrowedEvent>
             {
             }
             """);
-        WriteSource(temp.Path, "App", "SweepReaction.cs", """
-            namespace Library.Application;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "SweepReaction.cs", """
+            namespace Library.App.Application;
 
             public sealed class SweepReaction
             {
@@ -351,14 +351,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Outside Its Fact Folder Links Through Its Mark.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerOutsideItsFactFolderLinksThroughItsMark()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "BorrowCopy"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.BorrowCopy;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "BorrowCopy"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.BorrowCopy;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
@@ -372,14 +372,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Without The Interface Is Not Discovered.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerWithoutTheInterfaceIsNotDiscovered()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler
@@ -391,14 +391,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>On Handler Is Not Read As A Use Case Handler.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void OnHandlerIsNotReadAsAUseCaseHandler()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, Path.Combine("App", "Lending", "Loans", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
-            namespace Library.Application.Lending.Loans.OnCopyBorrowed;
+        WriteSource(temp.Path, Path.Combine("App", "Application", "OnCopyBorrowed"), "NotifyReaderOnCopyBorrowedHandler.cs", """
+            namespace Library.App.Application.OnCopyBorrowed;
 
             /// <implements>reaction/lending.notify-reader-on-borrow</implements>
             public sealed class NotifyReaderOnCopyBorrowedHandler : IEventHandler<CopyBorrowedEvent>
@@ -413,14 +413,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Job Host With A Tag Links To Its Job.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void JobHostWithATagLinksToItsJob()
     {
         using var temp = TestCli.Temp("reader");
         WriteProject(temp.Path);
-        WriteSource(temp.Path, "App", "NightlyDueScanJob.cs", """
-            namespace Library.Application.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Application"), "NightlyDueScanJob.cs", """
+            namespace Library.App.Application;
 
             /// <implements>job/lending.nightly-due-scan</implements>
             public sealed class NightlyDueScanJob : BackgroundService
@@ -438,14 +438,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate Root By Mark And State Record Is Read At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateRootByMarkAndStateRecordIsReadAtTraced()
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan
@@ -477,14 +477,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate With Mark But No State Record Is Not An Aggregate Root At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateWithMarkButNoStateRecordIsNotAnAggregateRootAtTraced()
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             /// <implements>aggregate/lending.loan</implements>
             public sealed class Loan
@@ -502,14 +502,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate With State Record But No Mark Is Not An Aggregate Root At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateWithStateRecordButNoMarkIsNotAnAggregateRootAtTraced()
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             public sealed class Loan
             {
@@ -531,14 +531,14 @@ public sealed class DotnetBackendReaderTests
     }
 
     /// <summary>Aggregate Root On Its Own Base By Mark And State Record Is Read At Traced.</summary>
-    /// <proves>litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
+    /// <proves>litespec/packs/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record</proves>
     [Fact]
     public void AggregateRootOnItsOwnBaseByMarkAndStateRecordIsReadAtTraced()
     {
         using var temp = TestCli.Temp("reader");
         WriteTracedProject(temp.Path);
-        WriteSource(temp.Path, "Domain", "Loan.cs", """
-            namespace Library.Domain.Lending.Loans;
+        WriteSource(temp.Path, Path.Combine("App", "Domain", "Loans"), "Loan.cs", """
+            namespace Library.App.Domain.Loans;
 
             public abstract class ProductAggregate
             {
@@ -569,8 +569,8 @@ public sealed class DotnetBackendReaderTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "own", "proof": "own"}, "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
+              "modules": "src/App",
+              "webapi": "src/WebApi"}}}
             """);
 
     static void WriteSource(string root, string project, string file, string text)

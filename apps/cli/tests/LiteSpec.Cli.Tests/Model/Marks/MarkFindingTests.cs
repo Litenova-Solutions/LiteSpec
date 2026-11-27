@@ -1,6 +1,14 @@
+using System.Text.Json;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using Record = LiteSpec.Cli.Model.Records.Record;
+
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
-/// <summary>Proves the mark presence, link, style and drift findings against the marks fixtures.</summary>
+/// <summary>Proves the mark presence and link findings against the marks fixtures, and the frontend count finding against an inline model.</summary>
 public sealed class MarkFindingTests
 {
     /// <summary>Handler Without A Mark Reports Mark Missing.</summary>
@@ -44,69 +52,281 @@ public sealed class MarkFindingTests
         Assert.Equal("rule/loan.copy-available", finding.Subject);
     }
 
-    /// <summary>Handler With Two Marks Reports Mark Count.</summary>
+    /// <summary>Route With Two Marks Reports Mark Count.</summary>
+    /// <proves>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</proves>
+    [Fact]
+    public void RouteWithTwoMarksReportsMarkCount()
+    {
+        using var temp = TestCli.Temp("marks");
+        var model = RouteModel(temp.Path);
+        var webFile = Path.Combine(temp.Path, "apps", "web", "src", "routes", "loans", "+page.svelte");
+        model.Code.Elements.Add(new MarkedElement(
+            CodeKind.FrontendRoute, "/loans", null, webFile, 3,
+            [
+                new CodeMark("screen/app.loans", MarkStyle.Xml, MarkVerb.Implements, webFile, 1),
+                new CodeMark("screen/app.holds", MarkStyle.Xml, MarkVerb.Implements, webFile, 2),
+            ],
+            InTests: false));
+
+        var counts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-count-invalid");
+
+        var finding = Assert.Single(counts);
+        Assert.Contains("carries 2 marks", finding.Message);
+        Assert.Contains("takes one", finding.Message);
+    }
+
+    /// <summary>A partial root marked on one part reports no mark missing, while an unmarked root still reports.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void HandlerWithTwoMarksReportsMarkCount()
+    public void PartialRootMarkedOnOnePartReportsNothing()
     {
-        using var fixture = MarksFixture.Prepare("count");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
+        using var temp = WritePartialConsumer();
+        var missing = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-missing");
 
-        var finding = Assert.Single(counts, found => found.Message.Contains("carries 2 marks"));
-        Assert.Contains("BorrowCopyCommandHandler", finding.Message);
+        var finding = Assert.Single(missing);
+        Assert.Contains("Hold", finding.Message);
     }
 
-    /// <summary>Port Naming One System Twice Reports Mark Count.</summary>
+    /// <summary>Writes a consumer in the module layout where one root splits into a marked and an unmarked part, and one root carries no mark.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WritePartialConsumer()
+    {
+        var temp = TestCli.Temp("marks");
+
+        try
+        {
+            WriteFile(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  }
+                }
+                """);
+            WriteFile(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            foreach (var (folder, id, title) in new[] { ("loans", "aggregate/lending.loan", "Loan"), ("holds", "aggregate/lending.hold", "Hold") })
+            {
+                TestRecords.Write(temp.Path, $".litespec/behavior/modules/lending/aggregates/{folder}/aggregate.yaml", """
+                    {
+                      "type": "aggregate",
+                      "id": "ID",
+                      "title": "TITLE",
+                      "states": [
+                        {
+                          "name": "Active",
+                          "meaning": "The record is open."
+                        }
+                      ]
+                    }
+                    """.Replace("ID", id).Replace("TITLE", title));
+                TestRecords.Explain(temp.Path, $".litespec/behavior/modules/lending/aggregates/{folder}/aggregate.md", $"""
+                    # {title}
+
+                    A record stays open.
+                    """);
+            }
+
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loan/Loan.cs", """
+                namespace Library.Lending.Domain.Loan;
+
+                /// <implements>aggregate/lending.loan</implements>
+                public sealed partial class Loan : AggregateRoot<LoanId>
+                {
+                    public string State { get; private set; } = "active";
+                }
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loan/Loan.Renew.cs", """
+                namespace Library.Lending.Domain.Loan;
+
+                public sealed partial class Loan
+                {
+                    private string RenewalNote() => "renewed";
+                }
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Hold/Hold.cs", """
+                namespace Library.Lending.Domain.Hold;
+
+                public sealed class Hold : AggregateRoot<HoldId>
+                {
+                    public string State { get; private set; } = "active";
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    /// <summary>A root split across its main file and an act folder reports no mark missing when the main file carries the mark.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void PortNamingOneSystemTwiceReportsMarkCount()
+    public void SplitFolderRootMarkedOnMainFileReportsNothing()
     {
-        using var fixture = MarksFixture.Prepare("count");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
+        using var temp = WriteSplitFolderConsumer();
+        var missing = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-missing");
 
-        var finding = Assert.Single(counts, found => found.Message.Contains("twice"));
-        Assert.Contains("external-system/text-gateway", finding.Message);
+        Assert.Empty(missing);
     }
 
-    /// <summary>Mark In The Undeclared Style Reports Mark Style Mixed.</summary>
-    /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
-    [Fact]
-    public void MarkInTheUndeclaredStyleReportsMarkStyleMixed()
+    /// <summary>Writes a consumer in the module layout where one root splits into its marked main file and an unmarked part in an act folder.</summary>
+    /// <returns>The temporary folder holding the consumer.</returns>
+    static TempFolder WriteSplitFolderConsumer()
     {
-        using var fixture = MarksFixture.Prepare("style");
-        var mixed = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-style-invalid");
+        var temp = TestCli.Temp("marks");
 
-        var finding = Assert.Single(mixed);
-        Assert.Contains("BorrowCopyCommandHandler", finding.Message);
-        Assert.Contains("in the xml style", finding.Message);
-        Assert.Contains("declares attribute", finding.Message);
-        Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
+        try
+        {
+            WriteFile(temp.Path, ".litespec/project.yaml", """
+                {
+                  "project": {
+                    "name": "Marks Fixture"
+                  },
+                  "size": "small",
+                  "shape": "server",
+                  "stacks": [
+                    "dotnet"
+                  ],
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "7.0.0",
+                  "owners": [
+                    "lending-team"
+                  ],
+                  "paths": {
+                    "docs": ".litespec",
+                    "behaviorDocs": ".litespec/behavior",
+                    "glossary": ".litespec/glossary.yaml",
+                    "testRoots": [
+                      "apps/api/tests"
+                    ],
+                    "frontends": []
+                  },
+                  "stackConfig": {
+                    "dotnet": {
+                      "modules": "apps/api/src/Modules/*",
+                      "kernel": "apps/api/src/Library.Kernel",
+                      "platform": "apps/api/src/Library.Platform"
+                    }
+                  }
+                }
+                """);
+            WriteFile(temp.Path, ".litespec/glossary.yaml", """
+                schemaVersion: 2
+                terms: []
+                mannered: []
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/entries/aggregate.yaml", """
+                {
+                  "type": "aggregate",
+                  "id": "aggregate/lending.entry",
+                  "title": "Entry",
+                  "states": [
+                    {
+                      "name": "Active",
+                      "meaning": "The record is open."
+                    }
+                  ]
+                }
+                """);
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/entries/aggregate.md", """
+                # Entry
+
+                A record stays open.
+                """);
+
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Entries/Entry.cs", """
+                namespace Library.Lending.Domain.Entries;
+
+                /// <implements>aggregate/lending.entry</implements>
+                public sealed partial class Entry : AggregateRoot<EntryId>
+                {
+                    public string State { get; private set; } = "active";
+                }
+                """);
+            WriteFile(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Entries/PostEntry/Entry.PostEntry.cs", """
+                namespace Library.Lending.Domain.Entries;
+
+                public sealed partial class Entry
+                {
+                    private string PostingNote() => "posted";
+                }
+                """);
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
     }
 
-    /// <summary>Event Classification Drifting From Its Record Reports Runtime Value Drift.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact]
-    public void EventClassificationDriftingFromItsRecordReportsRuntimeValueDrift()
+    static void WriteFile(string root, string relative, string text)
     {
-        using var fixture = MarksFixture.Prepare("drift");
-        var drifts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "runtime-value-drift");
-
-        var finding = Assert.Single(drifts, found => found.Subject == "event/loan.loan-borrowed");
-        Assert.Contains("Classification", finding.Message);
-        Assert.Contains("event/loan.placed", finding.Message);
+        var destination = Path.Combine(root, relative);
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        File.WriteAllText(destination, text);
     }
 
-    /// <summary>Exception Code Drifting From Its Result Reports Runtime Value Drift.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact]
-    public void ExceptionCodeDriftingFromItsResultReportsRuntimeValueDrift()
+    /// <summary>A model with the screen record the route marks name.</summary>
+    /// <param name="root">The fixture root folder the record files sit under.</param>
+    /// <returns>The project model holding the records.</returns>
+    static ProjectModel RouteModel(string root)
     {
-        using var fixture = MarksFixture.Prepare("drift");
-        var drifts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "runtime-value-drift");
+        File.WriteAllText(
+            Path.Combine(root, ".litespec/project.yaml"),
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"}");
+        var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
-        var finding = Assert.Single(drifts, found => found.Subject == "rule/loan.copy-available");
-        Assert.Contains("Code", finding.Message);
-        Assert.Contains("lending.wrong-code", finding.Message);
-        Assert.Contains("lending.copy-not-available", finding.Message);
+        model.Records.Add(Rec("screen", "screen/app.loans", root, """{"status": "reviewed"}"""));
+        model.Records.Add(Rec("screen", "screen/app.holds", root, """{"status": "reviewed"}"""));
+
+        return model;
+    }
+
+    static Record Rec(string type, string id, string root, string json)
+    {
+        using var document = JsonDocument.Parse(json);
+        var raw = document.RootElement.Clone();
+
+        return new Record
+        {
+            Type = type,
+            Id = id,
+            Title = id,
+            File = Path.Combine(root, ".litespec", "record.md"),
+            Line = 1,
+            Raw = raw,
+        };
     }
 }

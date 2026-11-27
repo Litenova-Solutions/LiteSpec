@@ -18,6 +18,7 @@ public static class JsonSchema
         "$schema", "$id", "$defs", "$comment",
         "title", "description", "default", "examples", "deprecated", "readOnly", "writeOnly",
         "format", "contentMediaType", "contentEncoding",
+        "x-reads-as", "x-read-back-as", "x-rejected-fields",
     };
 
     /// <summary>
@@ -69,8 +70,9 @@ public static class JsonSchema
     /// <param name="root">The schema root.</param>
     /// <param name="location">The value location.</param>
     /// <param name="errors">The errors to append to.</param>
-    public static void Validate(JsonNode? value, JsonNode? schema, JsonNode root, string location, List<string> errors) =>
-        SchemaEvaluator.Validate(value, schema, root, location, errors);
+    /// <param name="verbose">Whether union failures list every rejected shape instead of the selected one.</param>
+    public static void Validate(JsonNode? value, JsonNode? schema, JsonNode root, string location, List<string> errors, bool verbose = false) =>
+        SchemaEvaluator.Validate(value, schema, root, location, errors, verbose);
 
     /// <summary>
     ///     Reads one JSON value against one schema file and returns the problems it
@@ -81,9 +83,10 @@ public static class JsonSchema
     /// <param name="value">The value to validate.</param>
     /// <param name="location">The value location.</param>
     /// <param name="readJson">The reader that loads a schema file as JSON.</param>
+    /// <param name="verbose">Whether union failures list every rejected shape instead of the selected one.</param>
     /// <returns>The problems found.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Problems reports a schema validation as problem text rather than crashing the caller, so every failure of the schema check becomes one problem message.")]
-    public static List<string> Problems(string schemaFile, JsonNode? value, string location, Func<string, JsonNode?> readJson)
+    public static List<string> Problems(string schemaFile, JsonNode? value, string location, Func<string, JsonNode?> readJson, bool verbose = false)
     {
         var schema = readJson(schemaFile);
 
@@ -101,7 +104,7 @@ public static class JsonSchema
 
         try
         {
-            Validate(value, schema, schema!, location, problems);
+            Validate(value, schema, schema!, location, problems, verbose);
         }
         catch (Exception cause)
         {

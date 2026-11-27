@@ -50,7 +50,7 @@ static partial class AgentProtocol
                 FormatStacks(config.Stacks),
                 FormatExtensions(config.Extensions),
                 FormatLayers(config.Layers),
-                SelectionKey(config.Shape, config.Stacks),
+                DocsFor(release.Docs, config.Root),
                 CommandFor(config.Root));
             File.WriteAllText(file, fresh);
 
@@ -73,7 +73,7 @@ static partial class AgentProtocol
             FormatStacks(config.Stacks),
             FormatExtensions(config.Extensions),
             FormatLayers(config.Layers),
-            SelectionKey(config.Shape, config.Stacks),
+            DocsFor(release.Docs, config.Root),
             CommandFor(config.Root));
         var expected = BuildRegion(filled, newline);
 
@@ -241,15 +241,51 @@ static partial class AgentProtocol
             FormatStacks(config.Stacks),
             FormatExtensions(config.Extensions),
             FormatLayers(config.Layers),
-            SelectionKey(config.Shape, config.Stacks),
+            DocsFor(release.Docs, config.Root),
             CommandFor(config.Root));
 
         return BuildRegion(filled, "\n");
     }
 
-    /// <summary>The release version, the package version and the agent context template text, or null when the release carries no readable template.</summary>
-    /// <returns>The release, the package version and the template text, or null.</returns>
-    private static (string Release, string Package, string Template)? ReleaseTemplate()
+    /// <summary>The marker that stands for the package version in <see cref="ExpectedRegionPattern" />.</summary>
+    internal const string PackageMarker = "{{litespec-package-version}}";
+
+    /// <summary>The marker that stands for the docs folder in <see cref="ExpectedRegionPattern" />.</summary>
+    internal const string DocsMarker = "{{litespec-docs}}";
+
+    /// <summary>
+    ///     The region the check compares against, with the package version and the docs folder left as markers: both
+    ///     depend on where the CLI runs (a repository build, a packed tool, a NuGet cache path), so a region rendered by
+    ///     one install never drifts from another install of the same release.
+    /// </summary>
+    /// <param name="model">The built project model the region renders from.</param>
+    /// <returns>The expected region with markers, or null when the release carries no readable template.</returns>
+    internal static string? ExpectedRegionPattern(ProjectModel model)
+    {
+        if (ReleaseTemplate() is not { } release || TemplateBody(release.Template) is not { } body)
+        {
+            return null;
+        }
+
+        var config = model.Config;
+        var filled = Fill(
+            body,
+            release.Release,
+            PackageMarker,
+            config.Size,
+            config.Shape,
+            FormatStacks(config.Stacks),
+            FormatExtensions(config.Extensions),
+            FormatLayers(config.Layers),
+            DocsMarker,
+            CommandFor(config.Root));
+
+        return BuildRegion(filled, "\n");
+    }
+
+    /// <summary>The release version, the package version, the docs folder and the agent context template text, or null when the release carries no readable template.</summary>
+    /// <returns>The release, the package version, the docs folder and the template text, or null.</returns>
+    private static (string Release, string Package, string Docs, string Template)? ReleaseTemplate()
     {
         var home = LiteSpecHome.Root;
         var release = LiteSpecHome.Version;
@@ -268,7 +304,7 @@ static partial class AgentProtocol
 
         try
         {
-            return (release, ReleaseVersion.PackageOf(release), File.ReadAllText(templatePath));
+            return (release, ReleaseVersion.PackageOf(release), Path.Combine(home, "docs"), File.ReadAllText(templatePath));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -389,10 +425,10 @@ static partial class AgentProtocol
     /// <param name="stacks">The selected stack keys, comma and space separated, or none.</param>
     /// <param name="extensions">The selected extension keys, comma and space separated, or none.</param>
     /// <param name="layers">The claimed layers with their practices.</param>
-    /// <param name="selectionKey">The site's selection key for the selection page URL.</param>
+    /// <param name="docs">The docs of the carried release the protocol points at.</param>
     /// <param name="command">The command that runs the CLI in the project: dotnet litespec or litespec.</param>
     /// <returns>The text with each placeholder replaced by its value.</returns>
-    internal static string Fill(string text, string version, string packageVersion, string size, string shape, string stacks, string extensions, string layers, string selectionKey, string command) =>
+    internal static string Fill(string text, string version, string packageVersion, string size, string shape, string stacks, string extensions, string layers, string docs, string command) =>
         text.Replace("__LITESPEC_PACKAGE_VERSION__", packageVersion, StringComparison.Ordinal)
             .Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
             .Replace("__SIZE__", size, StringComparison.Ordinal)
@@ -400,7 +436,7 @@ static partial class AgentProtocol
             .Replace("__STACKS__", stacks, StringComparison.Ordinal)
             .Replace("__EXTENSIONS__", extensions, StringComparison.Ordinal)
             .Replace("__LAYERS__", layers, StringComparison.Ordinal)
-            .Replace("__SELECTION_KEY__", selectionKey, StringComparison.Ordinal)
+            .Replace("__LITESPEC_DOCS__", docs, StringComparison.Ordinal)
             .Replace("__LITESPEC_COMMAND__", command, StringComparison.Ordinal);
 
     /// <summary>The stacks as the region names them: none, or the keys comma and space separated.</summary>
@@ -471,12 +507,46 @@ static partial class AgentProtocol
         return parts.Count == 0 ? null : string.Join(", ", parts);
     }
 
-    /// <summary>The site's selection key: the shape alone when no stack is selected, else the shape and the stacks joined by dots.</summary>
-    /// <param name="shape">The project shape, server or client-only.</param>
-    /// <param name="stacks">The stack keys in list order.</param>
-    /// <returns>The selection key for the selection page URL.</returns>
-    internal static string SelectionKey(string shape, IReadOnlyList<string> stacks) =>
-        stacks.Count == 0 ? shape : $"{shape}.{string.Join(".", stacks)}";
+    /// <summary>The docs folder as the protocol names it, the same on every machine that holds the same layout.</summary>
+    /// <param name="docs">The absolute docs folder of the carried release.</param>
+    /// <param name="root">The project root the protocol is written into.</param>
+    /// <returns>A path relative to the project root when the docs sit beside it in one repository, a path under the home folder written with a tilde, or the absolute path.</returns>
+    internal static string DocsFor(string docs, string root)
+    {
+        var full = Path.GetFullPath(docs);
+        var relative = Path.GetRelativePath(Path.GetFullPath(root), full);
+
+        if (!Path.IsPathRooted(relative) && SharesRepository(root, full))
+        {
+            return relative.Replace(Path.DirectorySeparatorChar, '/');
+        }
+
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+        if (home.Length > 0 && full.StartsWith(Path.GetFullPath(home) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        {
+            return "~/" + Path.GetRelativePath(home, full).Replace(Path.DirectorySeparatorChar, '/');
+        }
+
+        return full;
+    }
+
+    /// <summary>Whether the project root and the docs folder sit inside one git repository.</summary>
+    /// <param name="root">The project root.</param>
+    /// <param name="docs">The absolute docs folder.</param>
+    /// <returns>True when the nearest repository above the root also holds the docs folder.</returns>
+    private static bool SharesRepository(string root, string docs)
+    {
+        for (var folder = new DirectoryInfo(Path.GetFullPath(root)); folder is not null; folder = folder.Parent)
+        {
+            if (Directory.Exists(Path.Combine(folder.FullName, ".git")) || File.Exists(Path.Combine(folder.FullName, ".git")))
+            {
+                return docs.StartsWith(folder.FullName + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>The command that runs the CLI in the project: dotnet litespec with a tool manifest, else litespec.</summary>
     /// <param name="root">The consumer root.</param>

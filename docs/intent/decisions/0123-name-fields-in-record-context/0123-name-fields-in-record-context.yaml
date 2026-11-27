@@ -1,0 +1,19 @@
+type: decision
+id: decision/0123-name-fields-in-record-context
+title: Name Fields in Record Context
+context: "Decision 0096 required one meaning per field name everywhere, so new fields took unnatural names to avoid collisions. Readers already read a field inside its record type, and the 20 known collisions caused no misread in context."
+options:
+  - name: "Read each field name in its record type"
+    pros: "New fields take the names their readers already use. Record types keep short, natural names."
+    cons: "One word means two things on two types, so cross-type queries must state the type."
+  - name: "Keep one meaning per name for every field"
+    pros: "A reader who learned a name once knows it everywhere."
+    cons: "New fields take unnatural names, and authors bend the domain to fit the table."
+  - name: "Prefix every field with its record type"
+    pros: "No collision is possible."
+    cons: "Every record carries stuttering names, and authors and agents type the prefix forever."
+choice: "Read each field name in its record type"
+consequences: "A field name reads in the context of its record type. The v7 field set keeps contextual names such as `inputs`, `outputs`, `results`, `scenarios`, `refusals`, `permissions`, `entryPoints`, `fields`, `via`, `basedOn`, `states`, `scope`, `message`, `translations`, `timeZone`, `tracksState`, `direction`, `recentSignInWindow`, `job`, and `archetype`. Checks qualify names by type instead of reporting a shared word. Claimwick records use the contextual names."
+reopenedWhen: "Readers misread a shared name across types, or a cross-type query cannot state the type it means."
+supersedes:
+- decision/0096-read-field-names-in-their-record-type

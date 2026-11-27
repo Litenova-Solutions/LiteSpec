@@ -31,7 +31,7 @@ internal static class QueryChecks
     /// <returns>True when the output holds a non-empty include object; otherwise false.</returns>
     private static bool HasIncludeGroups(Record query) =>
         query.Raw.ValueKind == JsonValueKind.Object
-        && query.Raw.TryGetProperty(RecordFields.Output, out var output)
+        && query.Raw.TryGetProperty(RecordFields.Outputs, out var output)
         && output.ValueKind == JsonValueKind.Object
         && output.TryGetProperty(RecordFields.Include, out var include)
         && include.ValueKind == JsonValueKind.Object
@@ -60,7 +60,7 @@ internal static class QueryChecks
         foreach (var query in model.Records.Where(record => record.Type == RecordTypes.UseCase && record.Field(RecordFields.Kind) == "query"))
         {
             if (query.Raw.ValueKind != JsonValueKind.Object
-                || !query.Raw.TryGetProperty(RecordFields.Output, out var output)
+                || !query.Raw.TryGetProperty(RecordFields.Outputs, out var output)
                 || output.ValueKind != JsonValueKind.Object
                 || !output.TryGetProperty(RecordFields.Include, out var include)
                 || include.ValueKind != JsonValueKind.Object)
@@ -70,7 +70,7 @@ internal static class QueryChecks
 
             foreach (var group in include.EnumerateObject().OrderBy(entry => entry.Name, StringComparer.Ordinal))
             {
-                foreach (var cited in LinkStrings(group.Value, RecordFields.Cites).Order(StringComparer.Ordinal))
+                foreach (var cited in LinkStrings(group.Value, RecordFields.WidenedBy).Order(StringComparer.Ordinal))
                 {
                     // An unknown target is left to reference-unknown.
                     if (!model.ById.TryGetValue(cited, out var target))

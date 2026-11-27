@@ -3,3 +3,14 @@ id: feature/approval
 title: Approval
 summary: Employees submit work expenses and wait for the money, managers decide each one, and finance reimburses the approved ones. Expenses arrive daily, and each one needs a timely decision with proof where the policy asks for it.
 offering: Employees submit expenses with receipts, managers decide each one within five business days, and finance reimburses and exports the approved ones.
+advances:
+- goal/decided-in-days
+successCriteria:
+- An expense above the 25 EUR threshold is refused without a receipt.
+- No manager approves their own expense.
+- An approved expense is reimbursed at most once.
+- The employee sees the decision on each expense in the employee list without asking the manager.
+excludes:
+- Reminders for late decisions belong to feature/approval-reminders.
+- The feature depends on decision/0001-receipt-threshold for the 25 EUR threshold.
+- Whether a manager on leave hands decisions to a deputy is open for the owner.

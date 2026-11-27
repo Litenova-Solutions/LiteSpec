@@ -16,7 +16,7 @@ State which exact values this page publishes and who looks them up.
 
 Name the source each value is read from, so a reader can check it.
 
-## Notes
+## Reading
 
 Optional. Remove this section when the table needs no note.
 

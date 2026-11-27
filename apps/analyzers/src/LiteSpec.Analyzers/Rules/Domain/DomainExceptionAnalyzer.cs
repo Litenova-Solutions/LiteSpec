@@ -8,8 +8,9 @@ using Microsoft.CodeAnalysis.Operations;
 
 namespace LiteSpec.Analyzers.Rules.Domain;
 
-/// <summary>LS1005 and LS1006: Domain rejects business violations with sealed DomainException subclasses.</summary>
-/// <follows>litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions</follows>
+/// <summary>LS1005 and LS1006: Domain rejects business violations with sealed DomainException subclasses. LS1005 does not apply inside a knowledge model.</summary>
+/// <follows>litespec/packs/dotnet/domain#reject-business-violations-with-domain-exceptions</follows>
+/// <follows>litespec/core/knowledge#check-shape-at-compile-time-and-dates-at-startup</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class DomainExceptionAnalyzer : LayerAnalyzer
 {
@@ -85,6 +86,13 @@ public sealed class DomainExceptionAnalyzer : LayerAnalyzer
         INamedTypeSymbol? unreachableExceptionType)
     {
         if (!scope.AppliesTo(context.Operation.Syntax?.SyntaxTree))
+        {
+            return;
+        }
+
+        // A set that fails validation is a startup configuration failure, not a business
+        // violation, so LS1005 does not apply inside a knowledge model.
+        if (Knowledge.IsModelFile(context.Operation.Syntax?.SyntaxTree.FilePath))
         {
             return;
         }

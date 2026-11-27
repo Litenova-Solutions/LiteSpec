@@ -15,8 +15,6 @@ static class StandardsFixture
         **Stack:** any
         **Concern:** records
 
-        ## Intent
-
         This page defines one repository topic.
 
         ## Standards
@@ -48,71 +46,12 @@ static class StandardsFixture
         **Reviewed for:** Does the topic live in its owning documentation area?
         """) + "\n";
 
-    /// <summary>The pattern page: one pattern with two drawn options.</summary>
-    public static readonly string PatternPage = Normalize("""
-        # Sample Patterns
-
-        **Stack:** any
-        **Concern:** frontend-ui
-
-        ## Intent
-
-        This page offers drawn options for one recurring question.
-
-        ## Patterns
-
-        ### Record Header
-
-        **ID:** `litespec/frontend/patterns/sample#record-header`
-
-        **Strength:** default
-
-        **Question:** How does the top of a record read?
-
-        **Default:** `one-primary`
-
-        **Compact:** Actions move under the title.
-
-        **Rationale:** One primary action answers what comes next.
-
-        **Reviewed for:** Does the top of each record page match the default option or the one its catalog records?
-
-        #### `one-primary`: One Primary Action
-
-        ```wireframe
-        page
-          header
-            heading "SO-1042"
-            action primary "Mark as shipped"
-        ```
-
-        **Rationale:** The next step is plain.
-
-        **Cost:** Other commands wait in a menu.
-
-        #### `two-equal`: Two Equal Actions
-
-        ```wireframe
-        page
-          header
-            heading "SO-1042"
-            action "Mark as shipped"
-            action "Refund"
-        ```
-
-        **Rationale:** Both commands are one click away.
-
-        **Cost:** The reader compares labels before acting.
-        """) + "\n";
-
     /// <summary>The extension page, with maintainer evidence.</summary>
     public static readonly string ExtensionPage = Normalize("""
         # Sample Extension
 
         **Stack:** any
         **Concern:** operations
-
-        ## Intent
 
         This extension adds one optional capability.
 
@@ -156,15 +95,13 @@ static class StandardsFixture
         **Stack:** dotnet
         **Concern:** domain
 
-        ## Intent
-
         This stack selects one standards composition.
 
         ## Standards
 
         ### Apply the Complete Stack
 
-        **ID:** `litespec/backend/sample/stack#apply-the-complete-stack`
+        **ID:** `litespec/packs/sample/stack#apply-the-complete-stack`
 
         **Strength:** required
 
@@ -181,8 +118,6 @@ static class StandardsFixture
     public static readonly string ScopesPage = Normalize("""
         # Provision Scopes
 
-        ## Intent
-
         This page states the shared situation vocabulary each provision carries.
 
         ## Concepts
@@ -193,7 +128,7 @@ static class StandardsFixture
 
         | Field | Answers | Values |
         |:---|:---|:---|
-        | `stack` | Which technology | `any`, `dotnet`, `react` |
+        | `stack` | Which technology | `any`, `dotnet`, `svelte`, `android` |
         | `concern` | Which part of the system | `records`, `domain`, `application`, `operations`, `frontend-ui`, `tests` |
         | `artifact` | Which kind of thing is made | `aggregate`, `test`, `record:<type>` |
         | `layer` | Which record layer | `any`, `intent`, `behavior`, `implementation`, `proof` |
@@ -206,7 +141,8 @@ static class StandardsFixture
         |:---|:---|
         | `any` | No technology; the provision applies to every stack. |
         | `dotnet` | The .NET backend stack. |
-        | `react` | The React web stack. |
+        | `svelte` | The Svelte web stack. |
+        | `android` | The Android mobile stack. |
 
         ### Concern Values
 
@@ -258,8 +194,6 @@ static class StandardsFixture
     public static readonly string GuidePage = Normalize("""
         # Sample Guide
 
-        ## Purpose
-
         Create one verified standards artifact.
 
         ## Prerequisites
@@ -280,8 +214,6 @@ static class StandardsFixture
     public static readonly string TutorialPage = Normalize("""
         # Sample Tutorial
 
-        ## Purpose
-
         Produce one working standards artifact.
 
         ## Prerequisites
@@ -301,8 +233,6 @@ static class StandardsFixture
     /// <summary>The reference page.</summary>
     public static readonly string ReferencePage = Normalize("""
         # Sample Reference
-
-        ## Intent
 
         State the exact values that this repository publishes.
 
@@ -454,21 +384,21 @@ static class StandardsFixture
     /// <summary>The sample pages the base index links, by their path under docs/.</summary>
     static readonly string[] BasePages =
     [
-        "core/topic.md", "core/scopes.md", "ext/sample.md", "backend/sample/stack.md", "frontend/patterns/sample.md",
+        "core/topic.md", "core/scopes.md", "ext/sample.md", "packs/sample/stack.md",
         "guide/sample.md", "tutorial/sample.md", "reference/sample.md", "tools/sample.md", "reference/glossary.md",
     ];
 
-    /// <summary>Writes the documentation index: its intent, the routing section, a link to each base page not omitted, and extra text.</summary>
-    /// <param name="intent">The intent sentence.</param>
+    /// <summary>Writes the documentation index: its lead, the routing section, a link to each base page not omitted, and extra text.</summary>
+    /// <param name="lead">The lead sentence.</param>
     /// <param name="omit">The base pages, by path under docs/, the index does not link.</param>
     /// <param name="extra">Text appended after the links.</param>
     /// <returns>The index text.</returns>
-    public static string Readme(string intent = "Use this page to find repository documentation.", string[]? omit = null, string extra = "")
+    public static string Readme(string lead = "Use this page to find repository documentation.", string[]? omit = null, string extra = "")
     {
         var links = BasePages
             .Where(page => omit is null || !omit.Contains(page, StringComparer.Ordinal))
             .Select(page => $"- [{page}]({page})\n");
-        return "# Documentation\n\n## Intent\n\n" + intent + "\n\n" + IndexRouting + "\n## Pages\n\n" + string.Concat(links) + extra;
+        return "# Documentation\n\n" + lead + "\n\n" + IndexRouting + "\n## Pages\n\n" + string.Concat(links) + extra;
     }
 
     /// <summary>Writes a file inside the temporary repository, creating its folder.</summary>
@@ -559,8 +489,7 @@ static class StandardsFixture
         Write(root, "docs/core/topic.md", TopicPage);
         Write(root, "docs/core/scopes.md", ScopesPage);
         Write(root, "docs/ext/sample.md", ExtensionPage);
-        Write(root, "docs/backend/sample/stack.md", StackPage);
-        Write(root, "docs/frontend/patterns/sample.md", PatternPage);
+        Write(root, "docs/packs/sample/stack.md", StackPage);
         Write(root, "docs/guide/sample.md", GuidePage);
         Write(root, "docs/README.md", Readme());
         Write(root, "docs/tutorial/sample.md", TutorialPage);

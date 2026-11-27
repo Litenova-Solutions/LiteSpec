@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover } from "$lib/record";
   import type { Snippet } from "svelte";
 
-  // One fact in the grid: a label, a value, and an optional hint below it.
+  // One fact tile: a label, a value, and an optional hint below it. A short
+  // figure reads big; a sentence never does. Hovering the label explains the field.
   type Props = {
     k: string;
     html?: string | null;
@@ -13,14 +15,14 @@
   let { k, html = null, hint = "", big = false, children }: Props = $props();
 </script>
 
-<div class="contents">
-  <div class="pt-2 text-sm text-muted-foreground sm:border-b sm:border-border sm:pb-2">{book.fieldLabel(k)}</div>
-  <div class="border-b border-border pt-0.5 pb-2 text-[0.90625rem] sm:pt-2 leading-snug {big ? 'text-base font-semibold tabular-nums' : ''}">
+<div class="bg-background p-4">
+  <div class="text-xs tracking-[0.32px] text-text-secondary"><Hover hover={hoverSection(book, k, "")}>{book.fieldLabel(k)}</Hover></div>
+  <div class="mt-1 min-w-0 [overflow-wrap:anywhere] {big ? 'text-[28px] leading-9 font-light tabular-nums' : 'text-sm'} [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
     {#if html !== null}
       {@html html}
     {:else}
       {@render children?.()}
     {/if}
-    {#if hint}<div class="mt-1 text-xs text-muted-foreground">{@html hint}</div>{/if}
   </div>
+  {#if hint}<div class="mt-1 text-xs tracking-[0.32px] text-text-secondary">{@html hint}</div>{/if}
 </div>

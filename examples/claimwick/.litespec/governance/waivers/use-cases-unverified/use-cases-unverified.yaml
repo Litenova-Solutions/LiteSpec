@@ -1,0 +1,36 @@
+type: waiver
+id: waiver/use-cases-unverified
+title: Use Cases Unverified
+summary: Claimwick ships no test run, so no scenario has a passing proof.
+kind: gap
+waives:
+- use-case-unverified
+appliesTo:
+- use-case/reporting.list-reimbursed-expenses
+- use-case/spending.approve-expense
+- use-case/spending.attach-receipt
+- use-case/spending.change-receipt-threshold
+- use-case/spending.change-reminder-preference
+- use-case/spending.erase-personal-data
+- use-case/spending.export-expenses
+- use-case/spending.list-expenses
+- use-case/spending.read-expense
+- use-case/spending.refuse-expense
+- use-case/spending.reimburse-expense
+- use-case/spending.submit-expense
+reason: Claimwick ships no test run, so no scenario has a passing proof.
+exitWhen: The gap closes when the example ships a test run whose passing proofs cover every scenario.
+expiresOn: 2027-06-01
+closedBy:
+- use-case/reporting.list-reimbursed-expenses
+- use-case/spending.approve-expense
+- use-case/spending.attach-receipt
+- use-case/spending.change-receipt-threshold
+- use-case/spending.change-reminder-preference
+- use-case/spending.erase-personal-data
+- use-case/spending.export-expenses
+- use-case/spending.list-expenses
+- use-case/spending.read-expense
+- use-case/spending.refuse-expense
+- use-case/spending.reimburse-expense
+- use-case/spending.submit-expense

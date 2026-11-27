@@ -1,0 +1,14 @@
+type: decision
+id: decision/0111-name-flow-steps-and-keep-branches-on-them
+title: Name Flow Steps and Keep Branches on Them
+context: "A flow's steps carried position ids, s1, s2, and so on, and its branches stood in one list at the bottom of the file, linked back by those ids. A use case citing flow/submit-and-reimburse#s3 could not be read without opening the flow, every inserted step renumbered the steps after it, and the separate branch list hid modeling slips: a branch s1 -> s2 that really meant instead of step 1, or one branch to end packing two conditions where one of them only skipped a step."
+options:
+  - name: "Name each step step/<flow>.<act> and keep each branch on the step it leaves"
+    pros: "Every step citation reads without opening the flow. Inserting a step renames nothing. Each branch reads beside the step it leaves, with one condition and one ending."
+    cons: "Every flow file, step citation, branch check, query, and book flow page changes in one change."
+  - name: "Keep position ids and the flow-level branch list"
+    pros: "Every flow file, step citation, check, and book page stays as written."
+    cons: "Citations stay unreadable without the flow, insertions keep renumbering steps, and the branch list keeps hiding modeling slips."
+choice: "Name each step step/<flow>.<act> and keep each branch on the step it leaves. The act is the step's act as a verb phrase in kebab case, list order is the main path, and the flow-level branches list is removed. Each branch states one when condition and exactly one of then or ends, with instead for an alternative that does work of its own. A step id is a real identifier in the record index, resolved by link checks, model query, and search."
+consequences: "Screens and use cases cite step/<flow>.<act> in serves. Model query on a step id returns the step with its branches, the screens and use cases serving it, the requirements it carries with the use cases fulfilling them, and the code files and proving tests behind them. The book shows each step with its branches indented under it and its trace. The checks report a then naming no step of the flow, a branch with both or neither of then and ends, a when joining two conditions, a step id outside the form or naming another flow, a step no path reaches, and a step citation naming no step."
+reopenedWhen: "A product shows steps that no verb phrase names, or branches that belong to the whole flow rather than to one step."

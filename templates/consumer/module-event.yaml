@@ -1,0 +1,10 @@
+type: module-event
+summary: <what this event tells the other modules, or remove this line>
+id: module-event/module.name
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+fields:
+- <field name of the translated domain event>
+translates: domain-event/<aggregate>.<name>
+compatibility: <how the contract stays stable when the event changes, in one to three sentences>

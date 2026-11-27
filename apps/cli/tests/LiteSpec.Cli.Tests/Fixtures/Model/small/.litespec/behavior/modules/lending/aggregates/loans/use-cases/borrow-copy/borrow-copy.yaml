@@ -7,25 +7,39 @@ access:
   tenant: own
 fulfills:
 - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
-- event/loan.loan-borrowed
+- domain-event/loan.loan-borrowed
+inputs:
+- name: copyId
+  meaning: The copy the reader borrows.
+  type: id
+  identifies: aggregate/lending.copy
+  required: true
+  origin: caller
+  classification: internal
+- name: readerId
+  meaning: The signed-in reader borrowing the copy, read from verified claims.
+  type: id
+  identifies: actor/reader
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/library-app
+  classification: personal
 idempotency:
   mode: none
   reason: Each call lends its own copy, and lending an unavailable copy is refused.
 audit:
-  level: none
-  target: No audit trail; the loan record shows each lending.
-records:
-- type: result
-  id: result/borrow-copy.borrowed
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader borrows the copy from the shelf.
+results:
+- id: result/borrow-copy.borrowed
   title: Borrowed
   outcome: success
   meaning: The copy is lent.
-- type: result
-  id: result/borrow-copy.copy-unavailable
+- id: result/borrow-copy.copy-unavailable
   title: Copy unavailable
   outcome: refusal
-  code: lending.copy-not-available
-  meaning: The copy is unavailable.
+  refusal: refusal/lending.copy-not-available

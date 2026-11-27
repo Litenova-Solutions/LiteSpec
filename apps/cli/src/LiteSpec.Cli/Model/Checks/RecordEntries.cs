@@ -82,7 +82,7 @@ internal static class RecordEntries
                 found.Add(new AggregateTransition(
                     leave,
                     enter,
-                    entry.TryGetProperty(RecordFields.By, out var by) && by.ValueKind == JsonValueKind.String ? by.GetString() : null));
+                    entry.TryGetProperty(RecordFields.MovedBy, out var movedBy) && movedBy.ValueKind == JsonValueKind.String ? movedBy.GetString() : null));
             }
         }
 
@@ -148,6 +148,51 @@ internal static class RecordEntries
     /// <returns>The triggering event identifiers the reaction names.</returns>
     internal static List<string> ReactionEventTriggers(Record record) =>
         record.Ids(RecordFields.TriggeredBy).Where(id => id.Length > 0).ToList();
+
+    /// <summary>The consumers of each domain event: the reactions naming it in triggeredBy and the module and integration events naming it in translates.</summary>
+    /// <param name="model">The loaded project model that holds every record.</param>
+    /// <returns>The consuming record identifiers of each consumed domain event, in sorted order, by event identifier.</returns>
+    internal static IReadOnlyDictionary<string, IReadOnlyList<string>> DomainEventConsumers(ProjectModel model)
+    {
+        var consumers = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        foreach (var reaction in model.Records.Where(record => record.Type == RecordTypes.Reaction))
+        {
+            foreach (var trigger in ReactionEventTriggers(reaction))
+            {
+                AddConsumer(consumers, Identifiers.BaseId(trigger), reaction.Id);
+            }
+        }
+
+        foreach (var published in model.Records.Where(record =>
+            record.Type is RecordTypes.ModuleEvent or RecordTypes.IntegrationEvent))
+        {
+            if (published.Field(RecordFields.Translates) is { Length: > 0 } translates)
+            {
+                AddConsumer(consumers, translates, published.Id);
+            }
+        }
+
+        return consumers.ToDictionary(
+            entry => entry.Key,
+            entry => (IReadOnlyList<string>)entry.Value.OrderBy(id => id, StringComparer.Ordinal).ToList(),
+            StringComparer.Ordinal);
+    }
+
+    /// <summary>Adds a consuming record to one domain event.</summary>
+    /// <param name="consumers">The consuming record identifiers by event identifier.</param>
+    /// <param name="eventId">The consumed domain event identifier.</param>
+    /// <param name="consumerId">The consuming record identifier.</param>
+    private static void AddConsumer(Dictionary<string, HashSet<string>> consumers, string eventId, string consumerId)
+    {
+        if (!consumers.TryGetValue(eventId, out var held))
+        {
+            held = new HashSet<string>(StringComparer.Ordinal);
+            consumers[eventId] = held;
+        }
+
+        held.Add(consumerId);
+    }
 
     /// <summary>One field holding one id or an array of ids, read from any element.</summary>
     /// <param name="element">The JSON object that holds the field.</param>

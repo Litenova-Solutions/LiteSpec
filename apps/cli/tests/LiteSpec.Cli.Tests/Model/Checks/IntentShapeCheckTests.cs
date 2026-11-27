@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 public sealed class IntentShapeCheckTests
 {
     /// <summary>Requirement Without Rationale Reports.</summary>
-    /// <proves>litespec/core/intent#explain-each-requirement-in-one-line</proves>
+    /// <proves>litespec/core/intent#keep-each-rationale-to-its-reason</proves>
     [Fact]
     public void RequirementWithoutRationaleReports()
     {
@@ -20,7 +20,7 @@ public sealed class IntentShapeCheckTests
     }
 
     /// <summary>Requirement With Retired SetBy Reports.</summary>
-    /// <proves>litespec/core/intent#state-requirement-kind-and-statement</proves>
+    /// <proves>litespec/core/intent#state-each-requirement-with-kind-and-statement</proves>
     [Fact]
     public void RequirementWithRetiredSetByReports()
     {
@@ -29,31 +29,31 @@ public sealed class IntentShapeCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "rationale": "Readers share popular copies.", "setBy": "founder"}"""));
 
-        Assert.True(Reports(model, "field-invalid", "has setBy 'founder' outside product, operator, tenant."));
+        Assert.True(Reports(model, "record-invalid", "has setBy 'founder' outside product, operator, tenant."));
     }
 
     /// <summary>Decision Without ReopenedWhen Reports.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact]
     public void DecisionWithoutReopenedWhenReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days"}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days", "context": "Readers ask for a longer loan."}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no reopenedWhen."));
     }
 
     /// <summary>Decision Without Choice Reports.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact]
     public void DecisionWithoutChoiceReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "reopenedWhen": "Queues pass one hundred a day."}"""));
+            TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "reopenedWhen": "Queues pass one hundred a day.", "context": "Readers ask for a longer loan."}"""));
 
         Assert.True(Reports(model, "record-invalid", "has no choice."));
     }

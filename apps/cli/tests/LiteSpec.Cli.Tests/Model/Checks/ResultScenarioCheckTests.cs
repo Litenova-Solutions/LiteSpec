@@ -43,23 +43,23 @@ public sealed class ResultScenarioCheckTests
         Assert.Contains("is shown by no scenario", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Refusal Result With No Scenario Reports At Tier A.</summary>
+    /// <summary>Refusal Result With No Scenario Reports At Tier G.</summary>
     /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
-    public void RefusalResultWithNoScenarioReportsAtTierA()
+    public void RefusalResultWithNoScenarioReportsAtTierG()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "refusal", "code": "spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}"""));
+            TestModel.Record("result", "result/submit-expense.receipt-missing", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "refusal", "refusal": "refusal/spending.receipt-missing", "meaning": "The expense is above the receipt threshold and carries no receipt."}"""));
 
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "result-scenario-missing").ToList();
         var finding = Assert.Single(findings);
 
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Contains("result/submit-expense.receipt-missing", finding.Message, StringComparison.Ordinal);
-        Assert.Contains("names code 'spending.receipt-missing'", finding.Message, StringComparison.Ordinal);
+        Assert.Contains("names refusal 'refusal/spending.receipt-missing'", finding.Message, StringComparison.Ordinal);
     }
 
     /// <summary>Derived Result With No Scenario Passes.</summary>
@@ -86,7 +86,7 @@ public sealed class ResultScenarioCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit.yaml"), """{"kind": "command"}"""),
             TestModel.Record("result", "result/submit-expense.submitted", Path.Combine(temp.Path, "submit.yaml"), """{"outcome": "success", "meaning": "The expense is submitted."}"""),
-            TestModel.Record("reaction", "reaction/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["event/spending.expense-submitted"], "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
+            TestModel.Record("reaction", "reaction/spending.email-clerk-on-expense-submitted", Path.Combine(temp.Path, "notify.yaml"), """{"triggeredBy": ["domain-event/spending.expense-submitted"], "effects": [{"runs": "use-case/spending.submit-expense"}]}"""),
             Entry("scenario", "scenario/submit-expense.clerk-emailed-on-submission", Path.Combine(temp.Path, "notify.md"), """{"given": "An expense was submitted.", "when": "The clerk is emailed.", "then": "The clerk holds the submitted expense.", "result": "result/submit-expense.submitted"}""", "reaction/spending.email-clerk-on-expense-submitted"));
 
         Assert.DoesNotContain("result-scenario-missing", TestModel.Codes(model));
@@ -137,7 +137,7 @@ public sealed class ResultScenarioCheckTests
             TestModel.Record("result", "result/approve-expense.approved", Path.Combine(temp.Path, "approve.yaml"), """{"outcome": "success", "meaning": "The expense is approved."}"""),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-with-a-receipt-succeeds", Path.Combine(temp.Path, "submit.yaml"), """{"given": "An employee paid for a train ticket and kept the receipt.", "when": "The employee submits the expense with the receipt.", "then": "The expense is approved.", "result": "result/approve-expense.approved"}"""));
 
-        Assert.Contains("scenario-result-unknown", TestModel.Codes(model));
+        Assert.Contains("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>Scenario Ending In Own Use Case Derived Forbidden Passes.</summary>
@@ -152,7 +152,7 @@ public sealed class ResultScenarioCheckTests
             Entry("result", "result/submit-expense.forbidden", Path.Combine(temp.Path, "submit.md"), """{"outcome": "refusal", "code": "spending.forbidden", "meaning": "The caller lacks the grant the use case requires."}""", "use-case/spending.submit-expense", true),
             TestModel.Record("scenario", "scenario/submit-expense.submitting-without-a-grant-is-refused", Path.Combine(temp.Path, "submit.yaml"), """{"given": "An employee holds no grant to submit expenses.", "when": "The employee submits the expense.", "then": "The expense is refused.", "result": "result/submit-expense.forbidden"}"""));
 
-        Assert.DoesNotContain("scenario-result-unknown", TestModel.Codes(model));
+        Assert.DoesNotContain("reference-unknown", TestModel.Codes(model));
     }
 
     /// <summary>An entry of the type and id on the page, with the JSON fields.</summary>

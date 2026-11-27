@@ -1,0 +1,20 @@
+type: decision
+id: decision/0073-type-every-output-and-declare-refusal-sets
+title: Type Every Output and Declare Refusal Sets
+context: "Outputs carried no value types, so file inputs and lists of rows stayed in prose, and refusal codes spread across results with no shared meaning. Rules spread the same way, with one condition refused two ways in two use cases. A rule over several aggregates named its scope with a kind."
+options:
+  - name: "Typed outputs with files and rows, and one refusal set per aggregate"
+    pros: "Every output field carries a type. Files state content types and size. Each refusal is declared once with its id, title, and meaning. Generic refusals derive instead of being written."
+    cons: "Every output gains types. Each aggregate writes its refusal set."
+  - name: "Keep untyped outputs and per-result refusal prose"
+    pros: "No record moves and no set is written."
+    cons: "File handling stays in prose. Refusal codes spread across results with no shared meaning."
+  - name: "A product-wide refusal list"
+    pros: "One list holds every code."
+    cons: "Modules share codes they never raise. The list becomes a second taxonomy beside the modules."
+choice: "Typed outputs with files and rows, and one refusal set per aggregate"
+consequences: "A `file` value type carries `contentTypes` and `maxSize`. Every output field carries `type`. A list of rows takes `type: list` with `of` a shape of typed fields, `required` per field, `minItems`, and `unique` keys. A choice takes `choices`. `litespec/core/use-cases#type-every-output-field` states the rule. Each aggregate declares the refusals its rules raise once in `behavior/modules/<m>/aggregates/<aggregates>/refusals.yaml`, mirroring `Domain/{Aggregates}/Exceptions/`, with each entry carrying its `id` in `refusal/<module>.<name>` form and its `title`; the code is the id's name. The module's `refusals.yaml` keeps only the refusals no aggregate raises. A result's `refusal` names a refusal from its aggregate's set, or from the module's set for a refusal no aggregate raises. A rule's `refusal` names the same refusal, and every result carrying it is the rule's refusal in that use case. Derived refusals are never written: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated`, and `sign-in-too-old`. `litespec/core/use-cases#declare-each-aggregates-refusals-once` and `litespec/core/use-cases#declare-each-modules-refusals-once` state the sets. One rule states one condition with its refusal. A module-level rule over several aggregates names them in `binds`."
+reopenedWhen: "A refusal needs a code no module set can declare. Or a value needs a shape the value types cannot carry."
+basedOn:
+  - research/lower-layers-practice
+  - research/field-naming-evidence

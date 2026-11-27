@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model;
 /// <summary>
 ///     The source-links region: one Markdown link definition for each source a research or constraint record
 ///     declares, written at the end of its explanation file. A reader of the file, on GitHub or in an editor,
-///     follows each <c>[text][key]</c> citation without the book, so the region holds the URL the record states.
+///     follows each <c>[text][name]</c> citation without the book, so the region holds the URL the record states.
 /// </summary>
 /// <follows>litespec/core/intent#cite-a-source-for-each-constraint-rule</follows>
 /// <follows>litespec/core/model#render-generated-regions-from-the-model</follows>
@@ -30,7 +30,7 @@ internal static partial class SourceLinks
     /// <param name="record">The record whose sources the region links.</param>
     /// <returns>The link definitions, one per line, with no fence.</returns>
     internal static string Content(Record record) =>
-        string.Join('\n', Sources(record).Select(source => $"[{source.Key}]: {source.Target} \"{Describe(source)}\""));
+        string.Join('\n', Sources(record).Select(source => $"[{source.Name}]: {source.Target} \"{Describe(source)}\""));
 
     /// <summary>Writes the region into a text: it rewrites the region a text holds, or appends one at its end.</summary>
     /// <param name="text">The explanation file text.</param>
@@ -74,7 +74,7 @@ internal static partial class SourceLinks
             ? $"Read on {source.ReadOn}"
             : $"Published {source.PublishedOn}, read on {source.ReadOn}";
 
-    /// <summary>The sources a record declares, in written order, with an entry lacking a key or a target left out.</summary>
+    /// <summary>The sources a record declares, in written order, with an entry lacking a name or a target left out.</summary>
     /// <param name="record">The record whose sources are read.</param>
     /// <returns>Each declared source.</returns>
     private static List<SourceEntry> Sources(Record record)
@@ -90,15 +90,15 @@ internal static partial class SourceLinks
 
         foreach (var entry in list.EnumerateArray())
         {
-            var key = Text(entry, RecordFields.Key);
+            var name = Text(entry, RecordFields.Name);
             var target = Text(entry, RecordFields.Url) ?? Text(entry, RecordFields.Path);
 
-            if (key is null || target is null)
+            if (name is null || target is null)
             {
                 continue;
             }
 
-            sources.Add(new SourceEntry(key, target, Text(entry, RecordFields.ReadOn), Text(entry, RecordFields.PublishedOn)));
+            sources.Add(new SourceEntry(name, target, Text(entry, RecordFields.ReadOn), Text(entry, RecordFields.PublishedOn)));
         }
 
         return sources;
@@ -122,9 +122,9 @@ internal static partial class SourceLinks
     private static partial Regex Pattern();
 
     /// <summary>One declared source as the region reads it.</summary>
-    /// <param name="Key">The source key.</param>
+    /// <param name="Name">The source name.</param>
     /// <param name="Target">The URL, or the path when the source is a local file.</param>
     /// <param name="ReadOn">The date the source was read, or null when absent.</param>
     /// <param name="PublishedOn">The date the source states it was published, or null when absent.</param>
-    private sealed record SourceEntry(string Key, string Target, string? ReadOn, string? PublishedOn);
+    private sealed record SourceEntry(string Name, string Target, string? ReadOn, string? PublishedOn);
 }

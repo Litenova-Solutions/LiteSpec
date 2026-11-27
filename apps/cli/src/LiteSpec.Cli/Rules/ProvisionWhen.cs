@@ -11,6 +11,7 @@ namespace LiteSpec.Cli.Rules;
 ///     Evaluates a provision's applicability condition against the records a rules target marks.
 ///     Query and command read the use-case kind, upload reads a caller file input, document-number
 ///     reads a legal number signal, erasure reads an erase, pseudonymize or anonymize signal,
+///     cross-module reads a queries or runs edge to another module's public use case,
 ///     project holds for no record, and audit-adoption reads the decision the audit selection names.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -22,18 +23,26 @@ internal static class ProvisionWhen
     /// <param name="Kind">The use-case or job kind, or empty.</param>
     /// <param name="Title">The record title.</param>
     /// <param name="Summary">The record summary, or empty.</param>
-    /// <param name="Exposure">The record exposure, or empty.</param>
     /// <param name="Inputs">The use-case inputs with their origin.</param>
     /// <param name="Outputs">The output names and meanings.</param>
+    /// <param name="Queries">The effects.queries targets.</param>
+    /// <param name="Runs">The effects.runs targets.</param>
+    /// <param name="IsAudited">Whether the use case declares an audit entry that is not exempt.</param>
+    /// <param name="HasConcurrency">Whether the use case declares conflicts or client-key idempotency.</param>
+    /// <param name="Tenant">The declared access.tenant scope, or empty.</param>
     internal sealed record RecordFields(
         string Type,
         string Id,
         string Kind,
         string Title,
         string Summary,
-        string Exposure,
         IReadOnlyList<RecordInput> Inputs,
-        IReadOnlyList<string> Outputs);
+        IReadOnlyList<string> Outputs,
+        IReadOnlyList<string> Queries,
+        IReadOnlyList<string> Runs,
+        bool IsAudited,
+        bool HasConcurrency,
+        string Tenant);
 
     /// <summary>One use-case input with its origin.</summary>
     /// <param name="Name">The input name.</param>
@@ -63,16 +72,24 @@ internal static class ProvisionWhen
 
         return when switch
         {
+            "audited" => records.Any(record =>
+                record.Type == "use-case" && record.IsAudited),
             "query" => records.Any(record =>
                 record.Type == "use-case" && record.Kind == "query"),
             "command" => records.Any(record =>
                 record.Type == "use-case" && record.Kind == "command"),
+            "concurrency" => records.Any(record =>
+                record.Type == "use-case" && record.HasConcurrency),
             "upload" => records.Any(record =>
                 record.Type == "use-case" && HasFileInput(record)),
             "document-number" => records.Any(record =>
                 record.Type == "use-case" && IssuesDocumentNumber(record)),
             "erasure" => records.Any(record =>
                 (record.Type == "use-case" || record.Type == "job") && ErasesPersonalData(record)),
+            "cross-module" => records.Any(record =>
+                (record.Type == "use-case" || record.Type == "reaction" || record.Type == "job") && (record.Queries.Count > 0 || record.Runs.Count > 0)),
+            "cross-tenant" => records.Any(record =>
+                record.Type == "use-case" && record.Tenant.Length > 0 && record.Tenant is not "own" and not "none"),
             "project" => false,
             _ => false,
         };
@@ -134,81 +151,36 @@ internal static class ProvisionWhen
     static List<string> AdoptionDecisionOf(JsonObject selection) =>
         JsonValues.AsString(selection["decision"]) is { Length: > 0 } decision ? [decision] : [];
 
-    /// <summary>Loads the marked records' fields from the consumer's record roots.</summary>
-    /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <param name="target">The rules target with its marked identifiers.</param>
-    /// <returns>The fields of each marked record found, in marked order.</returns>
-    public static IReadOnlyList<RecordFields> LoadMarked(ConsumerConfig config, PathContext target)
+    /// <summary>Reads one record file's identifier and condition fields, for the record index.</summary>
+    /// <param name="text">The file text, or null when the file cannot be read.</param>
+    /// <param name="id">The record identifier, or empty when the file holds no record.</param>
+    /// <param name="fields">The record's condition fields, when the file holds a record.</param>
+    /// <returns>True when the file holds a record.</returns>
+    internal static bool TryReadFields(string? text, out string id, out RecordFields fields)
     {
-        var wanted = target.Marked
-            .Where(marked => PathContext.ArtifactOf(marked).Length > 0)
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
+        id = "";
+        fields = null!;
 
-        if (wanted.Count == 0)
+        if (text is null)
         {
-            return [];
+            return false;
         }
 
-        var found = new Dictionary<string, RecordFields>(StringComparer.Ordinal);
-
-        foreach (var root in config.RecordRoots)
+        if (!RecordFile.TryParse(text, out var parsed, out _, out _)
+            || parsed.ValueKind != JsonValueKind.Object)
         {
-            if (!Directory.Exists(root))
-            {
-                continue;
-            }
-
-            string[] files;
-
-            try
-            {
-                files = Directory.GetFiles(root, "*.yaml", SearchOption.AllDirectories);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            foreach (var file in files.OrderBy(name => name, StringComparer.Ordinal))
-            {
-                string text;
-
-                try
-                {
-                    text = File.ReadAllText(file);
-                }
-                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-                {
-                    continue;
-                }
-
-                if (!RecordFile.TryParse(text, out var parsed, out _, out _)
-                    || parsed.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                var id = Text(parsed, "id");
-
-                if (id.Length > 0 && wanted.Contains(id, StringComparer.Ordinal) && !found.ContainsKey(id))
-                {
-                    found[id] = ReadFields(parsed);
-                }
-
-                if (found.Count == wanted.Count)
-                {
-                    break;
-                }
-            }
-
-            if (found.Count == wanted.Count)
-            {
-                break;
-            }
+            return false;
         }
 
-        return wanted.Where(found.ContainsKey).Select(id => found[id]).ToList();
+        id = Text(parsed, "id");
+
+        if (id.Length == 0)
+        {
+            return false;
+        }
+
+        fields = ReadFields(parsed);
+        return true;
     }
 
     /// <summary>Whether the use case takes a file from the caller.</summary>
@@ -242,7 +214,7 @@ internal static class ProvisionWhen
     /// <returns>True when the record names erasure, pseudonymizing or anonymizing.</returns>
     static bool ErasesPersonalData(RecordFields record)
     {
-        var text = record.Id + " " + record.Title + " " + record.Summary + " " + record.Exposure;
+        var text = record.Id + " " + record.Title + " " + record.Summary;
 
         return Contains(text, "erase") || Contains(text, "pseudonym") || Contains(text, "anonym");
     }
@@ -263,21 +235,50 @@ internal static class ProvisionWhen
         Text(root, "kind"),
         Text(root, "title"),
         Text(root, "summary"),
-        Text(root, "exposure"),
         InputsOf(root),
-        OutputsOf(root));
+        OutputsOf(root),
+        QueriesOf(root),
+        RunsOf(root),
+        IsAuditedOf(root),
+        HasConcurrencyOf(root),
+        TenantOf(root));
+
+    /// <summary>Whether the use case declares an audit block that is not exempt.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>True when the use case is audited.</returns>
+    static bool IsAuditedOf(JsonElement root) =>
+        root.TryGetProperty("audit", out var audit)
+        && audit.ValueKind == JsonValueKind.Object
+        && Text(audit, "exemptBecause").Length == 0;
+
+    /// <summary>Whether the use case declares conflicts or client-key idempotency.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>True when the use case uses conflicts or client-key idempotency.</returns>
+    static bool HasConcurrencyOf(JsonElement root) =>
+        (root.TryGetProperty("conflicts", out var conflicts) && conflicts.ValueKind == JsonValueKind.Object)
+        || (root.TryGetProperty("idempotency", out var idempotency)
+            && idempotency.ValueKind == JsonValueKind.Object
+            && string.Equals(Text(idempotency, "mode"), "key", StringComparison.Ordinal));
+
+    /// <summary>The declared access.tenant scope of a use case, or empty when none is declared.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>The tenant scope text, or empty.</returns>
+    static string TenantOf(JsonElement root) =>
+        root.TryGetProperty("access", out var access) && access.ValueKind == JsonValueKind.Object
+            ? Text(access, "tenant")
+            : "";
 
     /// <summary>The use-case inputs with their origin.</summary>
     /// <param name="root">The parsed record object.</param>
     /// <returns>The inputs, or empty when the record holds none.</returns>
     static List<RecordInput> InputsOf(JsonElement root)
     {
-        if (!root.TryGetProperty("input", out var input) || input.ValueKind != JsonValueKind.Array)
+        if (!root.TryGetProperty("inputs", out var inputs) || inputs.ValueKind != JsonValueKind.Array)
         {
             return [];
         }
 
-        return input.EnumerateArray()
+        return inputs.EnumerateArray()
             .Where(entry => entry.ValueKind == JsonValueKind.Object)
             .Select(entry => new RecordInput(Text(entry, "name"), Text(entry, "meaning"), Text(entry, "origin")))
             .Where(entry => entry.Name.Length > 0)
@@ -289,22 +290,22 @@ internal static class ProvisionWhen
     /// <returns>Each output name and meaning.</returns>
     static List<string> OutputsOf(JsonElement root)
     {
-        if (!root.TryGetProperty("output", out var output))
+        if (!root.TryGetProperty("outputs", out var outputs))
         {
             return [];
         }
 
-        if (output.ValueKind == JsonValueKind.Array)
+        if (outputs.ValueKind == JsonValueKind.Array)
         {
-            return output.EnumerateArray()
+            return outputs.EnumerateArray()
                 .Where(entry => entry.ValueKind == JsonValueKind.Object)
                 .SelectMany(entry => new[] { Text(entry, "name"), Text(entry, "meaning") })
                 .Where(text => text.Length > 0)
                 .ToList();
         }
 
-        if (output.ValueKind == JsonValueKind.Object
-            && output.TryGetProperty("include", out var include)
+        if (outputs.ValueKind == JsonValueKind.Object
+            && outputs.TryGetProperty("include", out var include)
             && include.ValueKind == JsonValueKind.Object)
         {
             var texts = new List<string>();
@@ -326,6 +327,37 @@ internal static class ProvisionWhen
         }
 
         return [];
+    }
+
+    /// <summary>The effects.queries targets of a use case, reaction or job.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>Each queries edge target.</returns>
+    static List<string> QueriesOf(JsonElement root) => EffectsVerbOf(root, "queries");
+
+    /// <summary>The effects.runs targets of a reaction or job.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <returns>Each runs edge target.</returns>
+    static List<string> RunsOf(JsonElement root) => EffectsVerbOf(root, "runs");
+
+    /// <summary>The targets of one edge verb in the effects entries of a use case, reaction or job.</summary>
+    /// <param name="root">The parsed record object.</param>
+    /// <param name="verb">The edge verb to read: queries or runs.</param>
+    /// <returns>Each edge target the verb names.</returns>
+    static List<string> EffectsVerbOf(JsonElement root, string verb)
+    {
+        if (!root.TryGetProperty("effects", out var effects) || effects.ValueKind != JsonValueKind.Array)
+        {
+            return [];
+        }
+
+        return effects.EnumerateArray()
+            .Where(entry => entry.ValueKind == JsonValueKind.Object)
+            .Select(entry => entry.TryGetProperty(verb, out var target)
+                && target.ValueKind == JsonValueKind.String
+                ? target.GetString() ?? ""
+                : "")
+            .Where(id => id.Length > 0)
+            .ToList();
     }
 
     /// <summary>One string property of a JSON object, or empty when it holds none.</summary>

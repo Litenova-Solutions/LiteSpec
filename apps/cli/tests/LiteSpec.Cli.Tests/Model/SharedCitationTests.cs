@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
@@ -18,7 +20,7 @@ public sealed class SharedCitationTests
         using var temp = ModelFixture.Prepare("small");
         using var home = WriteFixtureHome();
         PinReviewedVersion(temp.Path);
-        AppendCitation(temp.Path, "litespec/core/principles#retire-records-with-replaces");
+        AppendCitation(temp.Path, "litespec/core/principles#keep-one-authored-source");
         var result = TestCli.Run(
             ["model", "check", "--root", temp.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
@@ -57,9 +59,7 @@ public sealed class SharedCitationTests
         var folder = Path.Combine(home.Path, "docs", "core");
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "principles.md"), PinnedPage);
-        var backend = Path.Combine(home.Path, "docs", "backend");
-        Directory.CreateDirectory(backend);
-        File.WriteAllText(Path.Combine(backend, "application.md"), PinnedDeviationTarget);
+        File.WriteAllText(Path.Combine(folder, "backend-application.md"), PinnedWaiverTarget);
         return home;
     }
 
@@ -73,8 +73,10 @@ public sealed class SharedCitationTests
 
     static void AppendCitation(string root, string citation)
     {
-        var page = Path.Combine(root, ".litespec", "intent", "product.md");
-        File.AppendAllText(page, $"\nSee {citation}.\n");
+        var relative = Path.Combine(".litespec", "product.yaml");
+        var record = (JsonObject)JsonNode.Parse(YamlText.Parse(File.ReadAllText(Path.Combine(root, relative))).ToJson())!;
+        record["summary"] = record["summary"]!.GetValue<string>() + $" See {citation}.";
+        File.WriteAllText(Path.Combine(root, relative), RecordFile.Write(record));
     }
 
     const string PinnedPage = """
@@ -82,13 +84,13 @@ public sealed class SharedCitationTests
 
         ## Standards
 
-        ### Retire records with replaces
+        ### Keep One Authored Source
 
-        A retired record stays readable.
+        Each fact has one authored source.
         """;
 
     /// <summary>The provision the fixture's exception cites, so pinning stays complete.</summary>
-    const string PinnedDeviationTarget = """
+    const string PinnedWaiverTarget = """
         # Application Layer
 
         ## Standards

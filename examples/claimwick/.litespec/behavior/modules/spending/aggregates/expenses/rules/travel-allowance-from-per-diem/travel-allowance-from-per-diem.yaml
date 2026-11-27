@@ -1,0 +1,11 @@
+type: rule
+id: rule/expense.travel-allowance-from-per-diem
+title: Travel Allowance from Per-Diem
+kind: precondition
+statement: A trip allowance reads the per-diem row in force for the travel date and country from reference-data/travel.per-diem-rates.
+governs:
+- use-case/spending.submit-expense
+- aggregate/spending.expense
+basedOn:
+- decision/0003-travel-rates
+rationale: Each country pays its own daily allowance on its own schedule, so the submission reads the row in force for the travel date instead of a fixed figure.

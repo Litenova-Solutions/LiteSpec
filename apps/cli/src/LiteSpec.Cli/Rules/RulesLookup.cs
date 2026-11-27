@@ -12,14 +12,14 @@ internal static class RulesLookup
     /// <summary>The pattern a page identifier matches: litespec plus its page path.</summary>
     static readonly Regex PageIdPattern = new(@"^litespec\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$");
 
-    /// <summary>Whether the target is a page identifier, such as litespec/backend/application.</summary>
+    /// <summary>Whether the target is a page identifier, such as litespec/core/backend-application.</summary>
     /// <param name="target">The rules target.</param>
     /// <returns>True when the target names a page rather than a provision, path or record.</returns>
     public static bool IsPageId(string target) => PageIdPattern.IsMatch(target.Trim());
 
     /// <summary>The repository-relative page path a page identifier names.</summary>
     /// <param name="pageId">The page identifier.</param>
-    /// <returns>The page path, such as docs/backend/application.md.</returns>
+    /// <returns>The page path, such as docs/core/backend-application.md.</returns>
     public static string PagePathOf(string pageId) => "docs/" + pageId.Trim()["litespec/".Length..] + ".md";
 
     /// <summary>Prints one provision in full: its page, strength, scope, statement, rationale, example and verification.</summary>

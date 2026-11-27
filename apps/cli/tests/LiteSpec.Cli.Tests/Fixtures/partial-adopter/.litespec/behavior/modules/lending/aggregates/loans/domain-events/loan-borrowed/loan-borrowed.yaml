@@ -1,0 +1,16 @@
+type: domain-event
+id: domain-event/loan.loan-borrowed
+title: Loan borrowed
+meaning: A copy was lent.
+fields:
+- name: loanId
+  type: id
+  identifies: aggregate/lending.loan
+- name: copyId
+  type: text
+- name: readerId
+  type: id
+  identifies: actor/reader
+- name: dueDate
+  type: date
+ignored: true

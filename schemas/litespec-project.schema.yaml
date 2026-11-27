@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/6.0.0/schemas/litespec-project.schema.yaml'
+$id: 'https://litespec.dev/7.0.0/schemas/litespec-project.schema.yaml'
 title: LiteSpec Consumer Project
 type: object
 additionalProperties: false
@@ -45,9 +45,7 @@ allOf:
           - platform
           properties:
             platform:
-              enum:
-              - react
-              - svelte
+              const: svelte
   then:
     required:
     - ui
@@ -65,7 +63,7 @@ properties:
         type: string
         minLength: 1
   size:
-    description: The size of this project. Small requires the core record types with Architecture and Integration test projects; large adds problems, features, journeys and scenarios with the Acceptance project.
+    description: The size of this project. Small requires the core record types with Architecture and Integration test projects; large adds problems, features, flows and scenarios with the Acceptance project.
     type: string
     enum:
     - small
@@ -94,22 +92,6 @@ properties:
       - behavior
       proof:
       - behavior
-  explanations:
-    description: The record layers whose every record page carries an explanation file. Each entry is intent or behavior, the layers that hold record pages. A page on a listed layer without its explanation file, or with a required H2 section missing, is an explanation-missing finding. A layer left out keeps its explanation file optional, except the article types, which always require one.
-    type: object
-    additionalProperties: false
-    required:
-    - layers
-    properties:
-      layers:
-        type: array
-        minItems: 1
-        uniqueItems: true
-        items:
-          type: string
-          enum:
-          - intent
-          - behavior
   shape:
     description: 'The shape of this project: server for a project with a backend, client-only for a project with frontends and no backend. Defaults to server.'
     type: string
@@ -118,37 +100,32 @@ properties:
     - client-only
     default: server
   stacks:
-    description: 'The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (react, svelte, blazor, or android). Required when the project claims implementation or proof; otherwise a stack is informational.'
+    description: 'The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (svelte or android). Required when the project claims implementation or proof; otherwise a stack is informational.'
     type: array
     uniqueItems: true
     items:
       type: string
       enum:
       - dotnet
-      - react
       - svelte
-      - blazor
       - android
   stackConfig:
     description: Per-stack configuration, keyed by stack id. Each stack documents its own keys beside this schema.
     type: object
     properties:
       dotnet:
-        description: Paths the model builder reads for the .NET backend. Each supports one segment wildcard expanding to the first matching folder.
+        description: Paths the model builder reads for the .NET backend. Each supports one segment wildcard; modules expands to every matching folder and the rest expand to the first matching folder.
         type: object
         additionalProperties: false
         properties:
           modules:
-            description: 'The modules project the model builder reads: every module with its aggregates, use cases, reactions and jobs. Defaults to apps/api/src/*.Modules. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application.'
+            description: 'The module projects the model builder reads: one project per module under Modules/, each with its Domain, Application, Infrastructure and WebApi layers. Defaults to apps/api/src/Modules/*. A single project holding every module stays allowed as apps/api/src/*.Modules.'
             $ref: '#/$defs/projectPath'
-          sharedKernel:
-            description: 'The shared kernel project the model builder reads: what every module builds on and that names no module, where reasonless names are allowed. Defaults to apps/api/src/*.SharedKernel.'
+          kernel:
+            description: 'The Kernel project the model builder reads: the business values every module speaks, where reasonless names are allowed. Defaults to apps/api/src/*.Kernel.'
             $ref: '#/$defs/projectPath'
-          domain:
-            description: 'The Domain project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Domain with that extension and to none without it.'
-            $ref: '#/$defs/projectPath'
-          infrastructure:
-            description: 'The Infrastructure project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Infrastructure with that extension and to none without it.'
+          platform:
+            description: 'The Platform project the model builder reads: the technical capabilities with no business words. Defaults to apps/api/src/*.Platform.'
             $ref: '#/$defs/projectPath'
           webapi:
             description: The web API host projects, one path each.
@@ -170,12 +147,56 @@ properties:
     propertyNames:
       enum:
       - dotnet
-      - react
       - svelte
-      - blazor
       - android
     additionalProperties:
       type: object
+  sync:
+    description: 'The files `litespec sync` writes from the records: one target per kind and stack, each naming the folder the files go in. A file the records render that is missing or differs is a `sync-drift` finding.'
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - stack
+      - path
+      properties:
+        kind:
+          description: 'The record facts the target writes: refusal codes, permission ids, domain event decisions, or closed value sets.'
+          type: string
+          enum:
+          - refusal-codes
+          - permissions
+          - event-decisions
+          - closed-sets
+        stack:
+          description: 'The stack the target writes for: dotnet or android write C#, svelte writes TypeScript. Event decisions and closed sets need a .NET stack.'
+          type: string
+          enum:
+          - dotnet
+          - svelte
+          - android
+        path:
+          description: 'The folder the target writes into, relative to the consumer root. For a .NET stack the path may hold {module} for the record module name or {Module} for the same name in PascalCase, and each module writes its file into its own resolved folder; without a placeholder each module writes into <path>/<Module>/. For a TypeScript stack the target writes one file into the folder.'
+          $ref: '#/$defs/projectPath'
+        namespace:
+          description: 'The C# namespace of the generated files, with {module} or {Module} for the module name. Required for a .NET stack; unused for a TypeScript stack.'
+          type: string
+          minLength: 1
+      allOf:
+      - if:
+          properties:
+            stack:
+              enum:
+              - dotnet
+              - android
+          required:
+          - stack
+        then:
+          required:
+          - namespace
   frontends:
     type: array
     items:
@@ -195,17 +216,26 @@ properties:
           description: The frontend stack. Required on every entry, so a frontend outside the controlled UI contract declares that position instead of omitting the field.
           type: string
           enum:
-          - react
           - svelte
-          - blazor
           - android
+        client:
+          description: The generated API client this frontend calls. Both paths are relative to the consumer root.
+          type: object
+          additionalProperties: false
+          required:
+          - contract
+          - generated
+          properties:
+            contract:
+              description: The contract document the client is generated from, such as the published OpenAPI JSON document.
+              $ref: '#/$defs/projectPath'
+            generated:
+              description: The generated client folder holding contract.sha256.
+              $ref: '#/$defs/projectPath'
         entryPoint:
           description: The browser or device entry point this frontend serves. Screens it drafts and use cases it reaches are read through this entry point.
           type: string
           pattern: '^entry-point/[a-z0-9][a-z0-9-]*$'
-        refusalDictionary:
-          description: 'The refusal dictionary for this frontend: the file or folder holding one sentence per refusal code, which refusal-sentence-missing reads.'
-          $ref: '#/$defs/projectPath'
         routeSuite:
           description: 'The route suite for this frontend: the file or folder the route-suite check reads.'
           $ref: '#/$defs/projectPath'
@@ -223,15 +253,11 @@ properties:
           - platform
           properties:
             platform:
-              enum:
-              - react
-              - svelte
+              const: svelte
       - if:
           properties:
             platform:
-              enum:
-              - react
-              - svelte
+              const: svelte
           required:
           - platform
         then:
@@ -247,6 +273,20 @@ properties:
       package:
         description: 'The workspace''s one shared UI package: the registry configuration, the copied primitive source, the token stylesheet, the source lock, and the design contract. A workspace with no controlled web frontend omits it.'
         $ref: '#/$defs/uiPackage'
+      limits:
+        description: 'The screen composition limits the checks read: sections is the most stacked sections a page holds (default 3), formFields is the most fields a form holds ungrouped (default 6), and offers is the most use cases a screen offers outside a hub frame (default 4).'
+        type: object
+        additionalProperties: false
+        properties:
+          sections:
+            type: integer
+            minimum: 1
+          formFields:
+            type: integer
+            minimum: 1
+          offers:
+            type: integer
+            minimum: 1
   proof:
     description: How the model builder confirms proof claims for this project.
     type: object
@@ -339,10 +379,14 @@ properties:
         items:
           type: string
           pattern: '^[a-z][a-z0-9-]*\.[a-z0-9-]*\{key\}[a-z0-9-]*$'
-  reviewedLiteSpecVersion:
-    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1.
+  problemTypeBase:
+    description: The URI prefix of every problem type; a refusal code's problem type is this prefix followed by the code's part after its module, as RFC 9457 types.
     type: string
-    pattern: '^\d+\.\d+\.\d+(-rc\.\d+)?$'
+    pattern: '^https?://.+/$'
+  reviewedLiteSpecVersion:
+    description: The LiteSpec release whose complete contract this project last reviewed. A release candidate names its prerelease suffix, such as 6.0.0-rc.1; a dev-feed build names its timestamp suffix, such as 7.0.0-dev.20261125215523.
+    type: string
+    pattern: '^\d+\.\d+\.\d+(-(rc|dev)\.\d+)?$'
   paths:
     type: object
     additionalProperties: false
@@ -350,7 +394,7 @@ properties:
     - behaviorDocs
     properties:
       docs:
-        description: Root of the specification tree. Every Markdown file under it carries a metadata block.
+        description: Root of the specification tree. Every document under it carries a metadata block.
         $ref: '#/$defs/projectPath'
       glossary:
         description: The project glossary, validated against schemas/glossary.schema.yaml. Defaults to .litespec/glossary.yaml.
@@ -394,9 +438,92 @@ properties:
       apiClient:
         description: The generated API client the frontends import, so route calls resolve to the use cases they reach.
         $ref: '#/$defs/projectPath'
-      uiPatterns:
-        description: The workspace UI pattern catalog, validated against schemas/ui-pattern-catalog.schema.yaml, when it is not at .litespec/implementation/patterns/catalog.yaml.
-        $ref: '#/$defs/projectPath'
+  tenancy:
+    description: 'How the product keeps customers apart when one deployment serves many: the reason it does, and the glossary term naming one tenant. Commands and queries carry that tenant identity without declaring it as an input. A product serving one customer omits the block.'
+    type: object
+    additionalProperties: false
+    required:
+    - criterion
+    - tenant
+    properties:
+      criterion:
+        description: Why one deployment serves many separate customers.
+        type: string
+        minLength: 1
+      tenant:
+        description: The glossary term naming one tenant, such as term/workspace.
+        type: string
+        pattern: '^term/[a-z0-9][a-z0-9.-]*$'
+  verify:
+    description: How the verify commands reach the running product. A project without black-box verification omits the block.
+    type: object
+    additionalProperties: false
+    properties:
+      baseUrl:
+        description: The address the API host listens on; the --base-url option overrides it.
+        type: string
+        pattern: '^https?://'
+      signIn:
+        description: The requests that sign one cast person in, run in order with one cookie jar per person. {person} is the cast person id without its person/ prefix.
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/verifyRequest'
+      values:
+        description: Fixed values a probe path or body names as {name}, such as the identity of a seeded record.
+        type: object
+        additionalProperties:
+          type: [string, number, boolean]
+      headers:
+        description: The headers sent on every sign-in and probe request, such as the marker header a cookie-authenticated write needs.
+        type: object
+        additionalProperties:
+          type: string
+      valuesFrom:
+        description: A command run from the consumer root whose output is one JSON object of values, such as the identities a fresh seed created. Its values overlay the fixed values. The command reads the base address the probes run against in LITESPEC_BASE_URL.
+        type: string
+        minLength: 1
+      persistence:
+        description: The consumer harness the persistence check runs; LiteSpec appends record or check and the snapshot folder.
+        type: object
+        additionalProperties: false
+        required:
+        - command
+        properties:
+          command:
+            type: string
+            minLength: 1
+      production:
+        description: How the production smoke boots the production containers and what it requests.
+        type: object
+        additionalProperties: false
+        required:
+        - compose
+        - envFile
+        - baseUrl
+        - health
+        properties:
+          compose:
+            type: string
+            minLength: 1
+          envFile:
+            type: string
+            minLength: 1
+          baseUrl:
+            type: string
+            pattern: '^https?://'
+          migrate:
+            description: The command that migrates the empty database before the health wait.
+            type: string
+            minLength: 1
+          health:
+            type: string
+            pattern: '^/'
+          paths:
+            type: array
+            items:
+              type: string
+              pattern: '^/'
   selectedExtensions:
     description: Extensions active for this project. Each entry records the criterion that was met.
     type: array
@@ -414,38 +541,25 @@ properties:
         criterion:
           type: string
           minLength: 1
-        releaseStage:
-          description: 'The release stage the stage extension declares: pre-production until a deployment holds customer data, production after the promotion decision.'
-          enum:
-          - pre-production
-          - production
-        decision:
-          description: The identifier of the audit adoption decision the audit extension names.
-          type: string
-          pattern: '^decision/'
-      allOf:
-      - if:
-          required:
-          - releaseStage
-        then:
-          properties:
-            id:
-              const: stage
-      - if:
-          required:
-          - decision
-        then:
-          properties:
-            id:
-              const: audit
-      - if:
-          properties:
-            id:
-              const: stage
-        then:
-          required:
-          - releaseStage
 $defs:
+  verifyRequest:
+    type: object
+    additionalProperties: false
+    required:
+    - method
+    - path
+    properties:
+      method:
+        enum:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+      path:
+        type: string
+        pattern: '^/'
+      body: {}
   projectPath:
     type: string
     minLength: 1

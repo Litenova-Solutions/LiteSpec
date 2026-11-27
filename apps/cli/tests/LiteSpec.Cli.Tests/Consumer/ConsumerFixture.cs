@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Consumer;
 /// <summary>
 /// Builds the throwaway small consumer every consumer case validates: a library-style shop with
 /// one module, one aggregate, one use case with its results, one rule and
-/// one event, actors, roles, permissions, entry points, one requirement, one
+/// one domain event, actors, roles, permissions, entry points, one requirement, one
 /// decision, and one page per document style. Records live in record files with
 /// explanations beside them; guides and tools are documents. Every test owns its own folder.
 /// </summary>
@@ -43,14 +43,24 @@ static class ConsumerFixture
     // rather than the fixture.
     static readonly RecordSpec[] Records =
     [
-        new(".litespec/product/brief.yaml",
+        new(".litespec/intent/goals/faster-delivery/faster-delivery.yaml",
             """
-            {"type":"product","id":"product/fixture","title":"Fixture Shop","summary":"The shop sells printed books to readers in one city.","boundary":"The shop sells printed books to readers.","addresses":["actor/customer"]}
+            {"type":"goal","id":"goal/faster-delivery","title":"Faster Delivery","summary":"Orders reach customers within two days.","statement":"Every order reaches its customer within two days.","measure":"Median days from order to delivery.","target":"Under two days."}
             """,
             null),
-        new(".litespec/product/pricing.yaml",
+        new(".litespec/intent/problems/slow-delivery/slow-delivery.yaml",
             """
-            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","advances":["goal/faster-delivery"]}
+            {"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","summary":"Orders take weeks to arrive.","statement":"Orders take weeks to arrive.","affects":["actor/customer"],"failureCases":["An order waits weeks for delivery while the customer asks the shop where it is.","The customer cancels the order after waiting past the promised date."],"workaround":"Customers call the shop to ask where the order is. The shop answers from memory with no record of the wait.","cost":"Each waiting order costs the shop one support call and risks one canceled order.","resolutionCriteria":["Every order reaches its customer within two days.","The customer sees the delivery date without asking the shop."]}
+            """,
+            null),
+        new(".litespec/product.yaml",
+            """
+            {"type":"product","id":"product/fixture","title":"Fixture Shop","summary":"The shop sells printed books to readers in one city.","boundary":"The shop sells printed books to readers.","users":["actor/customer"]}
+            """,
+            null),
+        new(".litespec/intent/problems/slow-delivery/features/pricing/pricing.yaml",
+            """
+            {"type":"feature","id":"feature/pricing","title":"Pricing","summary":"The shop charges one flat fee on every order.","offering":"Every order carries a flat fee of one euro.","advances":["goal/faster-delivery"],"successCriteria":["Every order carries a flat fee of one euro.","Every receipt shows the same fee line."],"excludes":["The shop offers no discount outside the flat fee.","Delivery speed stays outside this feature."]}
             """,
             """
             # Pricing
@@ -62,14 +72,14 @@ static class ConsumerFixture
             Alex orders two books on Monday and pays one fee at checkout.
 
             """),
-        new(".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml",
+        new(".litespec/intent/problems/slow-delivery/features/pricing/requirements/flat-fee/flat-fee.yaml",
             """
-            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}
+            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"basedOn":["decision/0001-launch"]}
             """,
             null),
-        new(".litespec/product/decisions/0001-launch.yaml",
+        new(".litespec/intent/decisions/0001-launch/0001-launch.yaml",
             """
-            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[]}
+            {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","basedOn":[],"context":"The shop opens with one fee it can state on every page."}
             """,
             """
             # Launch with a Flat Fee
@@ -101,9 +111,9 @@ static class ConsumerFixture
             The fee changes when delivery costs move.
 
             """),
-        new(".litespec/behavior/actors/customer.yaml",
+        new(".litespec/intent/actors/customer/customer.yaml",
             """
-            {"type":"actor","id":"actor/customer","title":"Customer","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":["role/customer"]}
+            {"type":"actor","id":"actor/customer","title":"Customer","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":["role/customer"],"responsibilities":["Buys books from the shop.","Cancels orders before shipment."],"knowledge":["The product assumes the customer knows the order they placed.","The product assumes the customer knows their own delivery address."]}
             """,
             """
             # Customer
@@ -111,24 +121,24 @@ static class ConsumerFixture
             A customer buys books from the shop.
 
             """),
-        new(".litespec/behavior/roles/customer.yaml",
+        new(".litespec/intent/roles/customer/customer.yaml",
             """
-            {"type":"role","id":"role/customer","title":"Customer","summary":"A customer holds this role on their own orders.","scope":"self","allows":["permission/cancel-order"]}
+            {"type":"role","id":"role/customer","title":"Customer","summary":"A customer holds this role on their own orders.","scope":"self","excludes":["The customer acts only on their own orders.","The customer holds no other permission."]}
             """,
             null),
-        new(".litespec/behavior/permissions.yaml",
+        new(".litespec/behavior/modules/orders/permissions.yaml",
             """
-            {"type":"permission-list","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed."}]}
+            {"type":"permission-set","id":"permissions","title":"Permissions","permissions":[{"id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed.","grantedTo":["role/customer"]}]}
             """,
             null),
-        new(".litespec/behavior/entry-points.yaml",
+        new(".litespec/behavior/entry-points/web/entry-point.yaml",
             """
-            {"type":"entry-point-list","id":"entry-points","title":"Entry points","records":[{"type":"entry-point","id":"entry-point/web","title":"Web shop","kind":"browser","auth":["session"]}]}
+            {"type":"entry-point-set","title":"Entry points","entryPoints":[{"id":"entry-point/web","title":"Web shop","kind":"browser","authentication":["session"],"audience":["actor/customer"]}]}
             """,
             null),
         new(".litespec/behavior/modules/orders/module.yaml",
             """
-            {"type":"module","id":"module/orders","title":"Orders","dependsOn":[]}
+            {"type":"module","id":"module/orders","title":"Orders","summary":"Orders keeps every order claim and cancels it before shipment.","dependsOn":[],"covers":["Orders keeps every order claim.","Orders cancels an order claim before shipment."],"excludes":["Orders depends on no other module.","Orders calls no other module."]}
             """,
             """
             # Orders
@@ -136,9 +146,24 @@ static class ConsumerFixture
             The orders module keeps every order claim.
 
             """),
+        new(".litespec/behavior/modules/orders/refusals.yaml",
+            """
+            {"type":"refusal-set","summary":"The refusals the orders module returns.","refusals":[{"id":"refusal/orders.cancel-refused","title":"Cancel Refused","meaning":"The shipment already left, so the cancel is refused."}]}
+            """,
+            null),
+        new(".litespec/behavior/modules/orders/aggregates/order-claims/rules/cancel-before-shipment-only/cancel-before-shipment-only.yaml",
+            """
+            {"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order","aggregate/orders.order-claim"],"refusal":"refusal/orders.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]}
+            """,
+            null),
+        new(".litespec/behavior/modules/orders/aggregates/order-claims/domain-events/order-canceled/order-canceled.yaml",
+            """
+            {"type":"domain-event","id":"domain-event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","fields":[{"name":"orderId","type":"text"}]}
+            """,
+            null),
         new(".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.yaml",
             """
-            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"Draft","to":"Canceled","by":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":["orderId"]}]}
+            {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"-","to":"Draft"},{"from":"Draft","to":"Canceled","movedBy":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}]}
             """,
             """
             # Order Claim
@@ -160,16 +185,16 @@ static class ConsumerFixture
             <!-- /generated:data -->
 
             """),
-        new(".litespec/behavior/modules/orders/cancel-order.yaml",
+        new(".litespec/behavior/modules/orders/aggregates/order-claims/use-cases/cancel-order/cancel-order.yaml",
             """
-            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"reachedThrough":["entry-point/web"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant"},"audit":{"level":"required","target":"order claim"},"raises":["event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"records":[{"type":"result","id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"type":"result","id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","code":"orders.cancel-refused","meaning":"The shipment already left, so the cancel is refused."}]}
+            {"type":"use-case","id":"use-case/orders.cancel-order","title":"Cancel order","kind":"command","summary":"A customer cancels an order claim before shipment.","access":{"grant":"permission/cancel-order","tenant":"own"},"via":["entry-point/web"],"inputs":[{"name":"orderId","meaning":"The order the customer cancels.","type":"id","identifies":"aggregate/orders.order-claim","required":true,"origin":"caller","classification":"internal"}],"writes":["aggregate/orders.order-claim"],"idempotency":{"mode":"key","key":"{orderId}","scope":"tenant","replay":"returns-first-result"},"audit":{"level":"required","category":"monetary-action","targetKind":"order claim"},"raises":["domain-event/order-claim.order-canceled"],"fulfills":["requirement/pricing.flat-fee"],"steps":[{"statement":"The customer sends the order identifier.","cites":["aggregate/orders.order-claim"]},{"statement":"Orders checks the cancel rule against the shipment.","cites":["rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders refuses the cancel with `orders.cancel-refused` when the shipment already left.","cites":["result/cancel-order.cancel-refused","rule/order-claim.cancel-before-shipment-only"]},{"statement":"Orders cancels the claim and raises the canceled event.","cites":["result/cancel-order.order-canceled","domain-event/order-claim.order-canceled","aggregate/orders.order-claim"]}],"results":[{"id":"result/cancel-order.order-canceled","title":"Order canceled","outcome":"success","meaning":"The order claim was canceled."},{"id":"result/cancel-order.cancel-refused","title":"Cancel refused","outcome":"refusal","refusal":"refusal/orders.cancel-refused","message":"The shipment already left, so the cancel is refused."}]}
             """,
             null),
     ];
 
     static readonly DocumentSpec[] Documents =
     [
-        new(".litespec/guide/first-run.md",
+        new(".litespec/implementation/first-run.md",
             """
             {"type":"tutorial","id":"first-run","title":"Run It For The First Time"}
             """,
@@ -193,7 +218,7 @@ static class ConsumerFixture
             The shop answers on the reader machine now.
 
             """),
-        new(".litespec/guide/add-a-pack.md",
+        new(".litespec/implementation/add-a-pack.md",
             """
             {"type":"how-to","id":"add-a-pack","title":"Add A Seed Pack"}
             """,
@@ -214,7 +239,7 @@ static class ConsumerFixture
             The shop lists the pack on its packs page.
 
             """),
-        new(".litespec/tools/fixture-up.md",
+        new(".litespec/implementation/fixture-up.md",
             """
             {"type":"command","id":"fixture-up","title":"Fixture Up"}
             """,
@@ -267,7 +292,7 @@ static class ConsumerFixture
             The command runs the database and then the shop.
 
             """),
-        new(".litespec/reference/ports.md",
+        new(".litespec/implementation/ports.md",
             """
             {"type":"reference","id":"ports","title":"Allocated Ports"}
             """,
@@ -285,7 +310,7 @@ static class ConsumerFixture
             | `shop` | `5080` |
 
             """),
-        new(".litespec/tools/configuration.md",
+        new(".litespec/implementation/configuration.md",
             """
             {"type":"configuration","id":"configuration","title":"Fixture Settings"}
             """,

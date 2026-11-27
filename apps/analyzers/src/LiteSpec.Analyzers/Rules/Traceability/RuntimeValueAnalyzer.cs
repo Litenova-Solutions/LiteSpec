@@ -13,7 +13,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     LS5005: a hand-written event <c>Classification</c> or exception <c>Code</c>
 ///     differs from what its record states.
 /// </summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
 {
@@ -75,7 +75,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     /// <param name="type">The type under inspection.</param>
     private static void AnalyzeEvent(SymbolAnalysisContext context, TraceabilityContext state, INamedTypeSymbol type)
     {
-        var mark = ResolvingMark(state, type, "event");
+        var mark = ResolvingMark(state, type, "domain-event");
 
         if (mark is null)
         {
@@ -145,7 +145,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         {
             foreach (var mark in MarkReader.Read(member))
             {
-                if (mark.HasRecordId && state.Store.Index.ById(mark.RecordId) is IRecordFields record
+                if (mark.HasRecordId && state.Records.Index.ById(mark.RecordId) is IRecordFields record
                     && record.Type == recordType)
                 {
                     return mark.RecordId;
@@ -162,9 +162,9 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     /// <returns>The code as text, or null when none applies.</returns>
     private static string? ExpectedCode(TraceabilityContext state, string ruleId)
     {
-        var rule = state.Store.Index.ById(ruleId);
+        var rule = state.Records.Index.ById(ruleId);
 
-        return rule is null ? null : RefusalCode.Of(rule, state.Store.Index.ById);
+        return rule is null ? null : RefusalCode.Of(rule);
     }
 
     /// <summary>Every hand-written string literal value of the named member declared on the type.</summary>

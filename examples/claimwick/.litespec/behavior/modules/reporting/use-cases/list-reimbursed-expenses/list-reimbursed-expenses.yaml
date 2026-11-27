@@ -1,0 +1,89 @@
+type: use-case
+id: use-case/reporting.list-reimbursed-expenses
+title: List Reimbursed Expenses
+summary: Finance lists the reimbursed expenses with the employee each one was paid to.
+kind: query
+access:
+  grant: permission/list-reimbursed-expenses
+  tenant: own
+fulfills:
+- requirement/approval.reimbursed-expenses-listed
+via:
+- entry-point/claimwick-app
+outputs:
+  include:
+    rows:
+      fields:
+      - name: expenses
+        meaning: The set of rows with one row per reimbursed expense, newest first.
+        type: list
+        items:
+          fields:
+          - name: expenseId
+            meaning: The reimbursed expense.
+            type: id
+            identifies: aggregate/spending.expense
+            required: true
+          - name: employeeId
+            meaning: The employee the expense was paid to.
+            type: id
+            identifies: actor/employee
+            required: true
+          - name: amount
+            meaning: The exact amount paid.
+            type: decimal
+            required: true
+          - name: currency
+            meaning: The ISO 4217 currency code of the amount.
+            type: text
+            required: true
+          - name: reimbursedAt
+            meaning: The time the payment was posted.
+            type: date-time
+            required: true
+          unique:
+          - expenseId
+      classification: internal
+      reads:
+      - aggregate/spending.expense
+      freshness:
+        mode: snapshot
+        within: PT5S
+        decidedBy: use-case/spending.reimburse-expense
+paging:
+  mode: pages
+  order: Reimbursement time, newest first.
+  cursor: The reimbursement time and identity of the last row.
+  defaultLimit: 25
+  maxLimit: 100
+reads:
+- read-model/reporting.reimbursed-expense
+effects:
+- queries: use-case/spending.read-expense
+  timing: inline
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
+steps:
+- statement: Finance asks for the reimbursed expenses.
+  cites:
+  - read-model/reporting.reimbursed-expense
+- statement: Reporting confirms each reimbursed expense still exists in Spending before it lists the payout.
+  cites:
+  - read-model/reporting.reimbursed-expense
+- statement: Reporting returns one row per reimbursed expense newest first.
+  cites:
+  - result/list-reimbursed-expenses.listed
+  - read-model/reporting.reimbursed-expense
+results:
+- id: result/list-reimbursed-expenses.listed
+  title: Listed
+  outcome: success
+  meaning: The reimbursed expenses are listed.
+scenarios:
+- id: scenario/list-reimbursed-expenses.listing-reimbursed-expenses-succeeds
+  title: Listing Reimbursed Expenses Succeeds
+  given: Finance reimbursed two expenses.
+  when: Finance lists the reimbursed expenses.
+  then: Both expenses are listed with the employee each was paid to.
+  result: result/list-reimbursed-expenses.listed
+  exercises: []

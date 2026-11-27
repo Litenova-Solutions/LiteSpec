@@ -1,9 +1,25 @@
+using LiteSpec.Cli.Agent;
+using LiteSpec.Cli.Audit;
+using LiteSpec.Cli.Audit.Semantic;
 using LiteSpec.Cli.Book;
+using LiteSpec.Cli.Context;
+using LiteSpec.Cli.Explore;
+using LiteSpec.Cli.Hook;
 using LiteSpec.Cli.Init;
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.PlanWaves;
 using LiteSpec.Cli.RecordEditing;
+using LiteSpec.Cli.Review;
 using LiteSpec.Cli.Rules;
+using LiteSpec.Cli.Scaffold;
+using LiteSpec.Cli.Serve;
 using LiteSpec.Cli.Skill;
+using LiteSpec.Cli.Sync;
+using LiteSpec.Cli.Upgrade;
+using LiteSpec.Cli.Verify.Adversarial;
+using LiteSpec.Cli.Verify.Persistence;
+using LiteSpec.Cli.Verify.Probes;
+using LiteSpec.Cli.Verify.Production;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli;
@@ -20,10 +36,24 @@ static class CliEntry
           init          Write .litespec/project.yaml from a preset.
           new           Scaffold a record page and reserve its identifier.
           rename        Rename a record identifier and rewrite every link.
-          model         Check, format, render or query the project model.
+          model         Check, review, format, render or query the project model.
+          scaffold      Scaffold the code files of one use case from its record.
+          sync          Write the pure data the records determine.
+          serve         Serve the warm project model over MCP on standard input and output.
+          agent         Write the agent context and path-scoped rule files.
+          hook          Run the agent harness hooks for one edit or the stop.
+          docs          Review changed docs or render changed book pages.
           book          Generate the project book from the records.
+          context       Write the specification as one compact text file.
           rules         List the provisions that govern a path or record.
           skill         Install or remove the litespec skill.
+          ui            Audit the rendered pages in a browser.
+          api           Walk a running API from its OpenAPI document and report server faults.
+          plan-waves    List conflict-free parallel slices from the module graph.
+          upgrade       Report the release changes a project has not applied.
+          verify        Run the scenario probes, the adversarial matrices, the persistence
+                        check or the production smoke against the running product.
+          audit         Write the semantic review packets of the changed use cases.
 
         Run 'litespec <command> --help' for a command's options.
         'litespec --version' prints the LiteSpec release this tool ships in.
@@ -51,13 +81,49 @@ static class CliEntry
                 "new" => NewCommand.Run(rest),
                 "rename" => RenameCommand.Run(rest),
                 "model" => ModelCommand.Run(rest),
+                "scaffold" => ScaffoldCommand.Run(rest),
+                "sync" => SyncCommand.Run(rest),
+                "serve" => ServeCommand.Run(rest),
+                "agent" => AgentSyncCommand.Run(rest),
+                "hook" => HookCommand.Run(rest),
+                "docs" => DocsCommand.Run(rest),
+                "plan-waves" => PlanWavesCommand.Run(rest),
+                "upgrade" => UpgradeCommand.Run(rest),
                 "book" => BookCommand.Run(rest),
+                "context" => ContextCommand.Run(rest),
                 "rules" => RulesCommand.Run(rest),
                 "skill" => SkillCommand.Run(rest),
+                "ui" => UiCommand.Run(rest),
+                "api" => ApiCommand.Run(rest),
+                "verify" => Verify(rest),
+                "audit" => Audit(rest),
                 _ => Unknown(args[0]),
             },
             args);
     }
+
+    /// <summary>
+    ///     Runs the verify command its first argument names: persistence-compat, production-smoke,
+    ///     the adversarial matrices for --adversarial, and the scenario probes otherwise.
+    /// </summary>
+    /// <param name="args">The arguments after verify.</param>
+    /// <returns>The command's exit code.</returns>
+    static int Verify(string[] args) => args switch
+    {
+        ["persistence-compat", .. var rest] => PersistenceCompatCommand.Run(rest),
+        ["production-smoke", .. var rest] => ProductionSmokeCommand.Run(rest),
+        _ when args.Contains("--adversarial", StringComparer.Ordinal) => AdversarialCommand.Run(args),
+        _ => VerifyCommand.Run(args),
+    };
+
+    /// <summary>Runs the audit command its first argument names: semantic.</summary>
+    /// <param name="args">The arguments after audit.</param>
+    /// <returns>The command's exit code.</returns>
+    static int Audit(string[] args) => args switch
+    {
+        ["semantic", .. var rest] => SemanticCommand.Run(rest),
+        _ => CommandFailure.UsageError("Usage: litespec audit semantic --since <ref> [--root <consumer>] [--help]", Usage, json: false),
+    };
 
     /// <summary>Prints the usage text.</summary>
     /// <returns>Exit code 0.</returns>

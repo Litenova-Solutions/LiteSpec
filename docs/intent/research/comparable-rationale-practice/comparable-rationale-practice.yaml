@@ -4,18 +4,127 @@ title: Comparable Rationale Practice
 sources:
   - url: https://peps.python.org/pep-0001/
     readOn: 2026-10-30
-    key: peps-python-pep-0001
+    name: peps-python-pep-0001
+    note: "PEP 1 keeps rationale inside the proposal. The record read it in full."
   - url: https://raw.githubusercontent.com/rust-lang/rfcs/master/0000-template.md
     readOn: 2026-10-30
-    key: raw-githubusercontent-rust-lang-rfcs-master
+    name: raw-githubusercontent-rust-lang-rfcs-master
+    note: "The Rust RFC template keeps rationale inside the proposal record. The record read it in full and takes its position that a merged RFC is shared agreement, not a final specification."
   - url: https://raw.githubusercontent.com/kubernetes/enhancements/master/keps/0000-kep-template/README.md
     readOn: 2026-10-30
-    key: raw-githubusercontent-kubernetes-enhancements
+    name: raw-githubusercontent-kubernetes-enhancements
+    note: "The Kubernetes KEP template keeps rationale inside the proposal. The record read it in full and does not take its position of one directory per proposal."
   - url: https://adr.github.io/madr/
     readOn: 2026-10-30
-    key: adr-github-madr
+    name: adr-github-madr
+    note: "MADR keeps rationale inside the decision record. The record read it in full and takes its position of one file per decision."
   - url: https://www.rfc-editor.org/rfc/rfc6855.txt
     readOn: 2026-10-30
-    key: rfc-editor-rfc-rfc6855
-question: How do comparable standards projects keep design rationale so it can be referenced beside the rules it produced?
+    name: rfc-editor-rfc-rfc6855
+    note: "RFC 6855 moves rationale into a non-normative appendix, separate from the protocol text. The record read it in full."
+question: How do comparable standards projects keep design rationale so readers can reference it beside the rules it produced?
 conclusion: Comparable projects keep rationale in numbered, dated, never-edited records beside the normative text - each stating its motivation, its drawbacks, and its unresolved questions - while the specification itself remains the only normative surface.
+findings:
+  - statement: "Comparable projects keep rationale in numbered, dated records that are never edited, and they keep it beside the normative text."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "Each record states its motivation, its drawbacks, and its unresolved questions."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "The specification remains the only normative text."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "PEP 1 requires Rationale and Rejected Ideas sections."
+    sources:
+      - peps-python-pep-0001
+  - statement: "It also names a draft's header as part of the proposal."
+    sources:
+      - peps-python-pep-0001
+  - statement: "So the reasoning stays inside the proposal from its first draft."
+    sources:
+      - peps-python-pep-0001
+  - statement: "The Rust RFC template requires Motivation, Drawbacks, Rationale and Alternatives, and Unresolved Questions."
+    sources:
+      - raw-githubusercontent-rust-lang-rfcs-master
+  - statement: "It states that a merged RFC is the shared-agreement text, not a final specification."
+    sources:
+      - raw-githubusercontent-rust-lang-rfcs-master
+  - statement: "The Kubernetes KEP template requires Risks and Mitigations, and Drawbacks."
+    sources:
+      - raw-githubusercontent-kubernetes-enhancements
+  - statement: "It keeps each KEP as one directory of record beside the process."
+    sources:
+      - raw-githubusercontent-kubernetes-enhancements
+  - statement: "MADR 4.0.0, dated 17 September 2024, records the context, the options with their pros and cons, the chosen outcome, and the positive and negative consequences."
+    sources:
+      - adr-github-madr
+  - statement: "It keeps all of them in one numbered file per decision."
+    sources:
+      - adr-github-madr
+  - statement: "RFC 6855, dated March 2013, keeps its design rationale in a non-normative appendix."
+    sources:
+      - rfc-editor-rfc-rfc6855
+  - statement: "The appendix lists the alternatives the RFC considered, and it stays separate from the protocol text."
+    sources:
+      - rfc-editor-rfc-rfc6855
+  - statement: "The pattern appears in all 5 sources."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "Rationale stands in numbered, dated records beside the normative text."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "The specification remains the only normative surface."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "The skeptic search found practitioner commentary on stale decision records, and the record did not read that commentary in full."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "So the case against keeping rationale uses the skeptic evidence in `research/established-traceability-practice` and the drawbacks sections that the templates require."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "The consumer's record bodies stand outside this repository."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855
+  - statement: "Every consumer claim in the companion records comes from files read or counts measured over its model on 30 October 2026."
+    sources:
+      - peps-python-pep-0001
+      - raw-githubusercontent-rust-lang-rfcs-master
+      - raw-githubusercontent-kubernetes-enhancements
+      - adr-github-madr
+      - rfc-editor-rfc-rfc6855

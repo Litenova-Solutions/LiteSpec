@@ -1,0 +1,29 @@
+type: product
+id: product/__SCOPE__
+title: __PROJECT__
+summary: |-
+  The sample records health check-ins and reads them back.
+
+  Visitors record a check-in with a note and look over the recorded rows.
+boundary: __PROJECT__ records health check-ins with a note and reads them back on the web.
+users:
+- actor/health-visitor
+brand:
+  reader: A visitor looks over recorded check-ins on the web between tasks.
+  accountableFor: Every screen shows what each check-in recorded.
+  is:
+  - calm
+  - plain
+  - exact
+  isNot:
+  - playful
+  - dense
+  - showy
+  do:
+  - Lead with the action the reader can take now.
+  - Say what an empty list needs next.
+  - Announce a failure where the reader acts, and name the retry.
+  doNot:
+  - Do not decorate. A border earns its place, a color earns its place, and nothing else does.
+  - Do not nest a card inside a card.
+  - Do not ship a button whose success is a paragraph. Success is a role=status announcement, and failure is role=alert.

@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -14,30 +15,37 @@ namespace LiteSpec.Analyzers.Tests.Support;
 ///     Runs one analyzer over C# sources and compares its diagnostics with the spans the
 ///     sources mark. A marked span reads <c>{|LS1002:Status|}</c>: the diagnostic ID, then
 ///     the exact text the diagnostic must cover. A span may name its severity:
-///     <c>{|LS5001:Warning:SubmitExpenseCommandHandler|}</c>.
+///     <c>{|LS5004:Warning:use-case/spending.submit-expense|}</c>.
 /// </summary>
 internal static partial class Verify
 {
     private static readonly ImmutableArray<MetadataReference> References = LoadReferences();
 
+    /// <summary>A referenced assembly the main compilation reads as metadata, built from sources and emitted to an in-memory image.</summary>
+    /// <param name="AssemblyName">The assembly name.</param>
+    /// <param name="Files">The source files, each with its path and text. Referenced sources carry no marked spans.</param>
+    /// <param name="ReferenceNames">The names of earlier assemblies this one references, or null for none.</param>
+    internal sealed record ReferencedAssembly(
+        string AssemblyName,
+        IReadOnlyList<(string Path, string Source)> Files,
+        IReadOnlyList<string>? ReferenceNames = null);
+
     /// <summary>Asserts the analyzer reports exactly the marked spans in one file.</summary>
     /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
     /// <param name="source">The C# source text to run the analyzer over.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="path">The file path, whose layer folder places the file, such as Shop.Spending/Domain/Source.cs.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
-    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task AnalyzerAsync<TAnalyzer>(
         string source,
-        string assemblyName = "Shop.Domain",
-        string? layer = null,
+        string assemblyName = "Shop.Spending",
+        string path = "Source.cs",
         bool documentationFile = true,
-        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
-        string? layout = null)
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
         where TAnalyzer : DiagnosticAnalyzer, new() =>
-        AnalyzerAsync<TAnalyzer>([("Source.cs", source)], assemblyName, layer, documentationFile, outputKind, layout);
+        AnalyzerAsync<TAnalyzer>([(path, source)], assemblyName, documentationFile, outputKind);
 
     /// <summary>
     ///     Asserts the analyzer reports exactly the marked spans across several files.
@@ -47,20 +55,18 @@ internal static partial class Verify
     /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
     /// <param name="files">The source files, each with its path and text.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
-    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the sources parse with, such as DEBUG, or null for none.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static Task AnalyzerAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
-        string assemblyName = "Shop.Domain",
-        string? layer = null,
+        string assemblyName = "Shop.Spending",
         bool documentationFile = true,
         OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
-        string? layout = null)
+        IReadOnlyList<string>? preprocessorSymbols = null)
         where TAnalyzer : DiagnosticAnalyzer, new() =>
-        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, layer, documentationFile, null, outputKind, layout);
+        AnalyzerWithRecordsAsync<TAnalyzer>(files, [], assemblyName, documentationFile, null, outputKind, preprocessorSymbols);
 
     /// <summary>
     ///     Asserts the analyzer reports exactly the marked spans with the additional files
@@ -71,21 +77,105 @@ internal static partial class Verify
     /// <param name="files">The source files, each with its path and text.</param>
     /// <param name="additionalFiles">The additional files, each with its path and text.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="editorconfig">The editorconfig text with diagnostic severity lines, or null for none.</param>
     /// <param name="outputKind">The output kind of the compilation.</param>
-    /// <param name="layout">The declared layout name, or null to read the module layout.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the sources parse with, such as DEBUG, or null for none.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    public static async Task AnalyzerWithRecordsAsync<TAnalyzer>(
+    public static Task AnalyzerWithRecordsAsync<TAnalyzer>(
         IReadOnlyList<(string Path, string Source)> files,
         IReadOnlyList<(string Path, string Source)> additionalFiles,
-        string assemblyName = "Shop.Domain",
-        string? layer = null,
+        string assemblyName = "Shop.Spending",
         bool documentationFile = true,
         string? editorconfig = null,
         OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary,
-        string? layout = null)
+        IReadOnlyList<string>? preprocessorSymbols = null)
+        where TAnalyzer : DiagnosticAnalyzer, new() =>
+        RunAnalyzerAsync<TAnalyzer>(files, References, additionalFiles, assemblyName, documentationFile, editorconfig, outputKind, preprocessorSymbols);
+
+    /// <summary>
+    ///     Asserts the analyzer reports exactly the marked spans with the referenced assemblies
+    ///     in reach as metadata: each entry compiles from its sources and is emitted to an
+    ///     in-memory image, referencing the base class library and the earlier entries its
+    ///     <see cref="ReferencedAssembly.ReferenceNames"/> names. The main compilation
+    ///     references every entry. Referenced sources carry no marked spans.
+    /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="referencedAssemblies">The referenced assemblies in dependency order.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    public static Task AnalyzerWithMetadataAsync<TAnalyzer>(
+        IReadOnlyList<(string Path, string Source)> files,
+        IReadOnlyList<ReferencedAssembly> referencedAssemblies,
+        string assemblyName = "Shop.Spending",
+        bool documentationFile = true,
+        OutputKind outputKind = OutputKind.DynamicallyLinkedLibrary)
+        where TAnalyzer : DiagnosticAnalyzer, new()
+    {
+        var images = new Dictionary<string, MetadataReference>(StringComparer.Ordinal);
+        foreach (var referenced in referencedAssemblies)
+        {
+            var referencedTrees = referenced.Files
+                .Select(file => ParseTree(file.Path, file.Source, documentationFile, preprocessorSymbols: null))
+                .ToList();
+            var referencedReferences = References.Concat(
+                (referenced.ReferenceNames ?? []).Select(name =>
+                {
+                    Assert.True(images.TryGetValue(name, out var image), $"No earlier assembly names '{name}'.");
+                    return image!;
+                })).ToImmutableArray();
+            var referencedCompilation = CSharpCompilation.Create(
+                referenced.AssemblyName,
+                referencedTrees,
+                referencedReferences,
+                new CSharpCompilationOptions(outputKind, nullableContextOptions: NullableContextOptions.Enable));
+
+            var referencedErrors = referencedCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
+            Assert.True(referencedErrors.Count == 0, "The referenced source does not compile:\n" + string.Join("\n", referencedErrors));
+
+            using var stream = new MemoryStream();
+            var emitted = referencedCompilation.Emit(stream);
+            Assert.True(emitted.Success, "The referenced source does not emit:\n" + string.Join("\n", emitted.Diagnostics));
+            images[referenced.AssemblyName] = MetadataReference.CreateFromImage(stream.ToArray());
+        }
+
+        return RunAnalyzerAsync<TAnalyzer>(
+            files,
+            References.AddRange(images.Values),
+            [],
+            assemblyName,
+            documentationFile,
+            editorconfig: null,
+            outputKind,
+            preprocessorSymbols: null);
+    }
+
+    /// <summary>
+    ///     Asserts the analyzer reports exactly the marked spans over one compilation with
+    ///     the references in reach.
+    /// </summary>
+    /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
+    /// <param name="files">The source files, each with its path and text.</param>
+    /// <param name="references">The metadata references the compilation reads.</param>
+    /// <param name="additionalFiles">The additional files, each with its path and text.</param>
+    /// <param name="assemblyName">The assembly name the test source compiles under.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="editorconfig">The editorconfig text with diagnostic severity lines, or null for none.</param>
+    /// <param name="outputKind">The output kind of the compilation.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the sources parse with, such as DEBUG, or null for none.</param>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    private static async Task RunAnalyzerAsync<TAnalyzer>(
+        IReadOnlyList<(string Path, string Source)> files,
+        ImmutableArray<MetadataReference> references,
+        IReadOnlyList<(string Path, string Source)> additionalFiles,
+        string assemblyName,
+        bool documentationFile,
+        string? editorconfig,
+        OutputKind outputKind,
+        IReadOnlyList<string>? preprocessorSymbols)
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
         var expected = new List<string>();
@@ -94,9 +184,7 @@ internal static partial class Verify
         foreach (var (path, marked) in files)
         {
             var (text, spans) = ParseMarkup(marked);
-            var parseOptions = new CSharpParseOptions(
-                LanguageVersion.Latest, documentationFile ? DocumentationMode.Parse : DocumentationMode.None);
-            var tree = CSharpSyntaxTree.ParseText(SourceText.From(text, Encoding.UTF8), parseOptions, path);
+            var tree = ParseTree(path, text, documentationFile, preprocessorSymbols);
             trees.Add(tree);
             expected.AddRange(spans.Select(span => Describe(span.Id, span.Severity, tree.GetLineSpan(span.Span), withSeverity)));
         }
@@ -104,7 +192,7 @@ internal static partial class Verify
         var compilation = CSharpCompilation.Create(
             assemblyName,
             trees,
-            References,
+            references,
             new CSharpCompilationOptions(outputKind, nullableContextOptions: NullableContextOptions.Enable)
                 .WithSpecificDiagnosticOptions(CompilerSeverities(editorconfig)));
 
@@ -114,7 +202,7 @@ internal static partial class Verify
         var additional = additionalFiles
             .Select(file => (AdditionalText)new TestAdditionalText(file.Path, file.Source))
             .ToImmutableArray();
-        var options = new AnalyzerOptions(additional, new GlobalOptionsProvider(layer, editorconfig, layout));
+        var options = new AnalyzerOptions(additional, new GlobalOptionsProvider(editorconfig));
         var diagnostics = await compilation
             .WithAnalyzers([new TAnalyzer()], options)
             .GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken);
@@ -139,7 +227,7 @@ internal static partial class Verify
     /// <param name="actionTitle">The title of the fix action to apply, or null to use the only action.</param>
     /// <param name="additionalFiles">The additional files, each with its path and text.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="path">The file path, whose layer folder places the file, such as Shop.Spending/Domain/Source.cs.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="expectedActionCount">The number of fix actions the provider must offer, or null to skip the count.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -148,15 +236,15 @@ internal static partial class Verify
         string fixedSource,
         string? actionTitle = null,
         IReadOnlyList<(string Path, string Source)>? additionalFiles = null,
-        string assemblyName = "Shop.Domain",
-        string? layer = null,
+        string assemblyName = "Shop.Spending",
+        string path = "Source.cs",
         bool documentationFile = true,
         int? expectedActionCount = null)
         where TAnalyzer : DiagnosticAnalyzer, new()
         where TFix : CodeFixProvider, new() =>
         CodeFixFilesAsync<TAnalyzer, TFix>(
-            [("Source.cs", source)], [("Source.cs", fixedSource)], actionTitle,
-            additionalFiles, assemblyName, layer, documentationFile, expectedActionCount);
+            [(path, source)], [(path, fixedSource)], actionTitle,
+            additionalFiles, assemblyName, documentationFile, expectedActionCount);
 
     /// <summary>
     ///     Asserts the code fix turns the sources into the fixed sources, applying the
@@ -169,7 +257,6 @@ internal static partial class Verify
     /// <param name="actionTitle">The title of the fix action to apply, or null to use the only action.</param>
     /// <param name="additionalFiles">The additional files, each with its path and text.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <param name="expectedActionCount">The number of fix actions the provider must offer, or null to skip the count.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -178,8 +265,7 @@ internal static partial class Verify
         IReadOnlyList<(string Path, string Source)> fixedFiles,
         string? actionTitle,
         IReadOnlyList<(string Path, string Source)>? additionalFiles,
-        string assemblyName = "Shop.Domain",
-        string? layer = null,
+        string assemblyName = "Shop.Spending",
         bool documentationFile = true,
         int? expectedActionCount = null)
         where TAnalyzer : DiagnosticAnalyzer, new()
@@ -195,7 +281,7 @@ internal static partial class Verify
 
         var options = new AnalyzerOptions(
             (additionalFiles ?? []).Select(file => (AdditionalText)new TestAdditionalText(file.Path, file.Source)).ToImmutableArray(),
-            new GlobalOptionsProvider(layer, null));
+            new GlobalOptionsProvider(null));
         var diagnostics = (await compilation
             .WithAnalyzers([new TAnalyzer()], options)
             .GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken))
@@ -248,29 +334,29 @@ internal static partial class Verify
     /// <param name="actionTitle">The title of the fix action to apply, or null to use the only action.</param>
     /// <param name="additionalFiles">The additional files, each with its path and text.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
+    /// <param name="path">The file path, whose layer folder places the file, such as Shop.Spending/Domain/Source.cs.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task CodeFixWithGeneratorAsync<TAnalyzer, TFix>(
         string source,
         string fixedSource,
         string? actionTitle,
         IReadOnlyList<(string Path, string Source)> additionalFiles,
-        string assemblyName = "Shop.Domain",
-        string? layer = null)
+        string assemblyName = "Shop.Spending",
+        string path = "Source.cs")
         where TAnalyzer : DiagnosticAnalyzer, new()
         where TFix : CodeFixProvider, new()
     {
         await CodeFixFilesAsync<TAnalyzer, TFix>(
-            [("Source.cs", source)], [("Source.cs", fixedSource)], actionTitle,
-            additionalFiles, assemblyName, layer);
+            [(path, source)], [(path, fixedSource)], actionTitle,
+            additionalFiles, assemblyName);
 
-        using var workspace = TestWorkspace([("Source.cs", fixedSource)], additionalFiles, assemblyName, true);
+        using var workspace = TestWorkspace([(path, fixedSource)], additionalFiles, assemblyName, true);
         var project = workspace.CurrentSolution.Projects.Single();
         var compilation = await project.GetCompilationAsync(TestContext.Current.CancellationToken);
         Assert.NotNull(compilation);
 
         var driver = GeneratorVerify.CreateDriver(
-            additionalFiles.Select(file => (file.Path, file.Source)).ToList(), layer);
+            additionalFiles.Select(file => (file.Path, file.Source)).ToList());
         var result = GeneratorVerify.RunToResult(driver, compilation!);
         var errors = compilation!.AddSyntaxTrees(result.GeneratedTrees).GetDiagnostics()
             .Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
@@ -283,13 +369,11 @@ internal static partial class Verify
     /// <param name="files">The source files, each with its path and text.</param>
     /// <param name="additionalFiles">The additional files, each with its path and text.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
     /// <returns>A task whose result lists the fix action titles in the order the provider offers them.</returns>
     public static async Task<IReadOnlyList<string>> CodeFixActionTitlesAsync<TAnalyzer, TFix>(
         IReadOnlyList<(string Path, string Source)> files,
         IReadOnlyList<(string Path, string Source)> additionalFiles,
-        string assemblyName = "Shop.Domain",
-        string? layer = null)
+        string assemblyName = "Shop.Spending")
         where TAnalyzer : DiagnosticAnalyzer, new()
         where TFix : CodeFixProvider, new()
     {
@@ -300,7 +384,7 @@ internal static partial class Verify
 
         var options = new AnalyzerOptions(
             additionalFiles.Select(file => (AdditionalText)new TestAdditionalText(file.Path, file.Source)).ToImmutableArray(),
-            new GlobalOptionsProvider(layer, null));
+            new GlobalOptionsProvider(null));
         var diagnostics = (await compilation!
             .WithAnalyzers([new TAnalyzer()], options)
             .GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken))
@@ -331,7 +415,6 @@ internal static partial class Verify
     /// <param name="additionalFiles">The additional files, each with its path and text.</param>
     /// <param name="equivalenceKey">The equivalence key that groups the fix under Fix All.</param>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
-    /// <param name="layer">The declared layer name, or null to read the layer from the assembly name.</param>
     /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
     /// <returns>A task that completes when the assertion finishes.</returns>
     public static async Task CodeFixAllAsync<TAnalyzer, TFix>(
@@ -339,8 +422,7 @@ internal static partial class Verify
         IReadOnlyList<(string Path, string Source)> fixedFiles,
         IReadOnlyList<(string Path, string Source)> additionalFiles,
         string equivalenceKey,
-        string assemblyName = "Shop.Domain",
-        string? layer = null,
+        string assemblyName = "Shop.Spending",
         bool documentationFile = true)
         where TAnalyzer : DiagnosticAnalyzer, new()
         where TFix : CodeFixProvider, new()
@@ -352,7 +434,7 @@ internal static partial class Verify
 
         var options = new AnalyzerOptions(
             additionalFiles.Select(file => (AdditionalText)new TestAdditionalText(file.Path, file.Source)).ToImmutableArray(),
-            new GlobalOptionsProvider(layer, null));
+            new GlobalOptionsProvider(null));
         var diagnostics = (await compilation!
             .WithAnalyzers([new TAnalyzer()], options)
             .GetAnalyzerDiagnosticsAsync(TestContext.Current.CancellationToken))
@@ -451,6 +533,21 @@ internal static partial class Verify
         return false;
     }
 
+    /// <summary>Parses one source text into a syntax tree at its path.</summary>
+    /// <param name="path">The file path, whose layer folder places the file.</param>
+    /// <param name="text">The C# source text to parse.</param>
+    /// <param name="documentationFile">Whether the source parses with a documentation file, so doc comments parse as documentation.</param>
+    /// <param name="preprocessorSymbols">The preprocessor symbols the source parses with, such as DEBUG, or null for none.</param>
+    /// <returns>The syntax tree.</returns>
+    private static SyntaxTree ParseTree(string path, string text, bool documentationFile, IReadOnlyList<string>? preprocessorSymbols)
+    {
+        var parseOptions = new CSharpParseOptions(
+            LanguageVersion.Latest,
+            documentationFile ? DocumentationMode.Parse : DocumentationMode.None,
+            preprocessorSymbols: preprocessorSymbols);
+        return CSharpSyntaxTree.ParseText(SourceText.From(text, Encoding.UTF8), parseOptions, path);
+    }
+
     private static (string Text, List<(string Id, string? Severity, TextSpan Span)> Spans) ParseMarkup(string marked)
     {
         var text = new StringBuilder();
@@ -497,7 +594,6 @@ internal static partial class Verify
             .Select(path => (MetadataReference)MetadataReference.CreateFromFile(path))];
     }
 
-    /// <summary>Supplies <c>build_property.LiteSpecLayer</c> when a test sets a layer.</summary>
     /// <summary>
     ///     The rule severities an .editorconfig sets, as the compiler applies them to every reported
     ///     diagnostic, whatever severity the analyzer reported it with.
@@ -529,9 +625,14 @@ internal static partial class Verify
         return severities.ToImmutable();
     }
 
-    private sealed class GlobalOptionsProvider(string? layer, string? editorconfig, string? layout = null) : AnalyzerConfigOptionsProvider
+    private sealed class GlobalOptionsProvider : AnalyzerConfigOptionsProvider
     {
-        public override AnalyzerConfigOptions GlobalOptions { get; } = new Options(layer, ParseEditorconfig(editorconfig ?? string.Empty), layout);
+        public GlobalOptionsProvider(string? editorconfig)
+        {
+            GlobalOptions = new Options(ParseEditorconfig(editorconfig ?? string.Empty));
+        }
+
+        public override AnalyzerConfigOptions GlobalOptions { get; }
 
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => GlobalOptions;
 
@@ -568,22 +669,17 @@ internal static partial class Verify
             return severities.ToImmutable();
         }
 
-        private sealed class Options(string? layer, ImmutableDictionary<string, string> severities, string? layout = null) : AnalyzerConfigOptions
+        private sealed class Options : AnalyzerConfigOptions
         {
+            private readonly ImmutableDictionary<string, string> severities;
+
+            public Options(ImmutableDictionary<string, string> severities)
+            {
+                this.severities = severities;
+            }
+
             public override bool TryGetValue(string key, out string value)
             {
-                if (layer is not null && key == "build_property.LiteSpecLayer")
-                {
-                    value = layer;
-                    return true;
-                }
-
-                if (layout is not null && key == "build_property.LiteSpecLayout")
-                {
-                    value = layout;
-                    return true;
-                }
-
                 if (severities.TryGetValue(key, out var severity))
                 {
                     value = severity;
@@ -597,18 +693,31 @@ internal static partial class Verify
     }
 
     /// <summary>An additional file by path and text, for record pages and the project file.</summary>
-    private sealed class TestAdditionalText(string path, string source) : AdditionalText
+    private sealed class TestAdditionalText : AdditionalText
     {
-        private readonly SourceText text = SourceText.From(source, Encoding.UTF8);
+        private readonly SourceText text;
 
-        public override string Path => path;
+        public TestAdditionalText(string path, string source)
+        {
+            Path = path;
+            text = SourceText.From(source, Encoding.UTF8);
+        }
+
+        public override string Path { get; }
 
         public override SourceText? GetText(CancellationToken cancellationToken = default) => text;
     }
 
     /// <summary>Hands a fix-all run the diagnostics the analyzer reported, per document or project.</summary>
-    private sealed class FixedDiagnostics(IReadOnlyList<Diagnostic> diagnostics) : FixAllContext.DiagnosticProvider
+    private sealed class FixedDiagnostics : FixAllContext.DiagnosticProvider
     {
+        private readonly IReadOnlyList<Diagnostic> diagnostics;
+
+        public FixedDiagnostics(IReadOnlyList<Diagnostic> diagnostics)
+        {
+            this.diagnostics = diagnostics;
+        }
+
         public override async Task<IEnumerable<Diagnostic>> GetDocumentDiagnosticsAsync(Document document, CancellationToken cancellationToken)
         {
             var tree = await document.GetSyntaxTreeAsync(cancellationToken);

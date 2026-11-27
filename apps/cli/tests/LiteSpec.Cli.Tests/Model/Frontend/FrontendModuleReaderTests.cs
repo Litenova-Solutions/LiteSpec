@@ -15,7 +15,7 @@ public sealed class FrontendModuleReaderTests
             .Where(element => element.Kind == CodeKind.FrontendModule)
             .ToList();
 
-        Assert.Equal(3, modules.Count);
+        Assert.Equal(2, modules.Count);
 
         var borrow = Assert.Single(modules, element => element.Class == "lending/loans/borrow-copy");
         var mark = Assert.Single(borrow.Marks);
@@ -29,22 +29,19 @@ public sealed class FrontendModuleReaderTests
         Assert.Equal(3, borrow.Line);
     }
 
-    /// <summary>Reader Reads React Modules Beside Svelte Modules.</summary>
+    /// <summary>Reader Reads Only Svelte Frontend Modules.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void ReaderReadsReactModulesBesideSvelteModules()
+    public void ReaderReadsOnlySvelteFrontendModules()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
         var modules = FrontendMarksFixture.Build(fixture.Path).Code.Elements
             .Where(element => element.Kind == CodeKind.FrontendModule)
             .ToList();
 
-        Assert.Contains(modules, element =>
-            element.Class == "lending/loans/list-loans"
-            && element.File.Contains(Path.Combine("apps", "console")));
-        Assert.Contains(modules, element =>
-            element.Class == "lending/loans/list-loans"
-            && element.File.Contains(Path.Combine("apps", "web")));
+        Assert.Equal(2, modules.Count);
+        Assert.All(modules, element => Assert.Contains(Path.Combine("apps", "web"), element.File));
+        Assert.DoesNotContain(modules, element => element.File.Contains(Path.Combine("apps", "console")));
     }
 
     /// <summary>Reader Records An Unmarked Module With No Marks.</summary>
@@ -59,7 +56,7 @@ public sealed class FrontendModuleReaderTests
 
         Assert.Equal(2, modules.Count);
 
-        var borrow = Assert.Single(modules, element => element.Class == "lending/loans/borrow-copy");
+        var borrow = Assert.Single(modules, element => element.Class == "lending/borrow-copy");
 
         Assert.Empty(borrow.Marks);
         Assert.Equal(1, borrow.Line);

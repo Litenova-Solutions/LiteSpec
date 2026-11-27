@@ -1,0 +1,14 @@
+type: decision
+id: decision/0113-shortcuts-stay-out-of-release-builds
+title: Keep Development Shortcuts Out of Release Builds
+context: "Local development needs shortcuts: a sign-in that skips the real identity provider, a stand-in for an external system, a seed or reset command, a relaxed guard. A shortcut held back only by a runtime setting stays in the release artifact. A missing setting fails open, so a sign-in shortcut in production becomes a sign-in bypass, and nothing reports which shortcuts actually shipped. A new Local Development page needed one rule that keeps shortcuts out of release builds and a set of defaults for how to build them."
+options:
+  - name: "Exclude shortcuts at compile time and require the development-shortcut mark"
+    pros: "A release build carries no shortcut, a missing setting cannot fail open, and an analyzer reports a marked type that reaches a compilation without DEBUG."
+    cons: "Each stack page states how its builds exclude a shortcut, and existing shortcuts move behind the compile-time boundary and the mark."
+  - name: "Gate shortcuts at runtime with an environment setting"
+    pros: "No build boundary or analyzer work."
+    cons: "A missing setting fails open, a shipped sign-in shortcut is a sign-in bypass, and no tool reports which shortcuts reached a release."
+choice: "Add the required provision litespec/quality/development#keep-development-shortcuts-out-of-release-builds: a development shortcut MUST be excluded from release builds at compile time, refuse to run outside the development environment, and carry the development-shortcut mark. Each stack page states how: on .NET the shortcut lives in a project referenced only when $(Configuration) is Debug, its registration sits behind #if DEBUG, and its types carry /// <development-shortcut>reason</development-shortcut>; dotnet build reports LS5014 for such a type in a compilation without DEBUG. Web frontends import shortcut modules only under import.meta.env.DEV, and Android uses the debug source set. A project with no shortcuts has nothing to satisfy."
+consequences: "The Local Development page moves litespec/quality/development#start-the-stack-with-one-local-command to litespec/quality/development#start-the-stack-with-one-local-command and adds five conventions: sign in as a cast person through the product's own sign-in use case, seed from the cast through public use cases, offer seed and reset from the local orchestrator, keep the real identity provider one launch profile away, and give each external system a stand-in that answers its declared operations. The shortcut rule is checked by LS5014 on .NET and reviewed on other stacks. Citations in the getting-started tutorial and the rules-eval fixture are replaced in the same change, and the release owner regenerates the provision index."
+reopenedWhen: "A stack cannot exclude code at compile time, or a project needs a shortcut that must run in a release build."

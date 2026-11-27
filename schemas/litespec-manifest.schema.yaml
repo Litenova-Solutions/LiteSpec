@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/6.0.0/schemas/litespec-manifest.schema.yaml'
+$id: 'https://litespec.dev/7.0.0/schemas/litespec-manifest.schema.yaml'
 title: LiteSpec Manifest
 type: object
 additionalProperties: false
@@ -29,15 +29,22 @@ properties:
     type: object
     minProperties: 1
     additionalProperties:
-      description: 'One shipped stack: the folder whose pages apply when a consumer selects it.'
+      description: 'One shipped stack: the folder under docs/packs/ whose pages apply when a consumer selects it, with its kind.'
       type: object
       additionalProperties: false
       required:
       - folder
+      - kind
       properties:
         folder:
-          description: The stack folder under docs/backend/ or docs/frontend/, holding a stack.md.
+          description: The stack folder under docs/packs/, holding a stack.md.
           $ref: '#/$defs/repositoryPath'
+        kind:
+          description: Whether the stack is a backend or a frontend stack.
+          type: string
+          enum:
+          - backend
+          - frontend
         requires:
           description: Stacks a project must also select with this one.
           type: array
@@ -68,7 +75,7 @@ properties:
           type: integer
           minimum: 0
         backendPages:
-          description: The pages directly in docs/backend/ that apply when the shape names no backend stack.
+          description: The pages directly in docs/core/ that apply when the shape names no backend stack.
           type: array
           minItems: 1
           uniqueItems: true
@@ -95,22 +102,6 @@ properties:
       npm:
         $ref: '#/$defs/versionMap'
   uiBaseline:
-    allOf:
-    - $ref: '#/$defs/uiBaseline'
-    - properties:
-        platform:
-          const: react
-        system:
-          const: shadcn/ui
-        base:
-          const: base-ui
-        registry:
-          properties:
-            name:
-              const: shadcn
-            url:
-              const: 'https://ui.shadcn.com'
-  uiBaselineSvelte:
     allOf:
     - $ref: '#/$defs/uiBaseline'
     - properties:
@@ -150,7 +141,7 @@ $defs:
     - constraint
     - research
     - goal
-    - vision
+    - direction
     - decision
     - requirement
     - problem
@@ -158,14 +149,15 @@ $defs:
     - actor
     - role
     - permission
-    - journey
+    - flow
     - module
     - aggregate
     - rule
     - use-case
     - result
     - scenario
-    - event
+    - domain-event
+    - read-model
     - entry-point
     - external-system
     - reaction
@@ -174,7 +166,7 @@ $defs:
     - setting
     - integration-event
     - runbook
-    - departure
+    - waiver
     - term
   provisionId:
     type: string

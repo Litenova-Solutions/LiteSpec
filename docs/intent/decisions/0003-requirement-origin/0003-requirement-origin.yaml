@@ -1,22 +1,23 @@
 type: decision
 id: decision/0003-requirement-origin
 title: Requirement Origin
+context: "Most requirements name neither a carrying feature nor a basis. Every enforced Intent check still passes. No check reports these missing origins."
 options:
-  - name: Origin in feature, basedOn, or decides
-    pros: "Established practice treats a requirement without a stated origin as incomplete, and the three sources answer different questions: which offer carries it, which fact grounds it, and which choice settles it."
+  - name: Origin in feature or basedOn
+    pros: "Established practice treats a requirement without a stated origin as incomplete. The two sources answer different questions: which feature carries it, and which fact grounds or choice settles it."
     cons: Authors must anchor most existing requirements, and list order becomes meaningful because the first entry is the parent.
   - name: Feature only
     pros: One uniform rule covers every requirement with no precedence to learn.
-    cons: It falsifies constraint-born requirements, contradicts the field meaning the Links table states, and the evidence rejects a feature parent specifically.
+    cons: It puts requirements that follow from a constraint under a feature and contradicts the field meaning the Links table states. The evidence rejects a feature parent specifically.
   - name: Keep origin optional
     pros: No author writes anything new.
-    cons: Most requirements stay unanchored, both standards call that orphaned, and the chain from a goal to a test keeps breaking at the top.
+    cons: Most requirements stay unanchored, and the chain from a goal to a test keeps breaking at the top.
   - name: Group under the requirement page
     pros: Every requirement already sits on a page, so placement needs no new field.
-    cons: A page style is not a record type, and file grouping hides the origin gap completely because every requirement looks parented.
-choice: Origin in feature, basedOn, or decides
+    cons: A page style is not a record type, and file grouping hides the origin gap completely because every requirement appears to have a parent.
+choice: Origin in feature or basedOn
 consequences: "`litespec/core/intent#identify-every-requirement` states the origin in its Statement. Every feature carries requirements, including shipped features."
-reopenedWhen: A requirement kind appears that no offer carries, no fact grounds, and no choice settles.
+reopenedWhen: A requirement kind appears that no feature carries, no fact grounds, and no choice settles.
 basedOn:
   - research/intent-hierarchy-evidence
   - research/cross-layer-trace-evidence

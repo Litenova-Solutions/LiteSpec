@@ -4,4 +4,4 @@ title: Quiet hours
 kind: functional
 statement: The library keeps quiet hours.
 rationale: Readers need guaranteed quiet time to study.
-cites: []
+basedOn: []

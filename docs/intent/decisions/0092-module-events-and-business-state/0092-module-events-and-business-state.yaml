@@ -1,0 +1,17 @@
+type: decision
+id: decision/0092-module-events-and-business-state
+title: Module Events, Business State in Aggregates, and Proof Freshness from the Run Commit
+context: "Two modules of one product shared facts only through an external system, so one module reading another needed an invented message bus. State with no lifecycle stayed an aggregate with a store flag, while a proposed store type invited filing business data without its rules. A proof went stale only when the scenario, its test body or marked files changed, so an unmarked change left caller proofs verified."
+options:
+  - name: "Module events between modules, business state only in aggregates, freshness from the run commit"
+    pros: "Modules share facts without an invented external system; every piece of business state carries its rules; a code change after a green run shows stale."
+    cons: "A module event is one more record type, a value with few rules still needs an aggregate, and every run resolves its commit against git."
+  - name: "A store type for state no invariant guards"
+    pros: "A table with no rules gets a light record."
+    cons: "Its examples, a manager's notification preference and a financial audit trail, are business state with invariants; a third bucket between business and technical state invites filing business data without its rules."
+  - name: "Keep in-product integration events and mark-based staleness"
+    pros: "No new record type and no commit tracking."
+    cons: "Two modules in one process talk through an invented external system, and unmarked code changes leave proofs verified."
+choice: "Module events between modules, business state only in aggregates, freshness from the run commit"
+consequences: "A fact one module publishes for the other modules of the product is a `module-event`, filed under its publishing module, that names the domain event it `translates` and selects the `fields` it publishes; it travels in process through the transactional outbox. An integration event stays for a fact that crosses the bounded context. State the business cares about is an aggregate with its invariants; state that exists only because of a technical mechanism is infrastructure and no Behavior record. An aggregate with no lifecycle of its own declares the single state `Active`. A proof is fresh when its run commit is HEAD or only records and Markdown changed since."
+reopenedWhen: "Modules need a broker for facts inside the bounded context, a kind of business state cannot hold its rules in an aggregate, or proof needs a signal the run commit cannot carry."

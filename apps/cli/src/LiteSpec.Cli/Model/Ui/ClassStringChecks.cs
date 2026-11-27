@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     strings from class attributes and class-merge helper calls, and holds
 ///     each token to the utility rules.
 /// </summary>
-/// <follows>litespec/frontend/web/ui#restrict-css-decisions</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</follows>
 static class ClassStringChecks
 {
     // Tailwind class strings are extracted from class attributes and class-merge

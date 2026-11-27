@@ -1,35 +1,62 @@
-type: permission-list
+type: permission-set
 title: Permissions
-records:
-- type: permission
-  id: permission/request-expense
+excludes:
+- The request-expense permission does not cover approving or refusing an expense.
+- The post-reimbursement permission does not cover exporting approved expenses.
+- The list-expenses permission reads expenses and changes none of them.
+- The read-expense permission reads one expense and changes none of them.
+- The manage-reminder-preference permission does not let a manager change another preference.
+- The remove-personal-data permission does not remove the expense.
+permissions:
+- id: permission/request-expense
   title: Request Expense
   meaning: The right to submit an expense and attach its receipts.
-- type: permission
-  id: permission/approve-expense
+  grantedTo:
+  - role/employee
+- id: permission/approve-expense
   title: Approve Expense
   meaning: The right to approve or reject a submitted expense.
-- type: permission
-  id: permission/post-reimbursement
+  grantedTo:
+  - role/approver
+- id: permission/post-reimbursement
   title: Post Reimbursement
   meaning: The right to reimburse an approved expense.
+  grantedTo:
+  - role/finance
   risk:
   - money
-- type: permission
-  id: permission/list-expenses
+- id: permission/list-expenses
   title: List Expenses
   meaning: The right to read own expenses.
-- type: permission
-  id: permission/manage-policy
+  grantedTo:
+  - role/approver
+  - role/employee
+  - role/finance
+- id: permission/manage-policy
   title: Manage Policy
   meaning: The right to set the receipt threshold.
-- type: permission
-  id: permission/export-expenses
+  grantedTo:
+  - role/approver
+- id: permission/manage-reminder-preference
+  title: Manage Reminder Preference
+  meaning: The right to change a manager's approval reminder preference.
+  grantedTo:
+  - role/approver
+  - role/finance
+- id: permission/export-expenses
   title: Export Expenses
   meaning: The right to export approved expenses for finance.
-- type: permission
-  id: permission/remove-personal-data
+  grantedTo:
+  - role/finance
+- id: permission/remove-personal-data
   title: Remove Personal Data
   meaning: The right to erase the personal data of a decided expense.
+  grantedTo:
+  - role/finance
   risk:
   - personal-data
+- id: permission/read-expense
+  title: Read Expense
+  meaning: The right to read one expense with its current state.
+  grantedTo:
+  - role/finance

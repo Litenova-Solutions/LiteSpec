@@ -2,25 +2,26 @@ type: use-case
 id: use-case/lending.borrow-copy
 title: Borrow copy
 kind: command
+steps:
+  - statement: The reader sends the copy to borrow.
+  - statement: Lending lends the copy and raises the borrowed event.
 access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-  - journey/borrow-and-return#s2
+  - step/borrow-and-return.borrow-copy
 fulfills:
   - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
   - entry-point/library-app
 raises:
-  - event/loan.loan-borrowed
-records:
-  - type: result
-    id: result/borrow-copy.borrowed
+  - domain-event/loan.loan-borrowed
+results:
+  - id: result/borrow-copy.borrowed
     title: Borrowed
     outcome: success
     meaning: The copy is lent.
-  - type: result
-    id: result/borrow-copy.copy-unavailable
+  - id: result/borrow-copy.copy-unavailable
     title: Copy unavailable
     outcome: refusal
     code: lending.copy-not-available

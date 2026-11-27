@@ -24,7 +24,7 @@ LiteSpec compared 3 options for the source of a template. The table sets each op
 
 Each YAML template is a copy of one Claimwick record. `litespec-maintain validate` reports a template that differs from its source, and every link in a template resolves in Claimwick.
 
-A scaffolded record that still carries a template value unchanged reports `template-value-unchanged`. The example values stay readable as examples, and none passes as a decision.
+`model check` reports `template-value-unchanged` for a scaffolded record that still carries a template value unchanged. The example values stay readable as examples, and none passes as a decision.
 
 The explanation prompts follow the kind a record takes, so a prompt asks only for what the record's kind can hold.
 

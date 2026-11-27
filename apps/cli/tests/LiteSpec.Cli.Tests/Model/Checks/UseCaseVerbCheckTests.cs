@@ -148,7 +148,7 @@ public sealed class UseCaseVerbCheckTests
     public void BaselineVerbKindsMatchTheVerbTable()
     {
         var page = File.ReadAllText(Path.Combine(TestCli.Repository, "docs", "core", "use-cases.md"));
-        var table = Regex.Match(page, @"### Use-Case Verbs\s*\n(?<body>.*?)\n\nThe baseline vocabulary retires", RegexOptions.Singleline).Groups["body"].Value;
+        var table = Regex.Match(page, @"### Use-Case Verbs\s*\n(?<body>.*?)\n\nThe baseline retires one synonym per meaning", RegexOptions.Singleline).Groups["body"].Value;
         var kinds = new Dictionary<string, string>(StringComparer.Ordinal);
 
         foreach (Match row in Regex.Matches(table, @"^\| (?<verbs>[^|]+)\| (?<kind>[a-z]+) \|", RegexOptions.Multiline))

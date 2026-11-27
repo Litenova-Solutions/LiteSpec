@@ -56,7 +56,7 @@ public sealed class ReaderProblemsTests
     }
 
     /// <summary>An unparsable scenario file reports one reader-missing finding naming the file.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void UnparsableScenarioFileReportsReaderMissing()
     {
@@ -77,7 +77,7 @@ public sealed class ReaderProblemsTests
     }
 
     /// <summary>An unparsable Android screen file reports one reader-missing finding naming the file.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void UnparsableScreenFileReportsReaderMissing()
     {
@@ -118,24 +118,6 @@ public sealed class ReaderProblemsTests
         Assert.DoesNotContain(
             model.Problems,
             found => found.Path.EndsWith("README.md", StringComparison.Ordinal));
-    }
-
-    /// <summary>An explanation file with no record file beside it reports explanation-orphaned at line 1.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void OrphanedExplanationReportsExplanationOrphaned()
-    {
-        using var temp = ModelFixture.Prepare("small");
-        Write(temp.Path, ".litespec/behavior/stray-note.md", "# Stray note\n\nNo record file stands beside this file.\n");
-
-        var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
-        var finding = Assert.Single(
-            Checker.Check(model).Findings,
-            found => found.Code == "explanation-orphaned" && found.Path.EndsWith("stray-note.md", StringComparison.Ordinal));
-
-        Assert.Equal(1, finding.Line);
-        Assert.Contains("stray-note.md", finding.Message);
-        Assert.Contains("stands beside no record file", finding.Message);
     }
 
     /// <summary>A declared stack root that does not exist reports reader-missing naming the declared root.</summary>
@@ -227,7 +209,7 @@ public sealed class ReaderProblemsTests
     }
 
     /// <summary>Two handlers with the same simple name in different namespaces keep their own kind and effects.</summary>
-    /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
+    /// <proves>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
     public void SameNamedHandlersInDifferentNamespacesKeepTheirOwnKindAndEffects()
     {
@@ -263,8 +245,7 @@ public sealed class ReaderProblemsTests
             Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
-              "modules": "src/App", "domain": "src/Domain",
-              "webapi": "src/WebApi", "infrastructure": "src/Infra"}}}
+              "modules": "src/App", "webapi": "src/WebApi"}}}
             """);
 
     static string WriteApp(string root, string file, string text)

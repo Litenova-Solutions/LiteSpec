@@ -1,0 +1,3 @@
+namespace Claimwick.Spending.Application.ReminderPreferences.ChangeReminderPreference;
+
+internal sealed record ChangeReminderPreferenceCommandResult(Guid ManagerId, bool ReceivesReminders);

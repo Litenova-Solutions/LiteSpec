@@ -16,8 +16,8 @@ litespec model check --root apps/cli/tests/LiteSpec.Cli.Tests/Fixtures/Model/sma
 
 ## Fixtures
 
-- `small/` is a library loans system at size small. It holds one module, three aggregates, eight use cases, results, rules, events, actors, roles, permissions, entry points, terms, and two exceptions. It has no goals, problems, features, journeys, scenarios, constraints, research, settings, reactions, jobs, notifications, or runbooks. Seven use cases have handlers. The eighth is covered by the open exception.
-- `large/` holds the same records plus one goal, problems, features, one journey, one scenario per use case, constraints, research, one setting, one reaction, one job, one notification, runbooks, one external system, and a frontend route that imports a generated client operation. Each scenario has one proving test.
+- `small/` is a library loans system at size small. It holds one module, three aggregates, eight use cases, results, rules, domain events, actors, roles, permissions, entry points, terms, and two exceptions. It has no goals, problems, features, flows, scenarios, constraints, research, settings, reactions, jobs, notifications, or runbooks. Seven use cases have handlers. The eighth is covered by the open exception.
+- `large/` holds the same records plus one goal, problems, features, one flow, one scenario per use case, constraints, research, one setting, one reaction, one job, one notification, runbooks, one external system, and a frontend route that imports a generated client operation. Each scenario has one proving test.
 
 Both fixtures exit 0 under `check`. Each names the same owner, reviews every Behavior record, approves every Intent record, stamps every approval hash, and resolves every citation.
 

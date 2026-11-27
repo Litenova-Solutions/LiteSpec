@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Tests.Book;
 public sealed class BookContractTests
 {
     /// <summary>Every detail carries lacks as an array: empty with nothing lacking, listing each missing mark otherwise.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void LacksIsAlwaysAnArray()
     {
@@ -27,7 +27,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Proof states are the closed seven, and every scenario and rule proof reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ProofStatesAreTheClosedSeven()
     {
@@ -50,7 +50,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Outline kinds are the closed five, and every outline node reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void OutlineKindsAreTheClosedFive()
     {
@@ -75,13 +75,13 @@ public sealed class BookContractTests
     }
 
     /// <summary>Implementation kinds are the closed fourteen, and every impl entry reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ImplKindsAreTheClosedFourteen()
     {
         string[] expected = ["adapter", "aggregate-method", "aggregate-root", "automation", "domain-service", "endpoint", "event", "handler", "job", "port", "reaction", "result", "route", "rule-exception"];
         Assert.Equal(expected, BookImplKinds.All.OrderBy(kind => kind, StringComparer.Ordinal).ToList());
-        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"reachedThrough": ["entry-point/library-app"]}""");
+        var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"via": ["entry-point/library-app"]}""");
         var model = NewModel(useCase);
         (model["code"] as JsonObject)!["handlers"] = new JsonArray(new JsonObject
         {
@@ -118,12 +118,12 @@ public sealed class BookContractTests
         }
     }
 
-    /// <summary>Check levels are G, S and A, and every written finding tier and level reads one of them.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>Check levels are G, S and R, and every written finding tier and level reads one of them.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
-    public void CheckLevelsAreGSAAndFindingsCarryThem()
+    public void CheckLevelsAreGSRAndFindingsCarryThem()
     {
-        string[] expected = ["A", "G", "S"];
+        string[] expected = ["G", "R", "S"];
         Assert.Equal(expected, BookCheckLevels.All.OrderBy(level => level, StringComparer.Ordinal).ToList());
         var model = NewModel(Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved"));
         model["findings"] = new JsonArray(
@@ -143,9 +143,9 @@ public sealed class BookContractTests
             },
             new JsonObject
             {
-                ["code"] = "sample-a",
-                ["level"] = "A",
-                ["message"] = "An A finding.",
+                ["code"] = "sample-r",
+                ["level"] = "R",
+                ["message"] = "An R finding.",
                 ["subject"] = "use-case/lending.borrow-copy",
             });
         var findings = Arr(DetailsOf(model)["use-case/lending.borrow-copy"], "findings");
@@ -158,7 +158,7 @@ public sealed class BookContractTests
     }
 
     /// <summary>Capture states are the closed three, carried through from the model onto the screen detail.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void CaptureStatesAreCarriedThrough()
     {
@@ -179,14 +179,14 @@ public sealed class BookContractTests
     }
 
     /// <summary>Computed fields keep one shape each: objects stay objects, arrays stay arrays, and a route is an object or absent.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void ComputedFieldsKeepTheirShapes()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
-        var journey = details["journey/borrowing"];
-        var servers = Assert.IsType<JsonObject>(journey["stepServers"]);
-        var screens = Assert.IsType<JsonObject>(journey["stepScreens"]);
+        var flow = details["flow/borrowing"];
+        var servers = Assert.IsType<JsonObject>(flow["stepServers"]);
+        var screens = Assert.IsType<JsonObject>(flow["stepScreens"]);
         foreach (var steps in new[] { servers, screens })
         {
             foreach (var pair in steps)
@@ -195,7 +195,7 @@ public sealed class BookContractTests
             }
         }
 
-        Assert.IsType<JsonArray>(journey["exercised"]);
+        Assert.IsType<JsonArray>(flow["exercised"]);
         Assert.IsType<JsonObject>(details["requirement/self-checkout.max-wait"]["keptBy"]);
         var seenScreen = false;
         var seenConstraint = false;
@@ -219,8 +219,8 @@ public sealed class BookContractTests
         Assert.True(seenConstraint, "The fixture holds no constraint.");
     }
 
-    /// <summary>Every written type is a record type and every written layer is a layer key or null.</summary>
-    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    /// <summary>Every written type is a record type and every written layer is a layer key, the product's root, or null.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgments-in-the-book</proves>
     [Fact]
     public void TypeAndLayerAreClosed()
     {
@@ -229,7 +229,7 @@ public sealed class BookContractTests
             Assert.Contains(Str(pair.Value, "type") ?? string.Empty, RecordTypes.All);
             var layer = Str(pair.Value, "layer");
             Assert.True(
-                layer is null || BookOutline.LayerKeys.Contains(layer),
+                layer is null || layer == "root" || BookOutline.LayerKeys.Contains(layer),
                 $"Unexpected layer {layer} for {pair.Key}.");
         }
     }
@@ -255,7 +255,7 @@ public sealed class BookContractTests
             list.Add(record.DeepClone());
         }
 
-        return new JsonObject
+        return BookStores.WithIntentCoverage(new JsonObject
         {
             ["records"] = list,
             ["code"] = new JsonObject
@@ -285,7 +285,7 @@ public sealed class BookContractTests
             ["findings"] = new JsonArray(),
             ["covered"] = new JsonArray(),
             ["testRun"] = null,
-        };
+        });
     }
 
     static JsonObject Record(string type, string id, string title, string status = "draft", string? effective = null, string fieldsJson = "{}", string? explanation = null)

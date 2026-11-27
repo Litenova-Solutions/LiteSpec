@@ -1,7 +1,6 @@
 <script lang="ts">
   import { book, inline } from "$lib/frame";
   import { glossaryLinks, RenderedProse } from "$lib/record";
-  import CompletionBlock from "./CompletionBlock.svelte";
   import LinksBlock from "./LinksBlock.svelte";
   import EvidenceBlock from "./EvidenceBlock.svelte";
   import ExplanationBody from "./ExplanationBody.svelte";
@@ -13,7 +12,7 @@
   import { leadFieldOf, proseOf } from "./page-prose";
   import { GenericType, TYPES } from "./types/index";
 
-  // The record page: header, lead, completion, field table, evidence, the type
+  // The record page: header, lead, field table, evidence, the type
   // content, Why sections, findings, body sections and links.
   type Props = Record<string, never>;
   let {}: Props = $props();
@@ -25,22 +24,25 @@
   const leadHtml = $derived(r && leadField ? proseOf(r, leadField) : "");
   const leadPlain = $derived(r && leadField && !leadHtml ? String(r.fields?.[leadField] ?? "") : "");
   const leadInline = $derived(r && leadPlain ? inline(book, leadPlain, r.src ?? null) : "");
+  // The statement as its own line, only while the summary leads: a record
+  // without a summary keeps the statement as the lead and shows no line.
+  const statementHtml = $derived(r && leadField === "summary" && r.fields?.statement != null ? proseOf(r, "statement") : "");
+  const statementPlain = $derived(
+    r && leadField === "summary" && !statementHtml && r.fields?.statement != null ? String(r.fields.statement) : "",
+  );
+  const statementInline = $derived(r && statementPlain ? inline(book, statementPlain, r.src ?? null) : "");
 
   $effect(() => {
-    if (id) document.getElementById("record-title")?.focus({ preventScroll: true });
+    if (!id) return;
+    // A move inside the outline leaves focus in the tree so arrow keys keep
+    // working; any other navigation moves focus to the record title.
+    if (!book.focusTitle) return;
+    document.getElementById("record-title")?.focus({ preventScroll: true });
   });
 </script>
 
 {#if !r || !id}
-  <nav class="mb-[18px] flex flex-wrap items-center gap-1.5 text-[0.8125rem] text-muted-foreground" aria-label="Location">
-    <b class="font-semibold text-foreground">{id ?? ""}</b>
-  </nav>
-  <h1 id="record-title" tabindex="-1" class="outline-none m-0 mb-1.5 max-w-[72ch] text-[2.125rem] leading-[1.15] font-semibold tracking-[-0.03em]">{id ?? ""}</h1>
-  <p class="mt-0 mb-2 text-sm font-semibold text-subtle-foreground">Record</p>
-  <div class="mb-[18px] flex flex-wrap items-center gap-x-3.5 gap-y-2 text-xs text-muted-foreground">
-    <code class="font-mono text-xs font-medium text-foreground">{id ?? ""}</code>
-  </div>
-  <p class="mx-2 mt-0 mb-2 text-xs text-muted-foreground">No record with this identifier is in the book.</p>
+  <RecordHeader id={id ?? ""} r={null} />
 {:else if r.type === "layer"}
   <RecordHeader {id} {r} />
   {@const Layer = TYPES["layer"] ?? GenericType}
@@ -51,11 +53,17 @@
     <ScreenCapture {id} {r} />
   {/if}
   {#if leadHtml}
-    <div class="mb-6 max-w-[72ch]"><RenderedProse html={leadHtml} lead /></div>
+    <div class="mt-6"><RenderedProse html={leadHtml} lead /></div>
   {:else if leadInline}
-    <p class="mt-0 mb-6 max-w-[72ch] text-lg leading-relaxed" use:glossaryLinks={leadInline}>{@html leadInline}</p>
+    <p class="mt-6 text-xl leading-7 font-light [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline" use:glossaryLinks={leadInline}>{@html leadInline}</p>
   {/if}
-  <CompletionBlock {r} />
+  {#if statementHtml || statementInline}
+    {@const statementLine = statementHtml || statementInline}
+    <dl class="mt-6 grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
+      <dt class="py-3 pr-2 font-semibold">Statement</dt>
+      <dd class="m-0 min-w-0 py-3" use:glossaryLinks={statementLine}>{@html statementLine}</dd>
+    </dl>
+  {/if}
   <FieldTable {id} {r} />
   <EvidenceBlock {r} />
   <TypeContent {id} {r} />

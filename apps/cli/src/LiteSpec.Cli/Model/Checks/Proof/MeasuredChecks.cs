@@ -5,7 +5,7 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Proof;
 
-/// <summary>The measured checks: every measured requirement names a check with a passing run, and a statement naming a number names a measure.</summary>
+/// <summary>The measured checks: every measured requirement names a check with a passing run, and a statement naming a number names a measure. The token limit checks of the same run measure token-limits, so those requirements need no result file.</summary>
 /// <follows>litespec/core/intent#state-the-measure-on-a-counted-requirement</follows>
 internal static class MeasuredChecks
 {
@@ -22,7 +22,8 @@ internal static class MeasuredChecks
             {
                 findings.Add(new Finding("requirement-measure-missing", $"Requirement '{requirement.Id}' is measured but names no check.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
-            else if (!model.Measures.Any(measure => measure.Passed && MeasureMatches(measure, check)))
+            else if (!model.Measures.Any(measure => measure.Passed && MeasureMatches(measure, check))
+                && !MeasuredByModelCheck(check))
             {
                 findings.Add(new Finding("requirement-measure-missing", $"Requirement '{requirement.Id}' names check '{check}' with no passing run.", requirement.File, requirement.Line, SubjectOf(requirement)));
             }
@@ -31,7 +32,7 @@ internal static class MeasuredChecks
         CheckNumberedStatement(model, findings);
     }
 
-    /// <summary>Reports a statement naming a number with no measure, at level A.</summary>
+    /// <summary>Reports a statement naming a number with no measure.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckNumberedStatement(ProjectModel model, List<Finding> findings)
@@ -42,10 +43,7 @@ internal static class MeasuredChecks
             && record.Field(RecordFields.Statement) is { Length: > 0 } statement
             && NamesNumber(statement)))
         {
-            findings.Add(new Finding("requirement-measure-missing", $"Requirement '{requirement.Id}' names a number with no measure.", requirement.File, requirement.Line, SubjectOf(requirement))
-            {
-                TierOverride = "A",
-            });
+            findings.Add(new Finding("statement-measure-missing", $"Requirement '{requirement.Id}' names a number with no measure.", requirement.File, requirement.Line, SubjectOf(requirement)));
         }
     }
 
@@ -63,6 +61,12 @@ internal static class MeasuredChecks
 
     /// <summary>Matches a provision step fragment, whose digits name a step rather than a counted quantity.</summary>
     private static readonly Regex StepFragment = new(@"#[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*", RegexOptions.Compiled);
+
+    /// <summary>Whether the model check itself measures the requirement's check in this run, with no result file needed.</summary>
+    /// <param name="check">The check name the requirement declares.</param>
+    /// <returns>True when the check is one the model check runs itself: the token limit checks measure token-limits, reporting design-token-limit-failed when the limits fail, so a separate missing finding would double-report the same gap.</returns>
+    private static bool MeasuredByModelCheck(string check) =>
+        check.Equals("token-limits", StringComparison.Ordinal);
 
     /// <summary>Whether the tool result is the requirement's check: the check alone, or the tool and the check.</summary>
     /// <param name="measure">The tool result whose check name is compared.</param>

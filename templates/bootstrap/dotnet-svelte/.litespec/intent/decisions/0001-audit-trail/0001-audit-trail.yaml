@@ -1,0 +1,15 @@
+type: decision
+id: decision/0001-audit-trail
+title: Audit Trail
+summary: The sample trails check-in writes and reads under one category.
+context: Check-ins carry free-text notes, so the sample keeps an audit trail over the Health use cases. The trail needs one category for its segment.
+options:
+- name: personal-data-read
+  pros: The check-in entries segment with the personal-data records the notes may need.
+  cons: The fixed vocabulary holds no health write, so a reviewer may re-categorize the command.
+- name: no trail
+  pros: Nothing is written and nothing needs a category.
+  cons: No entry shows who recorded or read a check-in.
+choice: personal-data-read
+consequences: The three Health use cases trail under personal-data-read with the check-in as target. The runtime writes the health-change action into that segment.
+reopenedWhen: A reviewer re-categorizes the Health entries.

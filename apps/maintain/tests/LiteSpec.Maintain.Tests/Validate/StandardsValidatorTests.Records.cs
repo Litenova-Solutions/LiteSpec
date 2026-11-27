@@ -98,6 +98,21 @@ public sealed partial class StandardsValidatorTests
         },
         [MaintainerDiagnostics.Codes.RecordDecisionUncited]);
 
+    /// <summary>Decision a later decision supersedes needs no citation of its own; the superseding one must still be cited.</summary>
+    /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
+    [Fact(DisplayName = "superseded decision cited by no provision")]
+    public void SupersededDecisionNeedsNoCitation() => Check(
+        root =>
+        {
+            StandardsFixture.WriteResearch(root);
+            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice");
+            var later = StandardsFixture.DecisionJson
+                .Replace("decision/0001-sample-choice", "decision/0002-later-choice", StringComparison.Ordinal)
+                .Replace("\"title\": \"Sample Choice\",", "\"title\": \"Later Choice\",\n  \"supersedes\": [\"decision/0001-sample-choice\"],", StringComparison.Ordinal);
+            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0002-later-choice", later);
+        },
+        [MaintainerDiagnostics.Codes.RecordDecisionUncited]);
+
     /// <summary>Decision cited by a provision.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "decision cited by a provision")]

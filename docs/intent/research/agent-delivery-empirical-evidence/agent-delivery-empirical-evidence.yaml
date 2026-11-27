@@ -1,0 +1,54 @@
+type: research
+id: research/agent-delivery-empirical-evidence
+title: Agent Delivery Empirical Evidence
+sources:
+  - url: https://arxiv.org/abs/2602.11988
+    readOn: 2026-11-20
+    name: eth-zurich-agent-delivery
+    note: "ETH Zurich study on agent delivery effectiveness, read from its arXiv abstract page on 20 November 2026. Covers measured gains from structured task context and verification."
+  - url: https://arxiv.org/abs/2507.11538
+    readOn: 2026-11-20
+    name: ifscale-context-study
+    note: "IFScale study on context scaling for agents, read from its arXiv abstract page on 20 November 2026. Covers measured recall loss as input tokens grow."
+  - url: https://research.trychroma.com/context-rot
+    readOn: 2026-11-20
+    name: chroma-context-rot
+    note: "Chroma report on context rot, read from the report page on 20 November 2026. Covers measured performance loss as context grows and what to send instead."
+  - url: https://openai.com/index/harness-engineering/
+    readOn: 2026-11-20
+    name: openai-harness-engineering
+    note: "OpenAI post on harness engineering, read from the post page on 20 November 2026. Covers structuring context and guardrails around coding agents."
+  - url: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+    readOn: 2026-11-20
+    name: anthropic-context-engineering
+    note: "Anthropic post on effective context engineering for agents, read from the post page on 20 November 2026. Covers small focused context and compounding small wins."
+question: Which empirical findings from 2025 to 2026 support LiteSpec v7 agent delivery, and what does each source state?
+conclusion: Five 2025 to 2026 sources agree that long unfocused context harms agent output and that small scoped context with harness guardrails and independent verification restores it.
+findings:
+  - statement: "Structured task context with independent verification raises agent success rates."
+    sources:
+      - eth-zurich-agent-delivery
+  - statement: "Recall and answer quality fall as input tokens grow, even inside large windows."
+    sources:
+      - ifscale-context-study
+  - statement: "Longer context windows do not mean better attention across the window."
+    sources:
+      - chroma-context-rot
+  - statement: "Sending less, focused context beats sending everything available."
+    sources:
+      - chroma-context-rot
+      - anthropic-context-engineering
+  - statement: "Harness structure around agents matters more than model choice alone."
+    sources:
+      - openai-harness-engineering
+  - statement: "Small scoped context pieces with clear guardrails compound into reliable runs."
+    sources:
+      - anthropic-context-engineering
+      - openai-harness-engineering
+  - statement: "LiteSpec v7 delivery follows these findings: thin protocols, path-scoped rules, a 4-tool MCP surface, deterministic hooks, and independent verification."
+    sources:
+      - eth-zurich-agent-delivery
+      - ifscale-context-study
+      - chroma-context-rot
+      - openai-harness-engineering
+      - anthropic-context-engineering

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, hoverSection } from "$lib/frame";
+  import { Hover } from "$lib/record";
   import type { Snippet } from "svelte";
 
   // One row of a composed definition list: a labeled value, as HTML or live content.
@@ -11,8 +12,8 @@
   let { label, html = null, children }: Props = $props();
 </script>
 
-<dt class="text-muted-foreground">{book.fieldLabel(label)}</dt>
-<dd class="m-0 min-w-0 max-sm:mb-1.5">
+<dt class="border-b border-border-subtle py-3 pr-2 font-semibold"><Hover hover={hoverSection(book, label, "")}>{book.fieldLabel(label)}</Hover></dt>
+<dd class="m-0 min-w-0 border-b border-border-subtle py-3">
   {#if html !== null}
     {@html html}
   {:else}

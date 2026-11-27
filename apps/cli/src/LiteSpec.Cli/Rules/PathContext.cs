@@ -42,21 +42,21 @@ internal sealed record PathContext(
         ["job"] = "job",
         ["reaction"] = "reaction",
         ["decision"] = "decision",
-        ["departure"] = "departure",
+        ["waiver"] = "waiver",
         ["goal"] = "goal",
-        ["vision"] = "vision",
+        ["direction"] = "direction",
         ["problem"] = "problem",
         ["feature"] = "feature",
         ["constraint"] = "constraint",
         ["research"] = "research",
         ["product"] = "product",
-        ["journey"] = "journey",
+        ["flow"] = "flow",
         ["actor"] = "actor",
         ["role"] = "role",
         ["term"] = "term",
         ["module"] = "module",
+        ["knowledge-area"] = "knowledge-area",
         ["rule"] = "rule",
-        ["rule-set"] = "rule-set",
         ["requirement"] = "requirement",
         ["result"] = "result",
         ["scenario"] = "scenario",
@@ -64,11 +64,13 @@ internal sealed record PathContext(
         ["notification"] = "notification",
         ["runbook"] = "runbook",
         ["permission"] = "permission",
-        ["permission-list"] = "permission-list",
+        ["permission-set"] = "permission-set",
         ["external-system"] = "external-system",
         ["integration-event"] = "integration-event",
-        ["retention-schedule"] = "retention-schedule",
-        ["event"] = "domain-event",
+        ["read-model"] = "read-model",
+        ["reference-data"] = "reference-data",
+        ["refusal-set"] = "refusal-set",
+        ["domain-event"] = "domain-event",
         ["migration"] = "migration",
     };
 
@@ -83,6 +85,9 @@ internal sealed record PathContext(
 
     /// <summary>A browser test <c>proves</c> annotation.</summary>
     static readonly Regex ProvesCall = new(@"\bproves\(\s*[""']([^""']+)[""']", RegexOptions.Compiled);
+
+    /// <summary>A reaction's file name: {Action}On{Fact}Handler.cs.</summary>
+    static readonly Regex ReactionFileName = new(@"On[A-Z]\w*Handler\.cs$", RegexOptions.Compiled);
 
     /// <summary>A record type line in a record file.</summary>
     static readonly Regex TypeLine = new(@"^type:\s*(\S+)\s*$", RegexOptions.Compiled);
@@ -113,7 +118,7 @@ internal sealed record PathContext(
         return FromRecord(config, trimmed);
     }
 
-    /// <summary>The path spellings a convention scope or departure path matches against.</summary>
+    /// <summary>The path spellings a convention scope or waiver path matches against.</summary>
     /// <param name="config">The consumer configuration.</param>
     /// <returns>The root-relative path, each record-root-relative path, and the bare file name.</returns>
     public IReadOnlyList<string> GlobCandidates(ConsumerConfig config)
@@ -230,6 +235,13 @@ internal sealed record PathContext(
         {
             stack = backendStack;
             (layer, artifact) = BackendScope(segments, name, text);
+
+            // Knowledge membership wins over file-name kinds: a row type in a model
+            // project is read as knowledge, not as the aggregate its name suggests.
+            if (KnowledgeArtifact(config, segments) is { Length: > 0 } knowledge)
+            {
+                artifact = knowledge;
+            }
         }
 
         var marked = isFolder ? [] : ReadMarks(text);
@@ -353,13 +365,20 @@ internal sealed record PathContext(
 
         foreach (var segment in segments)
         {
+            if (segment.EndsWith(".Contracts", StringComparison.OrdinalIgnoreCase))
+            {
+                layer = "application";
+                break;
+            }
+
             layer = segment switch
             {
                 "Domain" => "domain",
                 "Application" => "application",
+                "Ports" => "ports",
                 "Infrastructure" => "infrastructure",
                 "WebApi" => "web-api",
-                "Composition" or "Contracts" or "Jobs" => "application",
+                "Composition" or "Contracts" or "Notifications" or "ExternalSystems" or "ReadModels" => "application",
                 "Migrations" => "infrastructure",
                 _ => "",
             };
@@ -374,22 +393,16 @@ internal sealed record PathContext(
         {
             foreach (var segment in segments)
             {
-                if (segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase))
+                if (segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(segment, "Kernel", StringComparison.Ordinal))
                 {
                     layer = "domain";
                     break;
                 }
 
-                if (segment.EndsWith(".Application", StringComparison.OrdinalIgnoreCase)
-                    || segment.EndsWith(".Worker", StringComparison.OrdinalIgnoreCase))
+                if (segment.EndsWith(".Worker", StringComparison.OrdinalIgnoreCase))
                 {
                     layer = "application";
-                    break;
-                }
-
-                if (segment.EndsWith(".Infrastructure", StringComparison.OrdinalIgnoreCase))
-                {
-                    layer = "infrastructure";
                     break;
                 }
 
@@ -480,23 +493,25 @@ internal sealed record PathContext(
             return "aggregate";
         }
 
-        if (HasSegment(segments, "Jobs") && name.EndsWith("Job.cs", StringComparison.Ordinal))
+        if (name.EndsWith("Job.cs", StringComparison.Ordinal))
         {
             return "job";
         }
 
-        // A reaction folder is named On{Fact} for the fact it handles, in the module
-        // UseCases folder or beside the aggregate it changes, so the parent folder
-        // names the reaction whatever tree holds it.
-        if (name.EndsWith("Handler.cs", StringComparison.Ordinal)
-            && segments.Length >= 2
-            && segments[^2].StartsWith("On", StringComparison.Ordinal)
-            && segments[^2].Length > 2)
+        // A reaction is named {Action}On{Fact}Handler. It sits in the use case folder under
+        // Application for the use case it runs, or in the Notifications or ExternalSystems folder
+        // under Application when it sends or calls instead, so the file name and its folder name
+        // the reaction.
+        if (ReactionFileName.IsMatch(name)
+            && (HasSegment(segments, "Application")
+                || HasSegment(segments, "Notifications")
+                || HasSegment(segments, "ExternalSystems")))
         {
             return "reaction";
         }
 
-        if (HasSegment(segments, "Domain") || segments.Any(segment => segment.EndsWith(".Domain", StringComparison.OrdinalIgnoreCase)))
+        if (HasSegment(segments, "Domain") || HasSegment(segments, "Kernel")
+            || segments.Any(segment => segment.EndsWith(".Kernel", StringComparison.OrdinalIgnoreCase)))
         {
             if (text.Contains("AggregateRoot<", StringComparison.Ordinal))
             {
@@ -509,6 +524,54 @@ internal sealed record PathContext(
             }
 
             return "value-object";
+        }
+
+        return "";
+    }
+
+    /// <summary>Derives the knowledge artifact of a backend path: knowledge-model for a file in a Product.Area project, knowledge-set for a file in a Product.Area.Variant project whose model project exists beside it.</summary>
+    /// <param name="config">The consumer configuration.</param>
+    /// <param name="segments">The root-relative path segments.</param>
+    /// <returns>The knowledge artifact, or empty when the path sits in no knowledge project.</returns>
+    static string KnowledgeArtifact(ConsumerConfig config, string[] segments)
+    {
+        for (var index = 0; index + 1 < segments.Length; index++)
+        {
+            if (!string.Equals(segments[index], "Knowledge", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var project = segments[index + 1];
+            var knowledge = config.Root;
+
+            foreach (var segment in segments[..(index + 1)])
+            {
+                knowledge = Path.Combine(knowledge, segment);
+            }
+
+            // A dotted file directly in the Knowledge root names no project.
+            if (!Directory.Exists(Path.Combine(knowledge, project)))
+            {
+                return "";
+            }
+
+            var parts = project.Split('.');
+
+            if (parts.Length == 2 && parts[0].Length > 0 && parts[1].Length > 0)
+            {
+                return "knowledge-model";
+            }
+
+            if (parts.Length >= 3
+                && parts[0].Length > 0
+                && parts[1].Length > 0
+                && Directory.Exists(Path.Combine(knowledge, parts[0] + "." + parts[1])))
+            {
+                return "knowledge-set";
+            }
+
+            return "";
         }
 
         return "";

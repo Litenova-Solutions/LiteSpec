@@ -2,6 +2,7 @@ using System.Text.Json;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
+using static LiteSpec.Cli.Model.Checks.ProseText;
 using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
@@ -10,7 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/domain-model#connect-every-state-through-transitions</follows>
 internal static class LifecycleChecks
 {
-    /// <summary>Reports transition-unknown and state-unreached.</summary>
+    /// <summary>Reports reference-unknown and state-unreached.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -24,28 +25,46 @@ internal static class LifecycleChecks
             {
                 if (transition.From != RecordReader.Creation && !states.Contains(transition.From))
                 {
-                    findings.Add(new Finding("transition-unknown", $"Aggregate '{aggregate.Id}' holds a transition from '{transition.From}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' holds a transition from '{transition.From}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
                 if (!states.Contains(transition.To))
                 {
-                    findings.Add(new Finding("transition-unknown", $"Aggregate '{aggregate.Id}' holds a transition to '{transition.To}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' holds a transition to '{transition.To}' which is no state of the aggregate.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
 
-                if (transition.By is not null && !IsUseCase(model, transition.By))
+                if (transition.MovedBy is not null && !IsMover(model, transition.MovedBy))
                 {
-                    findings.Add(new Finding("transition-unknown", $"Aggregate '{aggregate.Id}' holds a transition by '{transition.By}' which no use case record holds.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                    findings.Add(new Finding("reference-unknown", $"Aggregate '{aggregate.Id}' holds a transition moved by '{transition.MovedBy}' which names no use case or job.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+            }
+
+            foreach (var entry in RawTransitions(aggregate))
+            {
+                var after = Str(entry, RecordFields.After);
+                var mover = Str(entry, RecordFields.MovedBy);
+
+                if (after is not null && !IsoDuration.IsMatch(after))
+                {
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' holds a transition after '{after}', which is not an ISO 8601 duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+                }
+
+                if (mover is not null && model.ById.TryGetValue(mover, out var moverRecord) && moverRecord.Type == RecordTypes.Job && after is null)
+                {
+                    findings.Add(new Finding("record-invalid", $"Aggregate '{aggregate.Id}' holds a transition moved by job '{mover}' with no after duration.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                 }
             }
 
             var targets = transitions.Select(transition => transition.To).ToHashSet(StringComparer.Ordinal);
+            var unreached = states.Order(StringComparer.Ordinal).Where(state => !targets.Contains(state)).ToList();
 
-            foreach (var state in states.Order(StringComparer.Ordinal))
+            if (unreached.Count == 1)
             {
-                if (!targets.Contains(state))
-                {
-                    findings.Add(new Finding("state-unreached", $"Aggregate '{aggregate.Id}' holds state '{state}' that no transition reaches.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
-                }
+                findings.Add(new Finding("state-unreached", $"Aggregate '{aggregate.Id}' holds state '{unreached[0]}' that no transition reaches.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
+            }
+            else if (unreached.Count > 1)
+            {
+                findings.Add(new Finding("state-unreached", $"Aggregate '{aggregate.Id}' holds states '{string.Join("', '", unreached)}' that no transition reaches.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
             }
         }
     }
@@ -71,10 +90,27 @@ internal static class LifecycleChecks
             .ToHashSet(StringComparer.Ordinal);
     }
 
-    /// <summary>Whether the id names a use case record.</summary>
+    /// <summary>The transition objects an aggregate declares, as written.</summary>
+    /// <param name="aggregate">The aggregate record whose transitions array is read.</param>
+    /// <returns>Each object entry of the transitions array, or an empty list when it holds none.</returns>
+    private static List<JsonElement> RawTransitions(Record aggregate)
+    {
+        var found = new List<JsonElement>();
+
+        if (aggregate.Raw.ValueKind == JsonValueKind.Object
+            && aggregate.Raw.TryGetProperty(RecordFields.Transitions, out var list)
+            && list.ValueKind == JsonValueKind.Array)
+        {
+            found.AddRange(list.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.Object));
+        }
+
+        return found;
+    }
+
+    /// <summary>Whether the id names a use case or a job, the two records that move a state.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="id">The record identifier under test.</param>
-    /// <returns>True when the identifier resolves to a use case record; otherwise false.</returns>
-    private static bool IsUseCase(ProjectModel model, string id) =>
-        model.ById.TryGetValue(id, out var record) && record.Type == RecordTypes.UseCase;
+    /// <returns>True when the identifier resolves to a use case or job record; otherwise false.</returns>
+    private static bool IsMover(ProjectModel model, string id) =>
+        model.ById.TryGetValue(id, out var record) && record.Type is RecordTypes.UseCase or RecordTypes.Job;
 }

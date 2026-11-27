@@ -18,21 +18,25 @@ public sealed class IndexRecord : IRecordFields
     /// <param name="line">The 1-based line.</param>
     /// <param name="isEntry">Whether the record is an entry rather than a page.</param>
     /// <param name="pageId">The carrying page's record id, for an entry.</param>
+    /// <param name="type">The record type, when the object states none, as a flow step states no type.</param>
+    /// <param name="title">The display title override, or null to read the object's title.</param>
     public IndexRecord(
         JsonText raw,
         string file,
         int line,
         bool isEntry,
-        string? pageId)
+        string? pageId,
+        string? type = null,
+        string? title = null)
     {
         this.raw = raw;
         File = file;
         Line = line;
         IsEntry = isEntry;
         PageId = pageId;
-        Type = StringOf(raw, "type") ?? "";
+        Type = type ?? StringOf(raw, "type") ?? "";
         Id = StringOf(raw, "id") ?? "";
-        Title = StringOf(raw, "title") ?? "";
+        Title = title ?? StringOf(raw, "title") ?? "";
     }
 
     /// <summary>Gets the record's JSON object, with the line of every value in it.</summary>

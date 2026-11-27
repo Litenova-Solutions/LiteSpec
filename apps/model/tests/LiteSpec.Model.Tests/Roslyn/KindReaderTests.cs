@@ -363,8 +363,20 @@ public sealed class KindReaderTests
             """);
 
         Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
-        Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty, "Application.Abstractions"));
         Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty));
+    }
+
+    /// <summary>A marked interface in the Ports layer is a port.</summary>
+    /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
+    [Fact(DisplayName = "A marked interface in the Ports layer is a port")]
+    public void MarkedInterfaceInPortsLayerIsAPort()
+    {
+        var type = TestTrees.First<InterfaceDeclarationSyntax>("""
+            /// <implements>external-system/payout-bank</implements>
+            public interface IPayoutPort;
+            """);
+
+        Assert.Equal(CodeKind.Port, KindReader.KindOf(type, KindContext.Empty, "Shop.Billing", "Ports"));
     }
 
     /// <summary>An interface port with no mark is not a port.</summary>
@@ -559,7 +571,6 @@ public sealed class KindReaderTests
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory(DisplayName = "A top-level class with a method in an outer layer is technical")]
     [InlineData("Application")]
-    [InlineData("Application.Abstractions")]
     [InlineData("Infrastructure")]
     [InlineData("WebApi")]
     [InlineData("Worker")]
@@ -645,6 +656,40 @@ public sealed class KindReaderTests
 
             Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
         }
+    }
+
+    /// <summary>A message definition class takes no kind: definitions take no mark.</summary>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact(DisplayName = "A message definition class takes no kind")]
+    public void MessageDefinitionClassTakesNoKind()
+    {
+        var type = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class SubmitExpenseCommandAuthorizationDefinition : IAuthorizationDefinition<SubmitExpenseCommand>
+            {
+                public void Authorize()
+                {
+                }
+            }
+            """);
+
+        Assert.Null(KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
+    }
+
+    /// <summary>A class deriving a type with Definition inside its name is technical.</summary>
+    /// <proves>litespec/packs/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis</proves>
+    [Fact(DisplayName = "A class deriving a type with Definition inside its name is technical")]
+    public void ClassDerivingDefinitionPrefixedBaseIsTechnical()
+    {
+        var type = TestTrees.First<ClassDeclarationSyntax>("""
+            internal sealed class AuditRegistry : DefinitionRegistry
+            {
+                public void Register()
+                {
+                }
+            }
+            """);
+
+        Assert.Equal(CodeKind.Technical, KindReader.KindOf(type, KindContext.Empty, "Shop.Application"));
     }
 
     /// <summary>A record, struct, interface, or enum is not technical.</summary>

@@ -150,6 +150,77 @@ public sealed class ConventionChecksTests
         Assert.Equal(3, invalid.Count);
     }
 
+    /// <summary>A glob matching no file and no record reports convention-unreached.</summary>
+    /// <proves>litespec/core/agent#scope-every-convention-to-files-it-governs</proves>
+    [Fact]
+    public void ConventionMatchingNothingReportsUnreached()
+    {
+        using var temp = WriteUnreachedConsumer();
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+
+        var finding = Assert.Single(
+            WithCode(Checker.Check(model).Findings, "convention-unreached"),
+            finding => finding.Subject == "demo/conventions#nowhere-rule");
+
+        Assert.Equal("Convention 'demo/conventions#nowhere-rule' states Applies to 'apps/missing/**', which matches no file in the project tree and no record, so rules never returns it.", finding.Message);
+        Assert.Equal(7, finding.Line);
+    }
+
+    /// <summary>Scope keys matching no file and no record report convention-unreached.</summary>
+    /// <proves>litespec/core/agent#scope-every-convention-to-files-it-governs</proves>
+    [Fact]
+    public void ScopeConventionMatchingNothingReportsUnreached()
+    {
+        using var temp = WriteUnreachedConsumer();
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+
+        var finding = Assert.Single(
+            WithCode(Checker.Check(model).Findings, "convention-unreached"),
+            finding => finding.Subject == "demo/conventions#scope-nowhere");
+
+        Assert.Equal("Convention 'demo/conventions#scope-nowhere' states Applies to 'artifact: migration', which matches no file in the project tree and no record, so rules never returns it.", finding.Message);
+        Assert.Equal(7, finding.Line);
+    }
+
+    /// <summary>A convention matching a path reports nothing.</summary>
+    /// <proves>litespec/core/agent#scope-every-convention-to-files-it-governs</proves>
+    [Fact]
+    public void ConventionMatchingAPathReportsNothing()
+    {
+        using var temp = WriteUnreachedConsumer();
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+
+        var unreached = WithCode(Checker.Check(model).Findings, "convention-unreached");
+
+        Assert.DoesNotContain(unreached, finding => finding.Subject == "demo/conventions#path-rule");
+    }
+
+    /// <summary>A convention matching by scope keys reports nothing.</summary>
+    /// <proves>litespec/core/agent#scope-every-convention-to-files-it-governs</proves>
+    [Fact]
+    public void ConventionMatchingByScopeReportsNothing()
+    {
+        using var temp = WriteUnreachedConsumer();
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+
+        var unreached = WithCode(Checker.Check(model).Findings, "convention-unreached");
+
+        Assert.DoesNotContain(unreached, finding => finding.Subject == "demo/conventions#scope-rule");
+    }
+
+    /// <summary>A convention matching a record reports nothing.</summary>
+    /// <proves>litespec/core/agent#scope-every-convention-to-files-it-governs</proves>
+    [Fact]
+    public void ConventionMatchingARecordReportsNothing()
+    {
+        using var temp = WriteUnreachedConsumer();
+        var model = TestModel.Model(TestModel.Config(temp.Path), TestModel.Record("result", "result/borrow-copy.borrowed", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{"outcome": "success"}"""));
+
+        var unreached = WithCode(Checker.Check(model).Findings, "convention-unreached");
+
+        Assert.DoesNotContain(unreached, finding => finding.Subject == "demo/conventions#record-rule");
+    }
+
     static TempFolder WriteMisplacedConsumer()
     {
         var temp = TestCli.Temp("checks");
@@ -202,6 +273,53 @@ public sealed class ConventionChecksTests
             WriteConvention(temp.Path, ".litespec/governance/conventions/free-text.md", "demo/conventions#free-text", "Free Text", "Confirm payouts");
             WriteConvention(temp.Path, ".litespec/governance/conventions/unknown-key.md", "demo/conventions#unknown-key", "Unknown Key", "scope: everywhere");
             WriteConvention(temp.Path, ".litespec/governance/conventions/missing-scope.md", "demo/conventions#missing-scope", "Missing Scope", null);
+
+            return temp;
+        }
+        catch
+        {
+            temp.Dispose();
+            throw;
+        }
+    }
+
+    static TempFolder WriteUnreachedConsumer()
+    {
+        var temp = TestCli.Temp("checks");
+
+        try
+        {
+            WriteProject(temp.Path);
+            WriteConvention(temp.Path, ".litespec/governance/conventions/nowhere-rule.md", "demo/conventions#nowhere-rule", "Nowhere Rule", "apps/missing/**");
+            WriteConvention(temp.Path, ".litespec/governance/conventions/scope-nowhere.md", "demo/conventions#scope-nowhere", "Scope Nowhere", "artifact: migration");
+            WriteConvention(temp.Path, ".litespec/governance/conventions/path-rule.md", "demo/conventions#path-rule", "Path Rule", "apps/api/src/**");
+            WriteConvention(temp.Path, ".litespec/governance/conventions/scope-rule.md", "demo/conventions#scope-rule", "Scope Rule", "artifact: command-handler");
+            WriteConvention(temp.Path, ".litespec/governance/conventions/record-rule.md", "demo/conventions#record-rule", "Record Rule", "artifact: result");
+            Write(temp.Path, "apps/api/src/Orders.cs", """
+                namespace Demo.Orders;
+
+                internal sealed class Orders
+                {
+                }
+                """);
+            Write(temp.Path, "apps/api/src/SendInvoiceCommandHandler.cs", """
+                namespace Demo.Billing;
+
+                internal sealed class SendInvoiceCommandHandler
+                {
+                }
+                """);
+            Write(temp.Path, ".litespec/behavior/modules/lending/use-cases/borrow-copy/borrow-copy.yaml", """
+                type: use-case
+                id: use-case/lending.borrow-copy
+                title: Borrow Copy
+                kind: command
+                records:
+                - type: result
+                  id: result/borrow-copy.borrowed
+                  title: Borrowed
+                  outcome: success
+                """);
 
             return temp;
         }

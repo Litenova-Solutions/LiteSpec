@@ -7,7 +7,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 
 /// <summary>The result check: every result and refusal a handler, reaction or job produces is one its record declares.</summary>
-/// <follows>litespec/backend/application#return-only-declared-results-and-refusals</follows>
+/// <follows>litespec/core/backend-application#return-only-declared-results-and-refusals</follows>
 internal static class ResultChecks
 {
     /// <summary>Reports each refusal code a handler or host produces that its use cases leave undeclared.</summary>
@@ -82,8 +82,9 @@ internal static class ResultChecks
     }
 
     /// <summary>
-    ///     Every refusal code a use case declares: its written refusal results plus the derived
-    ///     generic codes, which a permission grant and a validated input each derive.
+    ///     Every refusal code a use case declares: its written refusal results, the product codes
+    ///     its derived results carry, and the derived generic codes, which a permission grant and
+    ///     a validated input each derive.
     /// </summary>
     /// <param name="model">The loaded project model that holds every result record.</param>
     /// <param name="useCase">The use case record whose declared refusal codes are collected.</param>
@@ -98,12 +99,19 @@ internal static class ResultChecks
         {
             foreach (var result in model.RecordsByHome[name])
             {
-                if (result.Type != RecordTypes.Result || result.Derived || result.Field(RecordFields.Outcome) != "refusal")
+                if (result.Type != RecordTypes.Result || result.Field(RecordFields.Outcome) != "refusal")
                 {
                     continue;
                 }
 
-                if (result.Field(RecordFields.Code) is { } code)
+                // A derived result declares only the product code it carries; a derived
+                // generic with no carried refusal declares nothing here.
+                if (result.Derived && result.Field(RecordFields.Refusal) is null)
+                {
+                    continue;
+                }
+
+                if (RefusalCode.Of(result) is { } code)
                 {
                     declared.Add(code);
                 }

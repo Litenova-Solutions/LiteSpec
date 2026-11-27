@@ -25,7 +25,7 @@ public static class Provisions
     public const string PagesPath = "docs/reference/pages.json";
 
     /// <summary>Every provision kind (PROVISION_KINDS).</summary>
-    public static readonly IReadOnlyList<string> Kinds = ["convention", "pattern", "rule"];
+    public static readonly IReadOnlyList<string> Kinds = ["convention", "rule"];
 
     /// <summary>The provision identifier pattern as a .NET regex source (PROVISION_ID_SOURCE).</summary>
     public static readonly string IdSource = "litespec\\/[a-z0-9]+(?:-[a-z0-9]+)*(?:\\/[a-z0-9]+(?:-[a-z0-9]+)*)*#[a-z0-9]+(?:-[a-z0-9]+)*";
@@ -148,6 +148,23 @@ public static class Provisions
         ["docs/core/use-cases.md"] = "behavior",
         ["docs/core/access.md"] = "behavior",
         ["docs/core/release.md"] = "implementation",
+        ["docs/core/backend-api.md"] = "implementation",
+        ["docs/core/backend-application.md"] = "implementation",
+        ["docs/core/backend-architecture.md"] = "implementation",
+        ["docs/core/backend-domain.md"] = "implementation",
+        ["docs/core/backend-persistence.md"] = "implementation",
+        ["docs/core/knowledge.md"] = "implementation",
+        ["docs/core/audit.md"] = "implementation",
+        ["docs/core/concurrency.md"] = "implementation",
+        ["docs/core/integrations.md"] = "implementation",
+        ["docs/core/jobs.md"] = "implementation",
+        ["docs/core/lifecycle.md"] = "implementation",
+        ["docs/core/locale.md"] = "implementation",
+        ["docs/core/outbox.md"] = "implementation",
+        ["docs/core/tenancy.md"] = "implementation",
+        ["docs/core/ui-ia.md"] = "implementation",
+        ["docs/core/testing.md"] = "proof",
+        ["docs/core/ui-verification.md"] = "proof",
     };
 
     /// <summary>The record layer a page gives its provisions by default.</summary>
@@ -179,7 +196,7 @@ public static class Provisions
 
     /// <summary>
     ///     Collects every provision row from the standards pages, sorted by identifier. One
-    ///     command asks several times (the record reader, the checker, the departure check), so
+    ///     command asks several times (the record reader, the checker, the waiver check), so
     ///     the rows are read once per process and read again only when a page under
     ///     <c>docs/</c> is added, removed or written. Each caller gets its own list.
     /// </summary>
@@ -269,8 +286,7 @@ public static class Provisions
                     continue;
                 }
 
-                var pattern = section == "Patterns" && PatternPage.IsPatternPage(relative);
-                if (section != "Standards" && section != "Conventions" && !pattern)
+                if (section != "Standards" && section != "Conventions")
                 {
                     continue;
                 }
@@ -280,7 +296,7 @@ public static class Provisions
                 var id = IdOf(reader, page, heading);
                 var end = headings
                     .Skip(index + 1)
-                    .Where(next => next.Level == 2 || next.Level == 3 || (pattern && next.Level == 4))
+                    .Where(next => next.Level == 2 || next.Level == 3)
                     .Select(next => next.Line)
                     .Append(reader.Lines.Length + 1)
                     .First();
@@ -291,7 +307,7 @@ public static class Provisions
                     title,
                     relative,
                     slug,
-                    pattern ? "pattern" : section == "Standards" ? "rule" : "convention",
+                    section == "Standards" ? "rule" : "convention",
                     verification.Mark,
                     verification.Evidence,
                     body.Stacks.Length > 0 ? body.Stacks : pageStacks,
@@ -304,6 +320,7 @@ public static class Provisions
                     body.Statement,
                     body.Rationale,
                     body.Example));
+
             }
         }
 
@@ -334,9 +351,7 @@ public static class Provisions
         {
             "# Provisions",
             "",
-            "## Intent",
-            "",
-            "Use this generated page to resolve a provision ID to its heading, owning page, scope, record layer, trace, strength, and verification mark, and to read the checked share of rules for each page.",
+            "Each provision ID resolves here to its heading, owning page, scope, record layer, trace, strength, and verification mark, with the share of each page's rules a tool checks.",
             "",
             "Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.",
             "",
@@ -488,7 +503,7 @@ public static class Provisions
     sealed record ProvisionBody(string Strength, string Stacks, string Artifact, string Layer, string Trace, string When, string Statement, string Rationale, string Example);
 
     // One provision body: the lines between its heading and the next heading. The Strength and
-    // Applies to lines read as frame; the Statement, or the Default of a convention or pattern,
+    // Applies to lines read as frame; the Statement, or the Default of a convention,
     // reads as the assertive line; the Rationale paragraph joins with spaces and the Example
     // block keeps its lines, fences included, so generated clients render code as written.
     /// <summary>Reads one provision body between its heading line and its end line.</summary>
@@ -675,8 +690,7 @@ public static class Provisions
                 continue;
             }
 
-            var pattern = section == "Patterns" && PatternPage.IsPatternPage(relative);
-            if (section == "Standards" || section == "Conventions" || pattern)
+            if (section == "Standards" || section == "Conventions")
             {
                 current = IdOf(reader, page, heading);
             }

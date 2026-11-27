@@ -4,7 +4,7 @@ using LiteSpec.Standards;
 
 namespace LiteSpec.Maintain.Tests.Validate;
 
-/// <summary>Cases that bind the documentation to the tools, the templates, the example, the index and the pattern budget.</summary>
+/// <summary>Cases that bind the documentation to the tools, the templates, the example, and the index.</summary>
 public sealed partial class StandardsValidatorTests
 {
     /// <summary>A page cites a finding code the table lacks.</summary>
@@ -132,7 +132,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "an example page cites a record ID the example lacks")]
     public void CitedExampleRecordUnknown() => Check(
-        root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## Intent\n\nThe example submits `use-case/spending.submit-expense`.\n"),
+        root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\nThe example submits `use-case/spending.submit-expense`.\n"),
         [MaintainerDiagnostics.Codes.ExampleRecordUnknown]);
 
     /// <summary>An example page cites a record ID the example holds, and a placeholder names no record.</summary>
@@ -142,7 +142,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "examples/claimwick/.litespec/use-case.yaml", "id: use-case/spending.submit-expense\n");
-            StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## Intent\n\nThe example submits `use-case/spending.submit-expense` and names `use-case/<module>.<name>`.\n");
+            StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\nThe example submits `use-case/spending.submit-expense` and names `use-case/<module>.<name>`.\n");
             StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme(extra: "- [Example](example/sample.md)\n"));
         },
         []);
@@ -151,15 +151,8 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "a page that no index page reaches")]
     public void UnindexedPage() => Check(
-        root => StandardsFixture.Write(root, "docs/guide/orphan.md", "# Orphan Guide\n\n## Purpose\n\nNo index links this page.\n"),
+        root => StandardsFixture.Write(root, "docs/guide/orphan.md", "# Orphan Guide\n\nNo index links this page.\n"),
         [MaintainerDiagnostics.Codes.IndexPageMissing]);
-
-    /// <summary>A pattern that offers more than three options.</summary>
-    /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
-    [Fact(DisplayName = "a pattern that offers more than three options")]
-    public void PatternOfFourOptions() => Check(
-        root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.PatternPage + "\n#### `three`: Three Actions\n\n**Rationale:** A third choice.\n\n**Cost:** More labels.\n\n#### `four`: Four Actions\n\n**Rationale:** A fourth choice.\n\n**Cost:** More labels still.\n"),
-        [MaintainerDiagnostics.Codes.PatternOptionCount]);
 
     /// <summary>A packaged file whose path is too long for the tool package.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -172,7 +165,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "a manifest page without its pin table region is stale")]
     public void ManifestPageWithoutPinRegion() => Check(
-        root => StandardsFixture.Write(root, "docs/reference/manifest.md", "# Release Manifest\n\n## Intent\n\nThe manifest lists the pins.\n"),
+        root => StandardsFixture.Write(root, "docs/reference/manifest.md", "# Release Manifest\n\nThe manifest lists the pins.\n"),
         [MaintainerDiagnostics.Codes.ProvisionsStale]);
 
     /// <summary>The provisions command writes the generated tables, and validate then finds them current.</summary>
@@ -182,7 +175,7 @@ public sealed partial class StandardsValidatorTests
     {
         using var temp = Cli.Temp("standards");
         StandardsFixture.Base(temp.Path);
-        StandardsFixture.Write(temp.Path, "docs/reference/manifest.md", "# Release Manifest\n\n## Intent\n\nThe manifest lists the pins.\n\n<!-- generated:manifest-pins -->\n<!-- /generated:manifest-pins -->\n");
+        StandardsFixture.Write(temp.Path, "docs/reference/manifest.md", "# Release Manifest\n\nThe manifest lists the pins.\n\n<!-- generated:manifest-pins -->\n<!-- /generated:manifest-pins -->\n");
         Assert.Equal(0, Cli.Run("provisions", "--root", temp.Path).Status);
         Assert.Equal(0, Cli.Run("provisions", "--check", "--root", temp.Path).Status);
         var codes = StandardsValidator.Validate(temp.Path).Diagnostics.Select(item => item.Code).ToHashSet(StringComparer.Ordinal);

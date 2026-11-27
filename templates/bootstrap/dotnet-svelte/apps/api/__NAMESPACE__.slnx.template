@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/__NAMESPACE__.Kernel/__NAMESPACE__.Kernel.csproj" />
+  <Project Path="src/__NAMESPACE__.Platform/__NAMESPACE__.Platform.csproj" />
+  <Project Path="src/Modules/__NAMESPACE__.Health/__NAMESPACE__.Health.csproj" />
+  <Project Path="src/Hosts/__NAMESPACE__.WebApi/__NAMESPACE__.WebApi.csproj" />
+</Solution>

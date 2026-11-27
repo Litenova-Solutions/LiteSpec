@@ -4,5 +4,5 @@ title: Remind Approver After Three Business Days
 kind: functional
 statement: The product sends the approver one reminder for each expense that waits past three business days without a decision.
 rationale: Managers decide in batches, so an expense can wait unseen for weeks.
-cites:
+basedOn:
 - feature/approval-reminders

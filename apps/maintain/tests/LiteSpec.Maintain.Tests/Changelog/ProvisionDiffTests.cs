@@ -175,7 +175,7 @@ public sealed class ProvisionDiffTests
         var rows = new[]
         {
             new ProvisionDiff.Row("litespec/ext/delivery#a", "docs/ext/delivery.md", "A."),
-            new ProvisionDiff.Row("litespec/backend/dotnet/ext/bdd#b", "docs/backend/dotnet/ext/bdd.md", "B."),
+            new ProvisionDiff.Row("litespec/packs/dotnet/ext/bdd#b", "docs/backend/dotnet/ext/bdd.md", "B."),
             new ProvisionDiff.Row("litespec/ext/delivery#c", "docs/ext/delivery.md", "C."),
             new ProvisionDiff.Row("litespec/ext/README#d", "docs/ext/README.md", "D."),
             new ProvisionDiff.Row("litespec/core/scope#e", "docs/core/scope.md", "E."),

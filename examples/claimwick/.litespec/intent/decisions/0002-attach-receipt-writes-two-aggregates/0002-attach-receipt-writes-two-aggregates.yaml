@@ -1,0 +1,16 @@
+type: decision
+id: decision/0002-attach-receipt-writes-two-aggregates
+title: Attach Receipt Writes Two Aggregates
+summary: Attaching a receipt stores the receipt and its expense link in one transaction.
+kind: boundary
+context: A receipt meant nothing without the expense it proved, so attaching one had to store the receipt and its expense link together under rule/spending.receipt-attached-atomically. Splitting the write would leave a receipt no expense named, or an expense naming a receipt that never landed.
+options:
+- name: One transaction writing both aggregates
+  pros: The receipt and its expense link land together.
+  cons: The command writes two aggregates in one transaction.
+- name: Receipt first with a reaction linking the expense after
+  pros: Each command writes one aggregate.
+  cons: A failure between the writes leaves a receipt no expense names.
+choice: One transaction writing both aggregates
+consequences: use-case/spending.attach-receipt writes aggregate/spending.expense and aggregate/spending.receipt in one transaction under rule/spending.receipt-attached-atomically. A later move of the receipt boundary reopens this choice.
+reopenedWhen: The receipt boundary moves into the expense aggregate, or the expense link tolerates landing after the receipt.

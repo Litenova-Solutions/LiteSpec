@@ -68,7 +68,7 @@ static class ProofConfirmation
     }
 
     /// <summary>
-    ///     A journey step is exercised when a passing test proved a scenario of a
+    ///     A flow step is exercised when a passing test proved a scenario of a
     ///     use case that serves the step.
     /// </summary>
     /// <param name="model">The project model.</param>
@@ -94,7 +94,7 @@ static class ProofConfirmation
 
             foreach (var step in useCase.Ids(RecordFields.Serves))
             {
-                if (Identifiers.TrySplitStep(step, out _, out _))
+                if (step.StartsWith("step/", StringComparison.Ordinal))
                 {
                     model.ExercisedSteps.Add(step);
                 }
@@ -161,10 +161,10 @@ static class ProofConfirmation
 
         var reached = model.Records
             .Where(record => record.Type == RecordTypes.Screen
-                && record.Field(RecordFields.Address) is { } address
+                && record.Field(RecordFields.Route) is { } address
                 && record.Ids(RecordFields.Offers).Contains(scenarioUseCase.Id, StringComparer.Ordinal))
             .Any(screen => test.Gotos.Any(target =>
-                Readers.FrontendFactsRules.AddressMatches(screen.Field(RecordFields.Address)!, target)));
+                Readers.FrontendFactsRules.AddressMatches(screen.Field(RecordFields.Route)!, target)));
 
         if (!reached)
         {
@@ -176,7 +176,7 @@ static class ProofConfirmation
 
         if (result?.Field(RecordFields.Outcome) == "refusal")
         {
-            return result.Field(RecordFields.Code) is { } code && test.Codes.Contains(code, StringComparer.Ordinal);
+            return RefusalCode.Of(result) is { } code && test.Codes.Contains(code, StringComparer.Ordinal);
         }
 
         var sentences = new HashSet<string>(StringComparer.Ordinal);
@@ -683,7 +683,7 @@ static class ProofConfirmation
             foreach (var id in reaction.Ids(RecordFields.TriggeredBy))
             {
                 if (model.ById.TryGetValue(id, out var target)
-                    && target.Type is RecordTypes.Event or RecordTypes.IntegrationEvent)
+                    && target.Type is RecordTypes.DomainEvent or RecordTypes.IntegrationEvent)
                 {
                     trigger.Add(id);
                 }
@@ -759,7 +759,7 @@ static class ProofConfirmation
     /// <returns>True when the test asserts the refusal.</returns>
     private static bool Asserts(ProjectModel model, CodeScenarioTest test, Record refusal)
     {
-        if (refusal.Field(RecordFields.Code) is not { } code)
+        if (RefusalCode.Of(refusal) is not { } code)
         {
             return false;
         }

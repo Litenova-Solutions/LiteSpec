@@ -20,13 +20,13 @@ public static class RecordFolders
     public static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
     {
         "aggregates", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
-        "integration-events", "external-systems",
+        "external-systems", "read-models", "reference-data",
     };
 
-    /// <summary>The typed folders an aggregate holds beside its aggregate record: its use cases, its events and its rules.</summary>
+    /// <summary>The typed folders an aggregate holds beside its aggregate record: its use cases, its events, its published facts and its rules.</summary>
     public static readonly HashSet<string> AggregateFolders = new(StringComparer.Ordinal)
     {
-        "use-cases", "events", "rules",
+        "use-cases", "domain-events", "module-events", "integration-events", "rules",
     };
 
     /// <summary>Record types whose English plural is the type itself, or that take a singular verb.</summary>
@@ -38,25 +38,34 @@ public static class RecordFolders
     /// </summary>
     private static readonly IReadOnlyList<Home> Table =
     [
-        Scaffold("product", "intent", "product.yaml"),
+        Scaffold("product", "", "product.yaml"),
         Scaffold("goal", "intent/goals/{name}", "{name}.yaml"),
-        Scaffold("vision", "intent/visions/{name}", "{name}.yaml"),
+        Scaffold("direction", "intent/directions/{name}", "{name}.yaml"),
         Scaffold("problem", "intent/problems/{name}", "{name}.yaml"),
         // A feature sits in the folder of the one problem it answers; its identifier carries no problem.
         Scaffold("feature", "intent/problems/{problem}/features/{name}", "{name}.yaml"),
         // A requirement sits in its own folder inside its feature's folder. litespec new and rename place it
         // from the feature record, since the identifier names the feature but not the problem.
-        At("requirement", "intent/problems/{problem}/features/{feature}/requirements/{name}", "{name}.yaml"),
+        Scaffold("requirement", "intent/problems/{problem}/features/{feature}/requirements/{name}", "{name}.yaml"),
+        // A product-wide requirement, with no offer behind it, sits under the product.
+        At("requirement", "intent/requirements/{name}", "{name}.yaml"),
         Scaffold("constraint", "intent/constraints/{name}", "{name}.yaml"),
         Scaffold("decision", "intent/decisions/{name}", "{name}.yaml"),
         At("decision", "implementation/decisions/{name}", "{name}.yaml"),
         At("decision", "implementation/modules/{module}/decisions/{name}", "{name}.yaml"),
         Scaffold("research", "intent/research/{name}", "{name}.yaml"),
-        Scaffold("journey", "intent/journeys/{name}", "{name}.yaml"),
+        Scaffold("flow", "intent/flows/{name}", "{name}.yaml"),
+        At("step", "intent/flows/{name}", "{name}.yaml"),
         Scaffold("actor", "intent/actors/{name}", "{name}.yaml"),
         Scaffold("role", "intent/roles/{name}", "{name}.yaml"),
         Scaffold("module", "behavior/modules/{name}", "module.yaml"),
+        Scaffold("knowledge-area", "behavior/knowledge/{name}", "knowledge-area.yaml"),
         At("term", "", "glossary.yaml"),
+        At("cast", "", "cast.yaml"),
+        At("party", "", "cast.yaml"),
+        At("person", "", "cast.yaml"),
+        At("occasion", "", "cast.yaml"),
+        At("figure", "", "cast.yaml"),
         Scaffold("aggregate", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
         At("use-case", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         Scaffold("use-case", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
@@ -64,25 +73,34 @@ public static class RecordFolders
         At("result", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
         At("scenario", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         At("scenario", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
-        At("event", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
-        At("event", "behavior/modules/{module}/aggregates/{aggregate}/events", "*"),
-        At("rule", "behavior/rules", "*"),
-        At("rule", "behavior/modules/{module}/rules", "*"),
-        At("rule", "behavior/modules/{module}/aggregates/{aggregate}/rules", "*"),
+        At("scenario", "behavior/modules/{module}/reactions/{name}", "{name}.yaml"),
+        At("scenario", "behavior/modules/{module}/jobs/{name}", "{name}.yaml"),
+        // A domain event and a rule each sit in their own folder beside the aggregate or module they belong to,
+        // so each has room for its explanation. litespec new places them from the identifier home.
+        Scaffold("domain-event", "behavior/modules/{module}/aggregates/{aggregate}/domain-events/{name}", "{name}.yaml"),
+        Scaffold("rule", "behavior/modules/{module}/aggregates/{aggregate}/rules/{name}", "{name}.yaml"),
+        At("rule", "behavior/modules/{module}/rules/{name}", "{name}.yaml"),
+        At("rule", "behavior/rules/{name}", "{name}.yaml"),
         Scaffold("reaction", "behavior/modules/{module}/reactions/{name}", "{name}.yaml"),
         Scaffold("job", "behavior/modules/{module}/jobs/{name}", "{name}.yaml"),
         Scaffold("notification", "behavior/modules/{module}/notifications/{name}", "{name}.yaml"),
-        At("setting", "behavior/modules/{module}/settings", "*"),
-        Scaffold("integration-event", "behavior/modules/{module}/integration-events/{name}", "{name}.yaml"),
+        Scaffold("setting", "behavior/modules/{module}/settings/{name}", "{name}.yaml"),
+        Scaffold("module-event", "behavior/modules/{module}/aggregates/{aggregate}/module-events/{name}", "{name}.yaml"),
+        Scaffold("integration-event", "behavior/modules/{module}/aggregates/{aggregate}/integration-events/{name}", "{name}.yaml"),
+        Scaffold("read-model", "behavior/modules/{module}/read-models/{name}", "{name}.yaml"),
+        Scaffold("reference-data", "behavior/modules/{module}/reference-data/{name}", "{name}.yaml"),
+        At("reference-data", "behavior/knowledge/{area}/reference-data/{name}", "{name}.yaml"),
         At("permission", "behavior/modules/{module}", "permissions.yaml"),
+        At("refusal-set", "behavior/modules/{module}/aggregates/{aggregate}", "refusals.yaml"),
+        At("refusal-set", "behavior/modules/{module}", "refusals.yaml"),
         At("entry-point", "behavior/entry-points/{entry-point}", "entry-point.yaml"),
         Scaffold("screen", "behavior/entry-points/{entry-point}/screens/{home}.{name}", "{home}.{name}.yaml"),
         Scaffold("external-system", "behavior/external-systems/{name}", "{name}.yaml"),
         At("external-system", "behavior/modules/{module}/external-systems/{name}", "{name}.yaml"),
         Scaffold("runbook", "implementation/runbooks/{name}", "{name}.yaml"),
         At("runbook", "implementation/modules/{module}/runbooks/{name}", "{name}.yaml"),
-        Scaffold("departure", "governance/departures/{name}", "{name}.yaml"),
-        At("departure", "governance/modules/{module}/departures/{name}", "{name}.yaml"),
+        Scaffold("waiver", "governance/waivers/{name}", "{name}.yaml"),
+        At("waiver", "governance/modules/{module}/waivers/{name}", "{name}.yaml"),
     ];
 
     /// <summary>
@@ -186,6 +204,7 @@ public static class RecordFolders
         var subject = type switch
         {
             "product" => "the product",
+            "party" => "parties",
             _ when Uncountable.Contains(type) => type,
             _ => type.Replace('-', ' ') + "s",
         };
@@ -276,13 +295,14 @@ public static class RecordFolders
     /// <param name="text">The segment or file name with tokens.</param>
     /// <param name="home">The identifier home, or null.</param>
     /// <param name="name">The identifier name.</param>
-    /// <returns>The text with each token replaced.</returns>
+    /// <returns>The text with each token replaced; the aggregate token takes the plural its folder carries.</returns>
     private static string Fill(string text, string? home, string name) =>
         text.Replace("{module}", home ?? string.Empty)
             .Replace("{problem}", home ?? string.Empty)
+            .Replace("{feature}", home ?? string.Empty)
             .Replace("{entry-point}", home ?? string.Empty)
             .Replace("{home}", home ?? string.Empty)
-            .Replace("{aggregate}", name)
+            .Replace("{aggregate}", Naming.PluralKebab(name))
             .Replace("{name}", name);
 
     /// <summary>One home as the message shows it: the folder, then the file when the file is named.</summary>
@@ -338,7 +358,7 @@ public static class RecordFolders
     /// <param name="home">The home entry.</param>
     /// <returns>True when the path needs the home.</returns>
     private static bool NeedsHome(Home home) =>
-        home.Folder.Contains("{module}") || home.Folder.Contains("{problem}") || home.Folder.Contains("{entry-point}") || home.File.Contains("{home}");
+        home.Folder.Contains("{module}") || home.Folder.Contains("{problem}") || home.Folder.Contains("{feature}") || home.Folder.Contains("{entry-point}") || home.File.Contains("{home}");
 
     /// <summary>
     ///     One home of a record type: the folder pattern below the record layer and the file rule.

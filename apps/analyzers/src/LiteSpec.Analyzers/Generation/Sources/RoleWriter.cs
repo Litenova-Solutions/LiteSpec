@@ -9,7 +9,7 @@ using static LiteSpec.Analyzers.Generation.Sources.GeneratedText;
 namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>Writes the role entries, one per role record, each with the permissions it grants.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 internal static class RoleWriter
 {
     /// <summary>
@@ -86,28 +86,6 @@ internal static class RoleWriter
             return;
         }
 
-        var declared = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var permission in records.Permissions)
-        {
-            declared.Add(permission.Id);
-        }
-
-        foreach (var role in named)
-        {
-            foreach (var allowed in role.Facts.Allows)
-            {
-                if (!declared.Contains(allowed))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        GeneratorDiagnostics.RoleAllowsUndeclaredPermission,
-                        Location.None,
-                        role.Facts.Id,
-                        allowed));
-                }
-            }
-        }
-
         context.AddSource("LiteSpecRoles.g.cs", RolesText(named));
     }
 
@@ -155,7 +133,7 @@ internal static class RoleWriter
             text.AppendLine();
         }
 
-        text.AppendLine("        internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Allows);");
+        text.AppendLine("        internal sealed record LiteSpecRole(string Id, string Scope, System.Collections.Generic.IReadOnlyList<string> Permissions);");
         text.AppendLine();
         text.AppendLine("        public static System.Collections.Generic.IReadOnlyList<LiteSpecRole> All { get; } = new LiteSpecRole[]");
         text.AppendLine("        {");
@@ -190,21 +168,21 @@ internal static class RoleWriter
     /// <returns>The entry text as text.</returns>
     private static string RoleEntryText(NamedRole role)
     {
-        var allows = new StringBuilder();
+        var permissions = new StringBuilder();
 
-        foreach (var allowed in role.Facts.Allows)
+        foreach (var permission in role.Facts.Permissions)
         {
-            if (allows.Length > 0)
+            if (permissions.Length > 0)
             {
-                allows.Append(", ");
+                permissions.Append(", ");
             }
 
-            allows.Append("\"" + Escape(allowed) + "\"");
+            permissions.Append("\"" + Escape(permission) + "\"");
         }
 
         return "new LiteSpecRole(\""
             + Escape(role.Facts.Id) + "\", \""
             + Escape(role.Facts.Scope) + "\", new string[] { "
-            + (allows.Length > 0 ? allows.ToString() + " " : string.Empty) + "})";
+            + (permissions.Length > 0 ? permissions.ToString() + " " : string.Empty) + "})";
     }
 }

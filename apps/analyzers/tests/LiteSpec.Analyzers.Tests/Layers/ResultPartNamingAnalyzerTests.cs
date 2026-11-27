@@ -17,7 +17,7 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record ReadLoanQueryResult(int LoanId);
 
             public sealed record ReadLoanQueryResultHold(int HoldId);
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2009 accepts a part named after its command result.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -30,7 +30,7 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record ApproveExpenseCommandResult(int ExpenseId);
 
             public sealed record ApproveExpenseCommandResultLine(int LineId);
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2009 reports a part not named after its result.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -43,7 +43,7 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record ReadLoanQueryResult(int LoanId, LoanHoldItem[] Holds);
 
             public sealed record {|LS2009:LoanHoldItem|}(int HoldId);
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2009 ignores the message, handler, validator, and definition.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -68,7 +68,7 @@ public sealed class ResultPartNamingAnalyzerTests
             internal sealed class ReadLoanQueryDefinition
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2009 ignores a type where no result is declared.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -79,7 +79,7 @@ public sealed class ResultPartNamingAnalyzerTests
             namespace Shop.Loans;
 
             public sealed record LoanHoldItem(int HoldId);
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2009 ignores a part outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -92,20 +92,8 @@ public sealed class ResultPartNamingAnalyzerTests
             public sealed record ReadLoanQueryResult(int LoanId);
 
             public sealed record LoanHoldItem(int HoldId);
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS2009 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/workspace/naming#name-result-parts-after-their-result</proves>
-    [Fact(DisplayName = "LS2009 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<ResultPartNamingAnalyzer>("""
-            namespace Shop.Core;
-
-            public sealed record ReadLoanQueryResult(int LoanId, LoanHoldItem[] Holds);
-
-            public sealed record {|LS2009:LoanHoldItem|}(int HoldId);
-            """, assemblyName: "Shop.Core", layer: "Application");
 
     /// <summary>LS2009 ignores a helper the result does not reach.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -120,5 +108,5 @@ public sealed class ResultPartNamingAnalyzerTests
             internal sealed class LoanPageReader
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 }

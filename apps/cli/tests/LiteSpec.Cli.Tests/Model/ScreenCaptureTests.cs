@@ -41,7 +41,7 @@ public sealed class ScreenCaptureTests
               "packs": ["lite"],
               "stacks": ["dotnet"],
               "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-              "reviewedLiteSpecVersion": "6.0.0",
+              "reviewedLiteSpecVersion": "7.0.0",
               "screenshots": { "galleries": ["gallery"], "pattern": "{route}--{theme}--{width}.png" }
             }
             """);
@@ -49,7 +49,7 @@ public sealed class ScreenCaptureTests
         var config = ConsumerConfig.Load(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"address": "/loans", "entryPoint": "browser"}"""));
+            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"route": "/loans", "entryPoint": "browser", "job": "The reader lists loans and opens one to read it.", "archetype": "ListPage"}"""));
 
         ScreenshotCaptures.Compute(model);
 
@@ -71,7 +71,7 @@ public sealed class ScreenCaptureTests
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
-            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"address": "/loans", "entryPoint": "browser"}"""),
+            TestModel.Record("screen", "screen/borrowing.list", Path.Combine(temp.Path, "list.yaml"), """{"route": "/loans", "entryPoint": "browser", "job": "The reader lists loans and opens one to read it.", "archetype": "ListPage"}"""),
             TestModel.Record("screen", "screen/borrowing.overlay", Path.Combine(temp.Path, "overlay.yaml"), """{"host": "screen/borrowing.list"}"""));
 
         ScreenshotCaptures.Compute(model);

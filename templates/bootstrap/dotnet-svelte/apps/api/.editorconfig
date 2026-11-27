@@ -1,0 +1,22 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+# Hand-written constructors and fields instead of primary constructors on classes and structs.
+csharp_style_prefer_primary_constructors = false:silent
+dotnet_diagnostic.IDE0290.severity = none
+
+# A command handler sends no nested message: a nested mediation nests a second unit of work.
+litebus_forbid_nested_commands = true
+dotnet_diagnostic.LB1023.severity = error
+
+# A command or query with no tenancy declaration is reported at build time.
+litebus_required_declarations = LiteBus.Messaging.Abstractions.Tenancy.TenancyDeclaration
+dotnet_diagnostic.LB1020.severity = warning

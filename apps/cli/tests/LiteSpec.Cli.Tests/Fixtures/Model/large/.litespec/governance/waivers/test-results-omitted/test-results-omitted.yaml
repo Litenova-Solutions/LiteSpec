@@ -1,0 +1,20 @@
+type: waiver
+id: waiver/test-results-omitted
+title: Test results omitted
+kind: gap
+waives:
+- use-case-unverified
+appliesTo:
+- use-case/lending.borrow-copy
+- use-case/lending.cancel-hold
+- use-case/lending.extend-loan
+- use-case/lending.list-loans
+- use-case/lending.place-hold
+- use-case/lending.register-copy
+- use-case/lending.retire-copy
+- use-case/lending.return-copy
+reason: The large fixture carries proves marks but no test results, so no scenario has a passing run.
+exitWhen: Test results land and every scenario gains a passing run, and the waiver is removed.
+expiresOn: 2035-06-01
+closedBy:
+- use-case/lending.register-copy

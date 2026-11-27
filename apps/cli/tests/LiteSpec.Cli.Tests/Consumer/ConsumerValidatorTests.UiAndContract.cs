@@ -6,37 +6,37 @@ namespace LiteSpec.Cli.Tests.Consumer;
 public sealed partial class ConsumerValidatorTests
 {
     /// <summary>Controlled frontend without its shared package.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact(DisplayName = "controlled frontend without its shared package")]
     public void ControlledFrontendWithoutItsSharedPackage()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["stacks"] = new JsonArray("dotnet", "react");
+            project["stacks"] = new JsonArray("dotnet", "svelte");
             project["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "react" });
+                new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "svelte" });
         });
         AssertProblem(RunConsumer(folder.Path), "missing required property 'ui'");
     }
 
     /// <summary>Frontend outside the controlled contract stays quiet.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact(DisplayName = "frontend outside the controlled contract stays quiet")]
     public void FrontendOutsideTheControlledContractStaysQuiet()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["stacks"] = new JsonArray("dotnet", "blazor");
+            project["stacks"] = new JsonArray("dotnet", "android");
             project["frontends"] = new JsonArray(
-                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "blazor" });
+                new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "android" });
         });
         AssertAbsent(RunConsumer(folder.Path), "controlled UI");
     }
 
     /// <summary>Child validator findings merge with their prefix.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact(DisplayName = "child validator findings merge with their prefix")]
     public void ChildValidatorFindingsMergeWithTheirPrefix()
     {
@@ -45,13 +45,13 @@ public sealed partial class ConsumerValidatorTests
         // validator, and its findings merge into this validator's list.
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["stacks"] = new JsonArray("dotnet", "react");
+            project["stacks"] = new JsonArray("dotnet", "svelte");
             project["frontends"] = new JsonArray(
                 new JsonObject
                 {
                     ["name"] = "web",
                     ["path"] = "apps/web",
-                    ["platform"] = "react",
+                    ["platform"] = "svelte",
                     ["ui"] = new JsonObject { ["profile"] = "application-balanced" },
                 });
             project["ui"] = new JsonObject { ["package"] = new JsonObject
@@ -88,37 +88,34 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Failing run writes its problems as an array.</summary>
-    /// <proves>litespec/core/intent#shape-each-decision-page</proves>
+    /// <proves>litespec/core/intent#state-each-decision-with-context-and-choice</proves>
     [Fact(DisplayName = "failing run writes its problems as an array")]
     public void FailingRunWritesItsProblemsAsAnArray()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateBody(
-            folder.Path,
-            ".litespec/product/decisions/0001-launch.md",
-            raw => ReplaceFirst(raw, "## Context", "## Notes"));
+        ConsumerFixture.MutateMeta(folder.Path, DecisionPage, meta => meta.Remove("consequences"));
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(1, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
         var messages = parsed["findings"]!.AsArray()
             .Select(finding => (JsonObject)finding!)
-            .Where(finding => (string?)finding["code"] == "page-section-missing")
+            .Where(finding => (string?)finding["code"] == "record-invalid")
             .Select(finding => (string?)finding["message"] ?? string.Empty);
-        Assert.Contains(messages, message => message.Contains("requires an H2 'Context'", StringComparison.Ordinal));
+        Assert.Contains(messages, message => message.Contains("missing required property 'consequences'", StringComparison.Ordinal));
     }
 
-    /// <summary>Machine-readable problems carry their code and level.</summary>
+    /// <summary>Machine-readable review problems carry their code and level.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact(DisplayName = "machine-readable problems carry their code and level")]
-    public void MachineReadableProblemsCarryTheirCodeAndLevel()
+    [Fact(DisplayName = "machine-readable review problems carry their code and level")]
+    public void MachineReadableReviewProblemsCarryTheirCodeAndLevel()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateBody(
             folder.Path,
-            ".litespec/product/decisions/0001-launch.md",
-            raw => ReplaceFirst(raw, "## Context", "## Notes"));
-        var result = RunConsumer(folder.Path, "--format", "json");
-        Assert.Equal(1, result.Status);
+            TutorialPage,
+            raw => ReplaceFirst(raw, "## What You Built", "## Notes"));
+        var result = RunReview(folder.Path, "--format", "json");
+        Assert.Equal(0, result.Status);
         var parsed = (JsonObject)JsonNode.Parse(result.Stdout)!;
         var findings = parsed["findings"]!.AsArray()
             .Select(finding => (JsonObject)finding!)
@@ -127,18 +124,18 @@ public sealed partial class ConsumerValidatorTests
         Assert.NotEmpty(findings);
         Assert.All(findings, finding =>
         {
-            Assert.Equal("G", (string?)finding["level"]);
+            Assert.Equal("R", (string?)finding["level"]);
             Assert.Equal("page-section-missing", (string?)finding["code"]);
-            Assert.Equal("blocking", (string?)finding["outcome"]);
-            Assert.Contains("requires an H2 'Context'", (string?)finding["message"] ?? string.Empty, StringComparison.Ordinal);
-            Assert.Equal(".litespec/product/decisions/0001-launch.md", (string?)finding["path"]);
+            Assert.Equal("reported", (string?)finding["outcome"]);
+            Assert.Contains("requires an H2 'What You Built'", (string?)finding["message"] ?? string.Empty, StringComparison.Ordinal);
+            Assert.Equal(".litespec/implementation/first-run.md", (string?)finding["path"]);
             Assert.Equal(1, (int?)finding["line"]);
-            Assert.Equal("decision/0001-launch", (string?)finding["subject"]);
+            Assert.Equal("first-run", (string?)finding["subject"]);
         });
     }
 
     /// <summary>Page with a leading byte-order mark.</summary>
-    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#hold-every-record-file-and-frontmatter-block-to-the-schema</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()
     {

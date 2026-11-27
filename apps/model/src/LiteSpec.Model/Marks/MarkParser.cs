@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace LiteSpec.Model;
 
 /// <summary>
 ///     Reads marks from text in every written form: the documentation tags and
-///     the generated attributes. The Blazor and operations readers share this,
-///     so all three read the same verbs with the same trimming. Matching is
+///     the generated attributes. The code readers share this,
+///     so every reader reads the same verbs with the same trimming. Matching is
 ///     exact and case sensitive. A malformed mark is left out rather than
 ///     returned with an empty identifier: text readers report what they find,
 ///     never what they cannot parse.
@@ -14,10 +15,49 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 public static class MarkParser
 {
-    /// <summary>Reads every documentation tag mark in the text, in source order.</summary>
+    /// <summary>Reads every documentation tag mark in the text, in source order, except the seeds tags.</summary>
     /// <param name="text">The text to read, or null for no marks.</param>
     /// <returns>The well-formed tag marks, each with a non-empty identifier.</returns>
-    public static IReadOnlyList<ParsedMark> ReadTags(string? text)
+    public static IReadOnlyList<ParsedMark> ReadTags(string? text) => ReadTagMarks(text, seeds: false);
+
+    /// <summary>Reads every seeds documentation tag in the text, in source order.</summary>
+    /// <param name="text">The text to read, or null for no marks.</param>
+    /// <returns>The well-formed seeds tags, each with a non-empty identifier.</returns>
+    public static IReadOnlyList<ParsedMark> ReadSeedTags(string? text) => ReadTagMarks(text, seeds: true);
+
+    /// <summary>
+    ///     Reads every TypeScript seeds comment in the text, in source order: a line comment
+    ///     reading <c>// litespec: seeds &lt;id&gt;</c>, where the identifier is the rest of the word.
+    /// </summary>
+    /// <param name="text">The text to read, or null for no marks.</param>
+    /// <returns>The seeds comments, each with its identifier and the offset of the comment.</returns>
+    public static IReadOnlyList<ParsedMark> ReadSeedComments(string? text)
+    {
+        var found = new List<ParsedMark>();
+
+        if (text is null || text.Length == 0)
+        {
+            return found;
+        }
+
+        foreach (Match match in SeedComment.Matches(text))
+        {
+            found.Add(new ParsedMark(MarkVerb.Seeds, match.Groups["id"].Value, match.Index, fromAttribute: false));
+        }
+
+        return found;
+    }
+
+    /// <summary>The TypeScript seeds comment: a line comment naming a cast entry.</summary>
+    private static readonly Regex SeedComment = new(
+        @"//\s*litespec:\s*seeds\s+(?<id>[^\s]+)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>Reads the documentation tag marks of one verb group: the seeds tags, or every other tag.</summary>
+    /// <param name="text">The text to read, or null for no marks.</param>
+    /// <param name="seeds">True to read the seeds tags; false to read every other tag.</param>
+    /// <returns>The well-formed tag marks of the group, each with a non-empty identifier.</returns>
+    private static List<ParsedMark> ReadTagMarks(string? text, bool seeds)
     {
         var found = new List<ParsedMark>();
 
@@ -49,7 +89,7 @@ public static class MarkParser
 
                 var id = text.Substring(tagEnd + 1, close.Start - tagEnd - 1).Trim();
 
-                if (id.Length > 0 && id.IndexOf('<') < 0 && id.IndexOf('>') < 0)
+                if (id.Length > 0 && id.IndexOf('<') < 0 && id.IndexOf('>') < 0 && (verb == MarkVerb.Seeds) == seeds)
                 {
                     found.Add(new ParsedMark(verb, id, open, fromAttribute: false));
                 }
@@ -146,7 +186,7 @@ public static class MarkParser
             return false;
         }
 
-        foreach (var candidate in new[] { MarkVerb.Implements, MarkVerb.Proves, MarkVerb.Follows })
+        foreach (var candidate in new[] { MarkVerb.Implements, MarkVerb.Proves, MarkVerb.Follows, MarkVerb.Seeds })
         {
             var name = candidate.ToTagName();
 

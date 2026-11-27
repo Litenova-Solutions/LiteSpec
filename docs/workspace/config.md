@@ -3,165 +3,47 @@
 **Stack:** `any`
 **Concern:** `workspace`
 
-## Intent
-
-Configuration is every value a workspace sets outside code: version pins, backend and frontend settings, environment access, secrets, and toolchain versions. This page states where each value lives, who owns it, and when a bad value fails. It applies to anyone who adds a setting, a dependency, or a tool to the workspace.
+Configuration is each value a workspace sets outside code: version pins, backend and frontend settings, environment access, secrets, and toolchain versions. This page is for anyone who adds a setting, a dependency, or a tool. A bad value fails at startup with a named field instead of failing the first request that needs it.
 
 ## Concepts
 
 ### Settings and Environment
 
-A backend section binds to a named settings type: one class that names each field, its range, and its format, validated when the application starts. A frontend reads its environment through one validated module that separates server-only values from browser-visible ones. Tracked files carry only safe defaults and placeholders; real values live in user secrets locally and on the deployment platform when hosted.
+One settings type covers one backend section, naming each field with its range and format. The application validates it at startup, so a missing or malformed value stops the start with the field named. The `Email` section binds an `EmailSettings` type that validates its endpoint and sender at startup.
+
+A frontend reads its environment through one validated module that separates server-only values from browser-visible ones. The module lives at `src/lib/env.ts` through the framework alias. Browser-visible names use the framework prefix, so an unprefixed value stays out of the bundle.
 
 ### Pins and Repeatability
 
-A repeatable build resolves the same versions on every machine. The manifest, `litespec.manifest.yaml`, pins the baseline stack, one root lockfile pins the JavaScript graph, and the toolchain pins name the package manager and Node.js releases. With every version pinned in one owned place, two checkouts of the same commit build the same result.
+A repeatable build resolves the same versions on each machine. Three pins give that: the manifest `litespec.manifest.yaml` pins the baseline stack the standards name, one root lockfile pins the JavaScript graph, and the toolchain pins name the package manager and Node.js releases. With each version pinned in one owned place, two checkouts of the same commit build the same result.
 
-## Standards
+The root `package.json` declares the manifest pnpm stack release in `packageManager` and a Node.js engine matching the manifest node stack release. CI provisions that Node.js release and invokes the declared pnpm release, so local installs and CI installs resolve identically. One root `package.json`, `pnpm-workspace.yaml`, and `pnpm-lock.yaml` cover the TypeScript workspace, with nested lockfiles left out.
 
-### Validate Backend Configuration at Startup
+### Secrets and Local Values
 
-**ID:** `litespec/workspace/config#validate-backend-configuration-at-startup`
+A tracked configuration file reaches each clone and stays in history after deletion. Tracked files hold safe defaults and placeholders only, while real values live in user secrets locally and on the deployment platform when hosted. A new developer copies the example to start, and a reviewer reads it to learn which names the application needs.
 
-**Strength:** required
+A `.env.example` sits beside each frontend and deployable host, listing the names and safe values. Kept beside the frontend or host it documents, next to the options module that reads those names, the example changes in the same edit as the names. Kept anywhere else, it goes stale without anyone noticing.
 
-**Statement:** A backend configuration section MUST bind to a named settings type validated for required fields, ranges, and formats at startup.
+Developer overrides differ per machine by nature: ports, paths, and local endpoints. Overrides live in ignored local files or a platform secret store, so one developer setup turns into no team default. The tree holds no second tracked environment-specific source competing with the deployment platform for the same value.
 
-**Rationale:** A missing or malformed setting fails somewhere: at startup with a named field, or at the first request that needs it with a downstream error. Binding each section to a validated settings type fails at startup, while the deployment can still stop. Reading a required setting through a raw configuration lookup defers the failure to the first request that needs it.
+### Logging and Documentation Directories
 
-**Reviewed for:** Each backend section binds a settings type that fails startup on a missing field, a bad range, or a bad format; read the settings types beside the backend host.
+Application code writes through standard logging abstractions while each host configures its exporter. Application code carries no provider choice that way, and a log backend switch stays inside deployment settings instead of touching each call site.
 
-### Validate Frontend Environment Access
+Platform `.gitignore` templates match broad names, so a documentation directory with such a name stops being tracked silently. Excluding the documentation directory from the rule keeps records tracked, and `git check-ignore docs/<directory>/<file>.yaml` confirms that each record stays visible:
 
-**ID:** `litespec/workspace/config#validate-frontend-environment-access`
-
-**Strength:** required
-
-**Statement:** A frontend MUST read environment variables through one validated module separating server-only from browser-visible values, at `src/lib/env.ts` through the framework alias.
-
-**Rationale:** A frontend bundle ships to the browser, so every value it reads is public. One validated module at `src/lib/env.ts` separates server-only values from browser-visible ones in a single place a reviewer can read. Browser-visible names use the framework prefix, so an unprefixed value stays out of the bundle.
-
-**Reviewed for:** Each frontend reads environment values only through `src/lib/env.ts`, with server-only values apart from browser-visible ones.
-
-### Keep Secrets Outside Source Control
-
-**ID:** `litespec/workspace/config#keep-secrets-outside-source-control`
-
-**Strength:** required
-
-**Statement:** A tracked configuration file MUST keep secrets out of tracked and observable data, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and contain only safe defaults and placeholders.
-
-**Rationale:** A tracked file reaches every clone and stays in history after deletion. Local development uses user secrets and hosted environments use the deployment platform, so no real value needs to be tracked. Safe defaults and placeholders keep the tracked file runnable as documentation.
-
-**Reviewed for:** Each tracked configuration file carries only safe defaults and placeholders; real values live in user secrets or the deployment platform.
-
-### Use One Frontend Dependency Graph
-
-**ID:** `litespec/workspace/config#use-one-frontend-dependency-graph`
-
-**Strength:** required
-
-**Statement:** A TypeScript workspace MUST use one root `package.json`, `pnpm-workspace.yaml`, and `pnpm-lock.yaml`.
-
-**Rationale:** One root manifest and one lockfile resolve one version of each package for the whole workspace. A nested lockfile lets one application resolve a different version than the workspace CI installs, so local builds and CI builds disagree about the same code. One graph keeps every install identical.
-
-**Reviewed for:** The workspace holds one root `package.json`, `pnpm-workspace.yaml`, and `pnpm-lock.yaml`, with no nested lockfile tracked.
-
-### Pin the JavaScript Toolchain
-
-**ID:** `litespec/workspace/config#pin-the-javascript-toolchain`
-
-**Strength:** required
-
-**Statement:** Root `package.json` MUST declare the manifest pnpm stack release in `packageManager` and a Node.js engine matching the manifest node stack release.
-
-**Rationale:** Different Node.js or pnpm releases resolve, build, and lint differently. Declaring the manifest pnpm release in `packageManager` and a matching Node.js engine keeps every developer and CI on the same toolchain. CI provisions that Node.js release and invokes the declared pnpm release, so local and CI resolve identically.
-
-**Reviewed for:** Root `package.json` declares `packageManager` and a Node.js engine matching the manifest releases; CI provisions the same releases.
-
-### Pin the React Version in the ESLint Flat Config
-
-**ID:** `litespec/workspace/config#pin-the-react-version-in-the-eslint-flat-config`
-
-**Strength:** required
-
-**Statement:** When the workspace holds a React frontend, its ESLint flat config MUST set a concrete `settings.react.version` rather than leave it at `detect`.
-
-**Rationale:** Version detection calls context APIs that the pinned ESLint release removed, so `detect` fails under the pinned toolchain. A concrete `settings.react.version` skips detection entirely and lints against the version the workspace ships.
-
-**Reviewed for:** Each React ESLint flat config sets a concrete `settings.react.version`.
-
-## Conventions
-
-### Keep Environment Examples Beside Applications
-
-**ID:** `litespec/workspace/config#keep-environment-examples-beside-applications`
-
-**Strength:** default
-
-**Default:** Keep a `.env.example` beside each frontend and deployable host listing required names and safe values.
-
-**Replacement:** A project that documents its environment centrally records its own example location in its project documentation.
-
-**Rationale:** A new developer copies the example to start, and a reviewer reads it to learn which names the application needs. Beside the frontend or host it documents, next to the options module that reads those names, the example changes in the same edit as the names. Anywhere else, it goes stale without anyone noticing.
-
-**Reviewed for:** Each frontend and deployable host directory holds a `.env.example` with required names and safe values; where replaced, the project documentation names the central example location.
-
-### Keep Local Overrides Untracked
-
-**ID:** `litespec/workspace/config#keep-local-overrides-untracked`
-
-**Strength:** default
-
-**Default:** Keep developer overrides in ignored local files or a platform secret store.
-
-**Replacement:** A project that shares override defaults records its own override files and their safe contents in its project documentation.
-
-**Rationale:** Developer overrides differ per machine by nature: ports, paths, local endpoints. Committing them turns one developer's setup into everyone's default. Ignored local files or a platform secret store keep overrides personal, and no second committed source competes with the deployment platform for the same value.
-
-**Reviewed for:** Developer overrides live in ignored local files or a platform secret store, with no second tracked environment-specific source.
-
-### Keep Logging Configuration Provider-Neutral
-
-**ID:** `litespec/workspace/config#keep-logging-configuration-provider-neutral`
-
-**Strength:** default
-
-**Default:** Emit structured logs through standard logging abstractions and keep exporter configuration in hosts.
-
-**Replacement:** A project committed to one log backend records its own logging setup in its host configuration.
-
-**Rationale:** Application code writes through standard logging abstractions, and each host configures its exporter. Application code then carries no provider choice, so switching a log backend stays inside deployment settings instead of touching every call site.
-
-**Reviewed for:** Application source logs through standard abstractions, with exporter configuration in hosts; where replaced, the host configuration names the project's own logging setup.
-
-### Keep Documentation Directories Out of Build-Artifact Ignore Rules
-
-**ID:** `litespec/workspace/config#keep-documentation-directories-out-of-build-artifact-ignore-rules`
-
-**Strength:** default
-
-**Default:** Exclude a documentation directory from a build-artifact ignore rule that matches it by accident.
-
-**Replacement:** A project that renames around the clash records its own directory names in its project documentation.
-
-**Rationale:** Platform `.gitignore` templates match broad names, and a documentation directory with such a name silently stops being tracked. Excluding the documentation directory from the rule keeps records tracked, and `git check-ignore` confirms each record is visible.
-
-**Example:**
-
-```gitignore
+```text
 [Oo]utput/
 !docs/<directory>/
 !docs/<directory>/*.yaml
 !docs/<directory>/*.md
 ```
 
-Confirm with `git check-ignore docs/<directory>/<file>.yaml` that no record is ignored.
+## Standards
 
-**Reviewed for:** Each documentation directory stays tracked; `git check-ignore` reports no match for the record paths under `docs/`.
+None.
 
-## Reference Example
+## Conventions
 
-This informative example demonstrates `litespec/workspace/config#validate-backend-configuration-at-startup` and `litespec/workspace/config#keep-secrets-outside-source-control`.
-
-The `EmailSettings` type binds the `Email` section and validates its endpoint and sender during startup; the application injects it as a settings type instead of reading raw configuration. The tracked file carries only placeholders, and the consumer workspace secret store supplies the credential.
+None.

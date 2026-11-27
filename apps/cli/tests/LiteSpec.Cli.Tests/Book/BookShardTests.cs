@@ -1,7 +1,7 @@
+using System.Text;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Outline;
 using LiteSpec.Cli.Book.Output;
-using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -30,7 +30,6 @@ public sealed class BookShardTests
     [Fact]
     public void RecordsWriteInIdentifierOrderWithAFullShardMap()
     {
-        using var temp = TestCli.Temp("book-shards");
         var details = new Dictionary<string, JsonObject>(StringComparer.Ordinal)
         {
             ["use-case/lending.borrow-copy"] = Detail("use-case/lending.borrow-copy", "use-case", "Borrow Copy"),
@@ -38,24 +37,24 @@ public sealed class BookShardTests
             ["feature/self-checkout"] = Detail("feature/self-checkout", "feature", "Self Checkout", new string('x', 300 * 1024)),
         };
 
-        var dataDir = Path.Combine(temp.Path, "data");
-        var shardOf = BookShards.WriteRecords(dataDir, details);
+        var files = new List<BookFile>();
+        var shardOf = BookShards.AddRecords(files, details);
 
         Assert.Equal(3, shardOf.Count);
         Assert.Equal("records-000", shardOf["feature/self-checkout"]);
         Assert.Equal("records-001", shardOf["goal/faster-borrowing"]);
         Assert.Equal("records-001", shardOf["use-case/lending.borrow-copy"]);
-        Assert.True(File.Exists(Path.Combine(dataDir, "records-000.js")), "records-000.js was not written.");
-        Assert.True(File.Exists(Path.Combine(dataDir, "records-001.js")), "records-001.js was not written.");
+        Assert.Contains(files, file => file.Path == "data/records-000.js");
+        Assert.Contains(files, file => file.Path == "data/records-001.js");
 
-        var first = ReadShard(Path.Combine(dataDir, "records-000.js"), "records-000");
+        var first = ReadShard(files, "records-000");
         Assert.Equal(new[] { "feature/self-checkout" }, PropertyNames(first));
-        var second = ReadShard(Path.Combine(dataDir, "records-001.js"), "records-001");
+        var second = ReadShard(files, "records-001");
         Assert.Equal(new[] { "goal/faster-borrowing", "use-case/lending.borrow-copy" }, PropertyNames(second));
 
-        foreach (var file in Directory.GetFiles(dataDir, "*.js"))
+        foreach (var file in files.Where(file => file.Path.StartsWith("data/", StringComparison.Ordinal)))
         {
-            Assert.True(new FileInfo(file).Length <= BookShards.PackCapBytes, $"{file} breaks the 512 KB cap.");
+            Assert.True(file.Bytes.Length <= BookShards.PackCapBytes, $"{file.Path} breaks the 512 KB cap.");
         }
     }
 
@@ -136,8 +135,7 @@ public sealed class BookShardTests
     [Fact]
     public void LayersSplitIntoSequentialShardsPastSevenHundredKilobytes()
     {
-        using var temp = TestCli.Temp("book-shards");
-        var dataDir = Path.Combine(temp.Path, "data");
+        var files = new List<BookFile>();
         var tops = new List<BookOutlineNode>();
         for (var i = 0; i < 80; i++)
         {
@@ -150,23 +148,22 @@ public sealed class BookShardTests
         }
 
         var shardOf = tops.ToDictionary(node => node.Id, _ => "records-000", StringComparer.Ordinal);
-        var keys = BookShards.WriteLayer(dataDir, "intent", tops, shardOf);
+        var keys = BookShards.AddLayer(files, "intent", tops, shardOf);
 
         Assert.True(keys.Count >= 2, "The layer did not split.");
         Assert.Equal(keys.Select((_, at) => $"outline-intent-{at}").ToList(), keys.ToList());
         foreach (var key in keys)
         {
-            var file = Path.Combine(dataDir, key + ".js");
-            Assert.True(File.Exists(file), $"{key}.js was not written.");
+            var file = files.Single(candidate => candidate.Path == BookShards.DataPath(key));
             Assert.True(
-                new FileInfo(file).Length <= BookShards.OutlineSplitBytes + 4096,
+                file.Bytes.Length <= BookShards.OutlineSplitBytes + 4096,
                 $"{key}.js breaks the outline budget.");
         }
 
         var seen = new List<string>();
         foreach (var key in keys)
         {
-            foreach (var node in ReadShardArray(Path.Combine(dataDir, key + ".js"), key).OfType<JsonObject>())
+            foreach (var node in ReadShardArray(files, key).OfType<JsonObject>())
             {
                 seen.Add(node["id"]!.GetValue<string>());
             }
@@ -180,18 +177,17 @@ public sealed class BookShardTests
     [Fact]
     public void SearchPacksRowsInOrder()
     {
-        using var temp = TestCli.Temp("book-shards");
-        var dataDir = Path.Combine(temp.Path, "data");
+        var files = new List<BookFile>();
         var rows = new JsonArray();
         for (var i = 0; i < 5; i++)
         {
             rows.Add(new JsonArray($"goal/g-{i}", $"G {i}", "goal", $"excerpt {i}"));
         }
 
-        var keys = BookShards.WriteSearch(dataDir, rows);
+        var keys = BookShards.AddSearch(files, rows);
 
         Assert.Equal(new[] { "search-0" }, keys.ToList());
-        var back = ReadShardArray(Path.Combine(dataDir, "search-0.js"), "search-0");
+        var back = ReadShardArray(files, "search-0");
         Assert.Equal(5, back.Count);
         Assert.Equal("goal/g-3", back[3]!.AsArray()[0]!.GetValue<string>());
         Assert.Equal("excerpt 3", back[3]!.AsArray()[3]!.GetValue<string>());
@@ -202,23 +198,22 @@ public sealed class BookShardTests
     [Fact]
     public void ShardFilesCallBookDataPutWithEscapedJson()
     {
-        using var temp = TestCli.Temp("book-shards");
-        var dataDir = Path.Combine(temp.Path, "data");
+        var files = new List<BookFile>();
         var value = new JsonObject
         {
             ["bodyHtml"] = "</script><b>Bold</b>",
             ["line"] = "a" + ((char)0x2028).ToString() + "b",
         };
-        BookShards.WriteShard(dataDir, "records-000", value);
+        BookShards.AddShard(files, "records-000", value);
 
-        var text = File.ReadAllText(Path.Combine(dataDir, "records-000.js"));
+        var text = ShardText(files, "records-000");
         Assert.StartsWith("BookData.put(\"records-000\", ", text, StringComparison.Ordinal);
         Assert.EndsWith(");\n", text, StringComparison.Ordinal);
         Assert.Equal(1, text.Split("BookData.put(").Length - 1);
         Assert.DoesNotContain("</script", text, StringComparison.Ordinal);
         Assert.DoesNotContain(((char)0x2028).ToString(), text, StringComparison.Ordinal);
 
-        var back = ReadShard(Path.Combine(dataDir, "records-000.js"), "records-000");
+        var back = ReadShard(files, "records-000");
         Assert.Equal("</script><b>Bold</b>", back["bodyHtml"]!.GetValue<string>());
         Assert.Equal("a" + ((char)0x2028).ToString() + "b", back["line"]!.GetValue<string>());
     }
@@ -280,18 +275,25 @@ public sealed class BookShardTests
         return detail;
     }
 
-    static JsonObject ReadShard(string path, string key)
+    static string ShardText(List<BookFile> files, string key)
     {
-        var text = File.ReadAllText(path);
+        var path = BookShards.DataPath(key);
+        var file = files.Single(candidate => candidate.Path == path);
+        return Encoding.UTF8.GetString(file.Bytes);
+    }
+
+    static JsonObject ReadShard(List<BookFile> files, string key)
+    {
+        var text = ShardText(files, key);
         var prefix = $"BookData.put(\"{key}\", ";
         Assert.StartsWith(prefix, text, StringComparison.Ordinal);
         Assert.EndsWith(");\n", text, StringComparison.Ordinal);
         return JsonNode.Parse(text[prefix.Length..^3])!.AsObject();
     }
 
-    static JsonArray ReadShardArray(string path, string key)
+    static JsonArray ReadShardArray(List<BookFile> files, string key)
     {
-        var text = File.ReadAllText(path);
+        var text = ShardText(files, key);
         var prefix = $"BookData.put(\"{key}\", ";
         Assert.StartsWith(prefix, text, StringComparison.Ordinal);
         Assert.EndsWith(");\n", text, StringComparison.Ordinal);

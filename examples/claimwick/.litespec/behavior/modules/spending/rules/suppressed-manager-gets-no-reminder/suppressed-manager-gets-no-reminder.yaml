@@ -1,0 +1,12 @@
+type: rule
+id: rule/spending.suppressed-manager-gets-no-reminder
+title: Suppressed Manager Gets No Reminder
+kind: precondition
+statement: A manager holding a reminder preference gets no approval reminder.
+governs:
+- aggregate/spending.reminder-preference
+basedOn: []
+source: product-choice
+fulfills:
+- requirement/approval-reminders.remind-approver-after-three-days
+rationale: A manager who chose not to receive reminders has withdrawn consent to them, and the reminder exists only to help a manager who wants it.

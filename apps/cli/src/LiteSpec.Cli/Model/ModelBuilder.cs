@@ -6,8 +6,11 @@ using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Links;
 using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Cli.Model.Readers;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Readers.Measures;
+using LiteSpec.Cli.Model.Readers.Seeds;
 using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.Model.Refusals;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
@@ -23,10 +26,11 @@ namespace LiteSpec.Cli.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static partial class ModelBuilder
 {
-    /// <summary>Builds the model for the consumer.</summary>
+    /// <summary>Builds the model for the consumer, reading only one module's backend projects when one is named.</summary>
     /// <param name="config">The consumer configuration.</param>
+    /// <param name="onlyModule">The module the backend read is limited to, or null for every project.</param>
     /// <returns>The built project model.</returns>
-    public static ProjectModel Build(ConsumerConfig config)
+    public static ProjectModel Build(ConsumerConfig config, string? onlyModule = null)
     {
         var model = new ProjectModel { Config = config };
 
@@ -34,8 +38,12 @@ static partial class ModelBuilder
         // first and run beside the record read; their results join the model in
         // the same order as before.
         var stacks = config.ReadsCode ? StackReaders.For(config) : null;
-        var backendRun = stacks is null ? null : Task.Run(() => stacks.Backend.Read(config));
-        var scenarioRun = stacks is null ? null : Task.Run(() => stacks.Scenarios.Read(config));
+        var backendRun = stacks is null
+            ? null
+            : WideStack.Start(() => onlyModule is { Length: > 0 } && stacks.Backend is DotnetBackendReader
+                ? DotnetBackendReader.ReadForModule(config, onlyModule)
+                : stacks.Backend.Read(config));
+        var scenarioRun = stacks is null ? null : WideStack.Start(() => stacks.Scenarios.Read(config));
 
         var read = RecordReader.Read(config);
 
@@ -62,9 +70,11 @@ static partial class ModelBuilder
         else
         {
             model.Problems.AddRange(stacks.Problems);
-            var backendRead = backendRun.GetAwaiter().GetResult();
+            var backendRead = backendRun();
 
             model.Code = backendRead.Code;
+            model.BackendSemantics = backendRead.Semantics;
+            model.SemanticUnavailableReason = backendRead.SemanticUnavailableReason;
             model.Problems.AddRange(backendRead.Problems);
 
             var screens = ReadScreens(config, stacks, model.Code);
@@ -75,13 +85,14 @@ static partial class ModelBuilder
             model.Problems.AddRange(screens.Findings);
             model.TypeScriptQualified = screens.TypeScriptQualified;
 
-            var scenarioRead = scenarioRun.GetAwaiter().GetResult();
+            var scenarioRead = scenarioRun();
             var tests = scenarioRead.Tests;
 
             model.Problems.AddRange(scenarioRead.Problems);
             model.Tests.AddRange(tests.Scenarios);
             model.Code.Elements.AddRange(tests.Elements);
             model.Code.StrayMarks.AddRange(tests.StrayMarks);
+            model.Code.Seeds.AddRange(SeedMarkReader.Read(config));
             model.StepCalls = tests.StepCalls;
             model.StepFacts = tests.StepFacts;
             model.ProbeRoutes = tests.ProbeRoutes;
@@ -101,10 +112,41 @@ static partial class ModelBuilder
         ProofConfirmation.Compute(model);
         CompletionCalculator.Compute(model);
         ComputeReachableStates(model);
-        Constituents.Compute(model);
+        ComputeFlowCitations(model);
+        model.RefusalSets.AddRange(RefusalSetReader.Read(config, model.Problems));
+        ComputeDerivedRefusals(model);
+        Parts.Compute(model);
         ScreenshotCaptures.Compute(model);
 
         return model;
+    }
+
+    /// <summary>
+    ///     Derives the generic refusals of each use case from its access, inputs, kind and knowledge reads. A refusal is derived, never written.
+    /// </summary>
+    /// <param name="model">The project model.</param>
+    private static void ComputeDerivedRefusals(ProjectModel model)
+    {
+        model.DerivedRefusals.Clear();
+
+        foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase && !record.Derived))
+        {
+            model.DerivedRefusals[useCase.Id] = RefusalSetReader.DeriveFor(useCase, model.ById);
+        }
+    }
+
+    /// <summary>
+    ///     Computes each flow's citations: the union of its steps' <c>carries</c>, which a flow never states itself.
+    /// </summary>
+    /// <param name="model">The project model.</param>
+    private static void ComputeFlowCitations(ProjectModel model)
+    {
+        model.FlowCitations.Clear();
+
+        foreach (var flow in model.Records.Where(record => record.Type == RecordTypes.Flow && !record.Derived))
+        {
+            model.FlowCitations[flow.Id] = [.. flow.StepCitations()];
+        }
     }
 
     /// <summary>
@@ -308,7 +350,7 @@ static partial class ModelBuilder
                 break;
 
             case JsonValueKind.Object:
-                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event" })
+                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "calls", "queries", "commands", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event", "movedBy", "boundBy", "widenedBy", "verifiedBy", "consentRule", "deliveredThrough", "arrivesThrough", "through", "cites" })
                 {
                     if (value.TryGetProperty(name, out var nested))
                     {

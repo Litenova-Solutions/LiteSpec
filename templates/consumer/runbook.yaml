@@ -1,12 +1,14 @@
 type: runbook
-id: runbook/slow-submissions
-title: Slow Submissions
-summary: How an operator finds why expense submissions answer slowly and restores the response time.
-trigger: The submission-acknowledgement-slow alert fires.
-severity: high
-impact: Submissions queue past the promised two seconds, and month-end filers wait on acknowledgements.
-prerequisites: Access to the submission dashboard and the acknowledgement queue.
-procedure: List the unacknowledged submissions. Restart the stuck acknowledgement worker. Notify finance of the batch that still stands.
-verification: New submissions acknowledge within two seconds again.
-recovery: "A submission acknowledged twice stays single: the submission id deduplicates the retry."
-escalation: When the queue still stands after one retry round, the on-call engineer pages the backend owner and freezes new deploys.
+id: runbook/<name>
+title: <Title in Title Case>
+summary: <what this runbook recovers, or remove this line>
+terms:
+- <term id, or remove this line>
+trigger: <what calls for this runbook>
+severity: <how urgent the trigger is, or remove this line>
+impact: <what stands still until recovery ends>
+prerequisites: <what the operator needs before starting>
+procedure: <what the operator does, in order>
+verification: <how the operator knows recovery worked>
+recovery: <how the system returns to normal>
+escalation: <when the operator calls for help>

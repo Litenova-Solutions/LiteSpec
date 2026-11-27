@@ -1,29 +1,23 @@
 <script lang="ts">
-  import { book, capitalize, esc, inline, stripStep } from "$lib/frame";
-  import type { BookRecord } from "$lib/frame";
-  import { RenderedProse } from "$lib/record";
+  import { book, capitalize, esc, stripStep } from "$lib/frame";
+  import type { BookRecord, RecordFields } from "$lib/frame";
+  import { RecordLink, RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
-  import Note from "../blocks/Note.svelte";
-  import Fact from "../blocks/Fact.svelte";
-  import SectionJump from "../blocks/SectionJump.svelte";
+  import BulletList from "../blocks/BulletList.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
-  import FactCell from "../blocks/FactCell.svelte";
-  import FactGrid from "../blocks/FactGrid.svelte";
   import AccessBlock from "../shared/AccessBlock.svelte";
-  import BuiltBlock from "../shared/BuiltBlock.svelte";
   import DataTouched from "../shared/DataTouched.svelte";
   import EffectsBlock from "../shared/EffectsBlock.svelte";
   import ResultCards from "../shared/ResultCards.svelte";
   import ScenarioBlock from "../shared/ScenarioBlock.svelte";
-  import WhereBlock from "../shared/WhereBlock.svelte";
-  import { tdHtml } from "../page-html";
+  import { clsTag, codeOf, fieldType, muted, refLink, td, thRow } from "../shared/record-cells";
   import { proseOf } from "../page-prose";
-  import { browserReached, bulletsHtml, clsBadgeHtml, idemTileOf, objectField, stringField, stringList, typedFieldHtml } from "../page-values";
+  import { objectList, stringList } from "../page-values";
   import { useCaseModel } from "./use-case-model";
 
-  // A use case: access, data, input and output, effects, results and scenarios.
+  // A use case: access, data, inputs and outputs, effects, results and scenarios.
   type Props = { id: string; r: BookRecord };
   let { id, r }: Props = $props();
   const f = $derived(r.fields ?? {});
@@ -33,98 +27,100 @@
       return q ? [{ id: x, record: q }] : [];
     }),
   );
-  const model = $derived(useCaseModel(book, f, r, resultInputs));
+  const model = $derived(useCaseModel(f, r, resultInputs));
   const scs = $derived(book.scenariosOf(id).filter((s) => book.get(stripStep(s))));
-  const offered = $derived(
-    browserReached(stringList(f, "reachedThrough"), (e) => book.kids(e).some((k) => book.typeOf(k) === "screen")),
-  );
-  const idem = $derived(idemTileOf(f));
-  const audit = $derived(objectField(f, "audit"));
-  const background = $derived(stringField(f, "background"));
   const whatHappens = $derived(proseOf(r, "whatHappens"));
-  const exposure = $derived(proseOf(r, "exposure"));
+  const steps = $derived(objectList(f, "steps"));
+  const edgeCases = $derived(stringList(f, "edgeCases"));
+  const inputClassification = $derived.by(() => {
+    const all = model.inputs.map((x) => String(x.classification ?? ""));
+    if (!all.length || !all[0]) return "";
+    return all.every((c) => c === all[0]) ? (all[0] ?? "") : "";
+  });
+
+  function inputQualifiers(x: RecordFields): string {
+    const quals = [
+      x.required === true ? "required" : x.required === false ? "optional" : "",
+      x.origin ? "from " + String(x.origin) : "",
+    ].filter(Boolean);
+    return quals.length ? muted(quals.map(esc).join(" &middot; ")) : "";
+  }
+
+  function inputRules(x: RecordFields): string {
+    const rules: unknown[] = typeof x.rules === "string" ? (x.rules ? [x.rules] : []) : Array.isArray(x.rules) ? x.rules : [];
+    if (!rules.length) return muted("None");
+    return rules.map((rule) => refLink(book, String(rule))).join(", ");
+  }
+
+  function stepCiteIds(step: RecordFields): string[] {
+    return (Array.isArray(step.cites) ? step.cites : []).map(String).filter(Boolean);
+  }
 </script>
 
 {#if whatHappens}
   <PageSection blockKey="wh" heading="whatHappens"><RenderedProse html={whatHappens} /></PageSection>
 {/if}
-{#if exposure}
-  <PageSection blockKey="exp" heading="exposure"><RenderedProse html={exposure} /></PageSection>
-{/if}
-<SectionJump
-  items={[
-    { key: "acc", label: "access", count: true },
-    { key: "where", label: "offers", count: book.screensOf(id).length || offered },
-    { key: "built", label: "implements", count: model.hasImpl },
-    { key: "data", label: "data", count: model.dataCount },
-    { key: "in", label: "input", count: model.input.length },
-    { key: "out", label: "output", count: model.hasOutput },
-    { key: "eff", label: "effects", count: model.effectCount },
-    { key: "res", label: "Results", count: model.results.length },
-    { key: "sc", label: "Scenarios", count: scs.length },
-  ]}
-/>
-<AccessBlock {id} {f} />
-<WhereBlock {id} {r} />
-<BuiltBlock {r} />
-<DataTouched {f} />
-<PageSection blockKey="guar" heading="idempotency">
-  <FactGrid>
-    {#if idem}
-      <FactCell k="idempotency" html={idem.value} hint={idem.hint} />
-    {/if}
-  </FactGrid>
-  {#if audit}
-    <div class="mt-2.5">
-      {#if audit.exempt}
-        <Note kind="quiet" icon="info"><b>Not audited.</b> {String(audit.exempt)}</Note>
-      {:else}
-        <Note kind="info" icon="book">
-          <b>Audited</b> against {String(audit.target ?? "")}. {String(audit.level ?? "")}
-        </Note>
-      {/if}
-    </div>
-  {/if}
-</PageSection>
-{#if background}
-  <PageSection blockKey="bg" heading="background">
-    <RenderedProse html={inline(book, background, r.src ?? null)} />
+{#if steps.length}
+  <PageSection blockKey="steps" heading="steps" count={steps.length}>
+    <ol class="m-0 list-decimal space-y-3 pl-6 text-sm">
+      {#each steps as s, i (String(s.statement ?? "") + "#" + i)}
+        {@const cites = stepCiteIds(s)}
+        <li>
+          <p class="m-0">{String(s.statement ?? "")}</p>
+          {#if cites.length}
+            <p class="mt-1 mb-0 flex flex-wrap items-center gap-2">
+              {#each cites as cite, j (cite + "#" + j)}{#if j > 0}<span class="text-text-secondary">,</span>{/if}<RecordLink id={cite} />{/each}
+            </p>
+          {/if}
+        </li>
+      {/each}
+    </ol>
   </PageSection>
 {/if}
-{#if model.input.length}
-  <PageSection blockKey="in" heading="input" count={model.input.length}>
+<AccessBlock {id} {f} />
+<DataTouched {id} {f} guarantees carrier={r.type} />
+{#if model.inputs.length}
+  <PageSection blockKey="in" heading="inputs" count={model.inputs.length}>
     <DataTable
       head={["Name", "Type", "Meaning", "Rules"]}
-      rows={model.input.map((x) => [
-        tdHtml(esc(String(x.name ?? "")) + (x.classification ? `<div class="mt-1">${clsBadgeHtml(x.classification)}</div>` : ""), "nm"),
-        tdHtml(typedFieldHtml(book, x)),
-        tdHtml(
-          esc(String(x.meaning ?? "")) +
-            (x.origin ? `<div class="mt-0.5 text-[0.6875rem] text-muted-foreground">from ${esc(String(x.origin))}</div>` : ""),
+      caption={`Inputs of ${r.title}`}
+      rows={model.inputs.map((x) => [
+        thRow(
+          codeOf(String(x.name ?? "")) +
+            inputQualifiers(x) +
+            (inputClassification ? "" : x.classification ? `<div class="mt-1">${clsTag(x.classification)}</div>` : ""),
         ),
-        tdHtml(bulletsHtml(x.rules)),
+        td(fieldType(book, x)),
+        td(esc(String(x.meaning ?? ""))),
+        td(inputRules(x)),
       ])}
     />
+    {#if inputClassification}
+      <p class="mt-4 text-sm text-text-secondary">Every input is classified {inputClassification}.</p>
+    {/if}
   </PageSection>
 {/if}
 {#if model.hasOutput}
-  <PageSection blockKey="out" heading="output">
+  <PageSection blockKey="out" heading="outputs">
     {#if model.outputSections.length}
       {#each model.outputSections as s (s.key)}
-        <div class="mt-[18px] mb-2 text-[0.8125rem] font-semibold text-subtle-foreground">
+        <div class="mt-6 mb-2 text-sm font-semibold text-text-secondary">
           {capitalize(s.key)}{" "}
-          <Fact text={capitalize(s.classification)} />{" "}
-          {#if s.freshnessHtml}<span class="font-mono text-[0.6875rem] font-normal text-muted-foreground">{@html s.freshnessHtml}</span>{/if}
+          {@html clsTag(s.classification)}{" "}
+          {#if s.freshnessHtml}<span class="font-mono text-xs font-normal text-text-secondary">{@html s.freshnessHtml}</span>{/if}
+          {#if s.decidedBy}<span class="text-xs font-normal text-text-secondary">, decided by <RecordLink id={s.decidedBy} /></span>{/if}
         </div>
         <DataTable
           head={["Name", "Meaning"]}
-          rows={s.fields.map((x) => [tdHtml(esc(x.name), "nm"), tdHtml(esc(x.meaning))])}
+          caption={`Output of ${r.title}`}
+          rows={s.fields.map((x) => [thRow(codeOf(x.name)), td(esc(x.meaning))])}
         />
       {/each}
     {:else if model.outputRows.length}
       <DataTable
         head={["Name", "Meaning"]}
-        rows={model.outputRows.map((x) => [tdHtml(esc(x.name), "nm"), tdHtml(esc(x.meaning))])}
+        caption={`Output of ${r.title}`}
+        rows={model.outputRows.map((x) => [thRow(codeOf(x.name)), td(esc(x.meaning))])}
       />
     {/if}
     {#if model.paging}
@@ -136,17 +132,15 @@
     {/if}
   </PageSection>
 {/if}
-<EffectsBlock {f} />
+<EffectsBlock {f} caption={`Effects of ${r.title}`} />
 {#if model.results.length}
   <PageSection blockKey="res" heading="Results" count={model.results.length}>
-    {#if model.ok.length}
-      <div class="mt-[18px] mb-2 text-[0.8125rem] font-semibold text-subtle-foreground">Outcome: Success</div>
-      <ResultCards items={model.ok} />
-    {/if}
-    {#if model.refused.length}
-      <div class="mt-[18px] mb-2 text-[0.8125rem] font-semibold text-subtle-foreground">Outcome: Refusal</div>
-      <ResultCards items={model.refused} />
-    {/if}
+    <ResultCards items={model.results} caption={`Results of ${r.title}`} />
+  </PageSection>
+{/if}
+{#if edgeCases.length}
+  <PageSection blockKey="edge" heading="edgeCases" count={edgeCases.length}>
+    <BulletList items={edgeCases} />
   </PageSection>
 {/if}
 <ScenarioBlock {id} {scs} />

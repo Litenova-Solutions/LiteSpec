@@ -10,8 +10,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LiteSpec.Analyzers.Rules.Domain;
 
 /// <summary>LS1013: a switch over a state or closed-set record hierarchy gives every sealed case its own arm.</summary>
-/// <follows>litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</follows>
-/// <follows>litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</follows>
+/// <follows>litespec/packs/dotnet/domain#model-every-aggregate-lifecycle-with-state-records</follows>
+/// <follows>litespec/packs/dotnet/domain#model-every-closed-set-of-domain-values-without-enums</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ExhaustiveSwitchAnalyzer : LayerAnalyzer
 {
@@ -136,6 +136,9 @@ public sealed class ExhaustiveSwitchAnalyzer : LayerAnalyzer
                 {
                     case DefaultSwitchLabelSyntax:
                         discard ??= label;
+                        break;
+                    case CaseSwitchLabelSyntax caseLabel:
+                        AddPatternExpressionType(caseLabel.Value, context.SemanticModel, coveredTypes);
                         break;
                     case CasePatternSwitchLabelSyntax patternLabel:
                         if (IsDiscardPattern(patternLabel.Pattern))
@@ -304,6 +307,9 @@ public sealed class ExhaustiveSwitchAnalyzer : LayerAnalyzer
     {
         switch (pattern)
         {
+            case ConstantPatternSyntax constant:
+                AddPatternExpressionType(constant.Expression, model, coveredTypes);
+                break;
             case DeclarationPatternSyntax declaration:
                 AddPatternType(declaration.Type, model, coveredTypes);
                 break;
@@ -324,6 +330,18 @@ public sealed class ExhaustiveSwitchAnalyzer : LayerAnalyzer
                 CollectPatternTypes(binary.Left, model, coveredTypes);
                 CollectPatternTypes(binary.Right, model, coveredTypes);
                 break;
+        }
+    }
+
+    /// <summary>Adds the type a type-only pattern names, ignoring value constants.</summary>
+    /// <param name="expression">The constant pattern expression under inspection.</param>
+    /// <param name="model">The semantic model that resolves symbols for the tree.</param>
+    /// <param name="coveredTypes">The pattern types the switch names without a guard.</param>
+    private static void AddPatternExpressionType(ExpressionSyntax expression, SemanticModel model, List<ITypeSymbol> coveredTypes)
+    {
+        if (model.GetSymbolInfo(expression).Symbol is ITypeSymbol symbol)
+        {
+            coveredTypes.Add(symbol);
         }
     }
 

@@ -26,7 +26,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
                 {
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 accepts fields with or without a leading underscore.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -46,7 +46,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
 
                 private readonly IPolicyRepository policyRepository = null!;
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 accepts a local named after its interface.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -67,7 +67,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
                     IExpenseRepository expenseRepository = _expenseRepository;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 reports a parameter not named after its interface.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -82,7 +82,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             internal sealed class ApproveExpenseCommandHandler(IExpenseRepository {|LS2010:expenses|})
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 reports an underscored parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -97,7 +97,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             internal sealed class ApproveExpenseCommandHandler(IExpenseRepository {|LS2010:_expenseRepository|})
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 reports a field not named after its interface.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -113,7 +113,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             {
                 private readonly IExpenseRepository {|LS2010:expenses|} = null!;
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 reports a local not named after its interface.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -132,7 +132,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
                     IExpenseRepository {|LS2010:expenses|} = null!;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 ignores a non-repository interface.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -147,7 +147,7 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             internal sealed class ApproveExpenseCommandHandler(IExpenseService expenses)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2010 ignores a repository variable outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
@@ -162,20 +162,6 @@ public sealed class RepositoryVariableNamingAnalyzerTests
             public sealed class ApproveExpenseCommandHandler(IExpenseRepository expenses)
             {
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS2010 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/workspace/naming#name-repository-variables-after-their-interface</proves>
-    [Fact(DisplayName = "LS2010 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<RepositoryVariableNamingAnalyzer>("""
-            namespace Shop.Core;
-
-            public interface IExpenseRepository { }
-
-            internal sealed class ApproveExpenseCommandHandler(IExpenseRepository {|LS2010:expenses|})
-            {
-            }
-            """, assemblyName: "Shop.Core", layer: "Application");
 }

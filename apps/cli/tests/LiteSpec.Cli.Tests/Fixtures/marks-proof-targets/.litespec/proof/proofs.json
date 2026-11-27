@@ -1,0 +1,10 @@
+{
+  "scenario/borrow-copy.borrowing-an-available-copy-succeeds": {
+    "scenario": "cb3a571b",
+    "test": "15a8cea803df7d70",
+    "run": "e943c99241045657",
+    "method": "4d1f3711192253d3",
+    "marks": "15a8cea803df7d70",
+    "commit": "b37ce6f4f7383681933032e42864a3fbec697c38"
+  }
+}

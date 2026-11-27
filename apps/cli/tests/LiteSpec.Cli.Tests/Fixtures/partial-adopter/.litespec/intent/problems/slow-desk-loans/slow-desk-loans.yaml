@@ -10,3 +10,11 @@ evidence:
   source: https://example.org/library/desk-log
   readOn: 2026-10-01
   kind: reported
+failureCases:
+- Readers queue at the desk to borrow copies at busy hours.
+- Readers queue at the desk to return copies at busy hours.
+workaround: Readers queue at the desk and wait for each loan.
+cost: Each loan takes too long at busy hours.
+resolutionCriteria:
+- Readers borrow copies without queueing at the desk.
+- Readers return copies without queueing at the desk.

@@ -4,6 +4,6 @@ title: Max active loans
 kind: functional
 statement: A reader holds at most five active loans.
 rationale: Readers borrow enough for a term without starving holds.
-cites:
+basedOn:
   - research/loan-period-benchmarks
   - constraint/library-privacy-law

@@ -1,0 +1,10 @@
+type: actor
+id: actor/mail-relay
+title: Mail Relay
+summary: The mail relay delivers the spending module's emails to managers.
+kind: system
+belongsToTeam: false
+responsibilities:
+- Delivers emails to managers.
+knowledge:
+- The product assumes the mail relay accepts one templated email per call.

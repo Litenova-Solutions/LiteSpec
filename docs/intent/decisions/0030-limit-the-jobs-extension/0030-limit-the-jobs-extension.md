@@ -1,10 +1,10 @@
 # Jobs Extension Limited to Scheduled and Manual Work
 
-The jobs extension is the part of LiteSpec's standard that covers jobs, the work that runs on a schedule or when a person starts it. This decision keeps the rules for scheduled and manual work, and it drops the rules for an ingest pipeline and a workflow engine. A project that runs those keeps their rules in its own practice.
+The jobs extension is the part of LiteSpec's standard that covers jobs, the work that runs on a schedule or when a person starts it. This decision keeps the rules for scheduled and manual work, and it removes the rules for an ingest pipeline and a workflow engine. A project that runs those keeps their rules in its own practice.
 
 ## Context
 
-The jobs extension holds 73 provisions across 6 subjects. Two of the subjects, the ingest pipeline and the workflow engine, serve products that a small-team project does not run. No check can prove the engine steps, because the record schema has no kind for a multi-step workflow.
+The jobs extension holds 73 provisions across 6 subjects. Two of the subjects, the ingest pipeline and the workflow engine, serve products that a small team does not run. No check can prove the engine steps, because the record schema has no kind for a multi-step workflow.
 
 ## Options
 
@@ -18,18 +18,20 @@ LiteSpec compared 3 options for the jobs extension. The table sets each option a
 
 ## Decision
 
-The extension keeps scheduled and manual jobs, occurrences, time rules, human-cleared queues and reports. It drops the ingest pipeline and the workflow-engine subjects.
+The extension keeps scheduled and manual jobs, occurrences, time rules, human-cleared queues, and reports. It removes the ingest pipeline and the workflow-engine subjects.
 
-Coordination across aggregates is stated on each use case, as `decision/0015-automations-and-sagas` records.
+Each use case states its coordination across aggregates, as `decision/0015-automations-and-sagas` records.
 
 ## Consequences
 
 The extension keeps 59 provisions, down from 73. The ingest pipeline and workflow-engine subjects leave with their 14 provisions.
 
-The record schema has no saga kind. A saga is a sequence of steps that spans several aggregates. No check reads engine steps. The removed IDs appear in the 5.0.0 provision diff.
+The record schema has no saga kind. A saga is a sequence of steps that spans several aggregates. No check reads engine steps.
+
+The removed IDs appear in the 5.0.0 provision diff.
 
 ## Revisit Conditions
 
-This decision reopens when a team must prove a multi-step workflow that no record can state, or when a product must prove an ingest pipeline.
+This decision reopens when a product must prove an ingest pipeline. A multi-step workflow that no record can state reopens `decision/0015-automations-and-sagas` instead: the revisit condition of that decision covers it.
 
-Each of those cases needs a record kind or a subject that the extension no longer holds. Either one would bring back the subject it needs.
+The ingest pipeline case needs a subject outside the extension. Reopening restores the subject the case needs.

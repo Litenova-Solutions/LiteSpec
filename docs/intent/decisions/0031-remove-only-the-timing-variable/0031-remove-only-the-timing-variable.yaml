@@ -1,6 +1,7 @@
 type: decision
 id: decision/0031-remove-only-the-timing-variable
 title: Remove Only the Timing Variable
+context: "A usage check leaves three items for the owner to decide: the LITESPEC_TIMING variable, the book --editor option, and the www redirect Worker. Nothing in CI or the docs sets the variable, and no test covers it."
 options:
   - name: "Remove `LITESPEC_TIMING`, and keep `book --editor` and the www redirect Worker"
     pros: "Nothing in CI or the docs sets the variable, and no test covers it."

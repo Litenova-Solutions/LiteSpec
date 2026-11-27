@@ -1,0 +1,17 @@
+type: decision
+id: decision/0102-draw-platform-composites-with-native-elements
+title: Draw Platform Composites with Native Elements
+context: "The shared package installs the pinned component baseline once, while the web platform provides its own dialog, popover, and details elements with focus handling, dismissal, anchoring, and layering built in. Nothing said which composites come from the baseline and which stay native, so one team left the baseline unused and the next rebuilt platform behavior on generic elements."
+options:
+  - name: "Draw platform composites with native elements and take the rest from the baseline"
+    pros: "Each composite comes from the source that owns its behavior: the platform dialog, popover, and details carry focus handling, dismissal, anchoring, and disclosure, while the baseline covers what the platform lacks, such as a combobox and a date picker."
+    cons: "The shared package holds two sourcing rules instead of one, and each native element must meet the declared browser support tier or carry a fallback beside it."
+  - name: "Take every composite from the pinned baseline"
+    pros: "One source holds every composite, and no team judges a platform element against the browser support tier."
+    cons: "Dialogs, popovers, and disclosures rebuild platform behavior on generic elements, each worse than the element it copies, and the product carries two implementations of one behavior."
+  - name: "Draw every composite with native elements"
+    pros: "No baseline to install, pin, or keep current."
+    cons: "The platform has no combobox, date picker, or data table, so each team builds the missing composites by hand and every product ships its own set."
+choice: "Draw platform composites with native elements and take the rest from the baseline"
+consequences: "A dialog, popover, or details composite builds on its native element, and every other composite comes from the pinned baseline or a justified behavior package rendering through baseline tokens. Each native element meets the declared browser support tier or carries a fallback beside it. Icons stay per-icon imports under the existing per-route download rule."
+reopenedWhen: "The platform gains a composite the baseline owns today, or a native element leaves the declared browser support tier with no workable fallback."

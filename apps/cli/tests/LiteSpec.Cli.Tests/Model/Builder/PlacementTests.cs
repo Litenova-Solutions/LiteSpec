@@ -15,7 +15,7 @@ public sealed class PlacementTests
     {
         using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
-        Write(temp.Path, ".litespec/intent/product.yaml", """
+        Write(temp.Path, ".litespec/product.yaml", """
             type: product
             id: product/claimwick
             title: Claimwick
@@ -30,12 +30,12 @@ public sealed class PlacementTests
             id: module/finance
             title: Finance
             """);
-        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/payout.yaml", """
+        Write(temp.Path, ".litespec/intent/problems/slow-payout/features/payout/payout.yaml", """
             type: feature
             id: feature/payout
             title: Payout
             """);
-        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/requirements/request-payout/request-payout.yaml", """
+        Write(temp.Path, ".litespec/intent/problems/slow-payout/features/payout/requirements/request-payout/request-payout.yaml", """
             type: requirement
             id: requirement/payout.request-payout
             title: Request payout
@@ -49,23 +49,21 @@ public sealed class PlacementTests
             type: use-case
             id: use-case/finance.request-payout
             title: Request payout
-            records:
-              - type: result
-                id: result/request-payout.requested
+            results:
+              - id: result/request-payout.requested
                 title: Requested
                 outcome: success
                 meaning: The payout is requested.
-              - type: scenario
-                id: scenario/request-payout.requesting-succeeds
+            scenarios:
+              - id: scenario/request-payout.requesting-succeeds
                 title: Requesting succeeds
                 result: result/request-payout.requested
             """);
         Write(temp.Path, ".litespec/behavior/modules/finance/permissions.yaml", """
-            type: permission-list
+            type: permission-set
             title: Permissions
-            records:
-              - type: permission
-                id: permission/approve-expense
+            permissions:
+              - id: permission/approve-expense
                 title: Approve expense
             """);
         Write(temp.Path, ".litespec/behavior/entry-points/claimwick-app/entry-point.yaml", """
@@ -81,11 +79,11 @@ public sealed class PlacementTests
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        AssertPlaced(model, "product/claimwick", ".litespec/intent", null);
+        AssertPlaced(model, "product/claimwick", ".litespec", null);
         AssertPlaced(model, "goal/faster-reimbursement", ".litespec/intent/goals", null);
         AssertPlaced(model, "module/finance", ".litespec/behavior/modules/finance", "finance");
-        AssertPlaced(model, "feature/payout", ".litespec/intent/problems/payouts-wait/features/payout", null);
-        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/problems/payouts-wait/features/payout/requirements/request-payout", null);
+        AssertPlaced(model, "feature/payout", ".litespec/intent/problems/slow-payout/features/payout", null);
+        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/problems/slow-payout/features/payout/requirements/request-payout", null);
         AssertPlaced(model, "aggregate/finance.payout", ".litespec/behavior/modules/finance/aggregates/payouts", "finance");
         AssertPlaced(model, "use-case/finance.request-payout", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
         AssertPlaced(model, "result/request-payout.requested", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
@@ -126,7 +124,7 @@ public sealed class PlacementTests
             title: Request payout
             access:
               grant: permission/approve-expense
-            input:
+            inputs:
               - name: amount
                 rules: required
             """);

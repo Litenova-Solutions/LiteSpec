@@ -33,6 +33,19 @@ public sealed class BookLinkTests
         Assert.DoesNotContain("javascript:", html, StringComparison.Ordinal);
     }
 
+    /// <summary>A record identifier in prose renders as one link with the record title alone and the identifier in the title attribute.</summary>
+    /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
+    [Fact]
+    public void RecordIdentifierRendersAsTitleOnlyLink()
+    {
+        (string Href, string Title)? LinkRecord(string target) =>
+            target == "permission/connect-chat-agents" ? ("#permission/connect-chat-agents", "Connect Chat Agents") : null;
+        var html = BookMarkdown.Render("guarded by permission/connect-chat-agents as a self grant", LinkRecord);
+
+        Assert.Contains("<a href=\"#permission/connect-chat-agents\" title=\"permission/connect-chat-agents\">Connect Chat Agents</a>", html, StringComparison.Ordinal);
+        Assert.DoesNotContain("Connect Chat Agentspermission/connect-chat-agents", html, StringComparison.Ordinal);
+    }
+
     /// <summary>Allowed targets stay links: http, https, mailto, fragments, relative paths and the editor scheme.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
@@ -73,15 +86,26 @@ public sealed class BookLinkTests
               {"type":"research","id":"research/links","title":"Links","owner":"Ada","status":"draft","effectiveStatus":"draft","decider":null,"decideBy":null,"file":".litespec/test.yaml","line":3,"fields":{"question":"Which links?","sources":[{"title":"Trap","url":"javascript:alert(1)"}]},"links":{},"explanation":"# Links\n\nSee [click](data:text/html,hello) and [site](https://example.com)."}
             ]}
             """)!.AsObject();
+        BookStores.WithIntentCoverage(model);
 
         var details = BookRecordDetails.Build(model, BookOutline.Build(model));
-        var html = Str(details["research/links"], "bodyHtml") ?? "";
+        var html = BodyOf(details["research/links"]);
 
         Assert.Contains("click", html, StringComparison.Ordinal);
         Assert.Contains("href=\"https://example.com\"", html, StringComparison.Ordinal);
         Assert.DoesNotContain("href=\"data:", html, StringComparison.Ordinal);
         Assert.DoesNotContain("href=\"javascript:", html, StringComparison.Ordinal);
         Assert.DoesNotContain("data:text", html, StringComparison.Ordinal);
+    }
+
+    /// <summary>The explanation HTML of a record detail: its intro and each section body, in order.</summary>
+    /// <param name="detail">The record detail that holds the sections.</param>
+    /// <returns>The intro HTML followed by each section body.</returns>
+    static string BodyOf(JsonObject? detail)
+    {
+        var sections = detail?["sections"] as JsonObject;
+        var bodies = (sections?["list"] as JsonArray ?? new JsonArray()).Select(item => Str(item as JsonObject, "html") ?? "");
+        return (Str(sections, "intro") ?? "") + string.Concat(bodies);
     }
 
     static string? Str(JsonObject? obj, string name) =>

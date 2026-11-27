@@ -7,18 +7,70 @@ access:
   tenant: own
 fulfills:
 - requirement/borrowing.max-active-loans
-reachedThrough:
+via:
 - entry-point/library-app
 raises: []
-output:
+inputs:
+- name: readerId
+  meaning: The signed-in reader whose loans are listed, read from verified claims.
+  type: id
+  identifies: actor/reader
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/library-app
+  classification: personal
+outputs:
   include:
     rows:
       fields:
       - name: loans
+        type: list
+        items:
+          fields:
+          - name: loan
+            type: id
+            identifies: aggregate/lending.loan
+            required: true
+            meaning: The loan identity.
+          - name: copy
+            type: id
+            identifies: aggregate/lending.copy
+            required: true
+            meaning: The copy on loan.
+          - name: reader
+            type: text
+            required: true
+            meaning: The reader holding the copy.
+          - name: dueDate
+            type: date
+            required: true
+            meaning: The day the loan is due.
         meaning: "One row per loan: its identity, copy, reader, and due date."
       classification: internal
       reads:
       - aggregate/lending.loan
+      freshness:
+        mode: immediate
+    holds:
+      fields:
+      - name: holds
+        type: list
+        items:
+          fields:
+          - name: hold
+            type: id
+            identifies: aggregate/lending.hold
+            required: true
+            meaning: The hold identity.
+          - name: copy
+            type: id
+            identifies: aggregate/lending.copy
+            required: true
+            meaning: The copy on hold.
+        meaning: "One row per waiting hold: its identity and copy."
+      classification: internal
+      reads:
+      - aggregate/lending.hold
       freshness:
         mode: immediate
 paging:
@@ -27,12 +79,12 @@ paging:
   cursor: The due date and loan identity of the last row.
   defaultLimit: 25
   maxLimit: 100
-idempotency:
-  mode: none
-  reason: The query reads loans without changing them.
-records:
-- type: result
-  id: result/list-loans.listed
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
+steps:
+- statement: The reader lists their own loans.
+results:
+- id: result/list-loans.listed
   title: Listed
   outcome: success
   meaning: The loans are listed.

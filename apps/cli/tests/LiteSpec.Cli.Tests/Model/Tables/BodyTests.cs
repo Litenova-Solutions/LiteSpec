@@ -25,7 +25,10 @@ public sealed class BodyTests
             "A reader borrows an available copy.",
             Record(document, "use-case/lending.borrow-copy").GetProperty("explanation").GetString(),
             StringComparison.Ordinal);
-        Assert.False(Record(document, "rule/loan.has-one-borrower").TryGetProperty("explanation", out _));
+        Assert.StartsWith(
+            "A loan has one borrower.",
+            Record(document, "rule/loan.has-one-borrower").GetProperty("explanation").GetString(),
+            StringComparison.Ordinal);
         Assert.False(Record(document, "result/borrow-copy.borrowed").TryGetProperty("explanation", out _));
     }
 

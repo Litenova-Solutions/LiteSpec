@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -10,27 +11,39 @@ namespace LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 
 /// <summary>
 ///     Corrects the kinds the shared kind reader assigned from simple names, using
-///     the namespace-qualified names of one read.
+///     the namespace-qualified names of one read, and names a module-event contract
+///     technical by its mark.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 static class ElementKindCorrection
 {
+    /// <summary>The record id prefix a module event mark names.</summary>
+    private const string ModuleEventPrefix = "module-event/";
+
+    /// <summary>The short project names of the outer layers that hold technical classes.</summary>
+    static readonly string[] OuterLayerProjects = ["Application", "Infrastructure", "WebApi", "Worker"];
+
     /// <summary>
     ///     Corrects the kinds the shared kind reader assigned from simple names, using the
     ///     namespace-qualified names of this read: a kind that only a same-named type in
-    ///     another namespace would give this type is dropped, and an aggregate method of
-    ///     a type that is no aggregate root loses its kind.
+    ///     another namespace would give this type is dropped, an aggregate method of
+    ///     a type that is no aggregate root loses its kind, and a module-event contract
+    ///     with no kind reads technical.
     /// </summary>
     /// <param name="elements">The elements the shared kind reader read.</param>
     /// <param name="types">The type declarations by identifier span.</param>
     /// <param name="methods">The method declarations by identifier span.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="containingProject">The short project name holding the file, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the file, or null when unknown.</param>
     /// <returns>The elements with their kinds corrected.</returns>
     public static IReadOnlyList<MarkableElement> CorrectElements(
         IReadOnlyList<MarkableElement> elements,
         IReadOnlyDictionary<TextSpan, TypeDeclarationSyntax> types,
         IReadOnlyDictionary<TextSpan, MethodDeclarationSyntax> methods,
-        QualifiedKinds qualified)
+        QualifiedKinds qualified,
+        string? containingProject = null,
+        string? containingLayer = null)
     {
         var corrected = new List<MarkableElement>(elements.Count);
 
@@ -40,13 +53,13 @@ static class ElementKindCorrection
 
             if (element.IsType && types.TryGetValue(element.Span, out var declared))
             {
-                kind = CorrectKind(declared, element.Kind, qualified);
+                kind = CorrectKind(declared, element.Kind, qualified, containingProject, containingLayer);
             }
             else if (!element.IsType
                 && element.Kind == CodeKind.AggregateMethod
                 && methods.TryGetValue(element.Span, out var method)
                 && method.Parent is TypeDeclarationSyntax parent
-                && CorrectKind(parent, CodeKind.AggregateRoot, qualified) != CodeKind.AggregateRoot)
+                && CorrectKind(parent, CodeKind.AggregateRoot, qualified, containingProject, containingLayer) != CodeKind.AggregateRoot)
             {
                 kind = null;
             }
@@ -54,7 +67,7 @@ static class ElementKindCorrection
                 && element.Kind is null
                 && methods.TryGetValue(element.Span, out var markedMethod)
                 && markedMethod.Parent is TypeDeclarationSyntax markedParent
-                && CorrectKind(markedParent, CodeKind.AggregateRoot, qualified) == CodeKind.AggregateRoot
+                && CorrectKind(markedParent, CodeKind.AggregateRoot, qualified, containingProject, containingLayer) == CodeKind.AggregateRoot
                 && markedMethod.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PublicKeyword)))
             {
                 kind = CodeKind.AggregateMethod;
@@ -71,13 +84,16 @@ static class ElementKindCorrection
     /// <summary>
     ///     The kind of one type from its namespace-qualified bases, following the shared
     ///     kind reader's order for the kinds a cross-file name can carry. Kinds that no
-    ///     cross-file name carries keep the kind the shared reader assigned.
+    ///     cross-file name carries keep the kind the shared reader assigned, except a
+    ///     module-event contract with no kind, which reads technical by its mark.
     /// </summary>
     /// <param name="declared">The type declaration.</param>
     /// <param name="kind">The kind the shared reader assigned.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
     /// <returns>The kind of the type from its namespace-qualified bases.</returns>
-    public static CodeKind? CorrectKind(TypeDeclarationSyntax declared, CodeKind? kind, QualifiedKinds qualified)
+    public static CodeKind? CorrectKind(TypeDeclarationSyntax declared, CodeKind? kind, QualifiedKinds qualified, string? containingProject = null, string? containingLayer = null)
     {
         var qualifiedName = DotnetNames.QualifiedNameOf(declared);
         var resolved = qualified.ResolvedBases(declared);
@@ -179,13 +195,123 @@ static class ElementKindCorrection
             && !qualified.TechnicalClasses.Contains(qualifiedName)
             && !declared.Members.OfType<MethodDeclarationSyntax>().Any()
             && !MarkReader.Read(declared).Any(mark =>
-                mark.RecordId.StartsWith("setting/", StringComparison.Ordinal)))
+                mark.RecordId.StartsWith("setting/", StringComparison.Ordinal)
+                || mark.RecordId.StartsWith(ModuleEventPrefix, StringComparison.Ordinal)))
         {
             return null;
         }
 
+        // A module-event contract is technical by its mark, as an integration-event
+        // contract is in the shared reader: a record, an interface or a class with
+        // no method carries it, as the mark names the type's role.
+        if (kind is null
+            && declared.Parent is not TypeDeclarationSyntax
+            && IsOuterLayer(containingProject, containingLayer)
+            && MarkReader.Read(declared).Any(mark => mark.RecordId.StartsWith(ModuleEventPrefix, StringComparison.Ordinal)))
+        {
+            return CodeKind.Technical;
+        }
+
         return kind;
     }
+
+    /// <summary>Whether the containing project or layer is an outer layer that holds technical classes.</summary>
+    /// <param name="containingProject">The short project name holding the type, or null when unknown.</param>
+    /// <param name="containingLayer">The layer holding the type, or null when unknown.</param>
+    /// <returns>True when the project or the layer is an outer layer; a null project matches.</returns>
+    private static bool IsOuterLayer(string? containingProject, string? containingLayer)
+    {
+        if (containingProject is null)
+        {
+            return true;
+        }
+
+        foreach (var shortName in OuterLayerProjects)
+        {
+            if (containingProject.Equals(shortName, StringComparison.Ordinal)
+                || containingProject.EndsWith("." + shortName, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (containingLayer is not null && containingLayer == shortName)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Merges the partial parts of one aggregate root into one element: parts
+    ///     count as one root and a mark on any part counts. The merged element
+    ///     keeps the main file's position and carries every part's marks. Parts
+    ///     group by class and module project, so an act's part in its own folder
+    ///     merges with the main file while two roots sharing a simple name in
+    ///     different modules never merge.
+    /// </summary>
+    /// <param name="elements">The marked elements.</param>
+    /// <param name="config">The consumer configuration naming the module projects.</param>
+    /// <returns>The elements with the partial parts of one aggregate root merged.</returns>
+    public static List<MarkedElement> MergeAggregateRootPartials(List<MarkedElement> elements, ConsumerConfig config)
+    {
+        if (elements.All(element => element.Kind != CodeKind.AggregateRoot))
+        {
+            return elements;
+        }
+
+        var merged = new List<MarkedElement>();
+        var parts = new Dictionary<string, List<MarkedElement>>(StringComparer.Ordinal);
+
+        foreach (var element in elements)
+        {
+            if (element.Kind != CodeKind.AggregateRoot)
+            {
+                merged.Add(element);
+                continue;
+            }
+
+            var key = element.Class + "\0" + (SourceRoots.ModuleProjectOf(config, element.File) ?? Path.GetDirectoryName(element.File) ?? "");
+
+            if (!parts.TryGetValue(key, out var group))
+            {
+                group = [];
+                parts[key] = group;
+            }
+
+            group.Add(element);
+        }
+
+        foreach (var group in parts.Values)
+        {
+            var first = group
+                .OrderBy(part => IsMainFile(part) ? 0 : 1)
+                .ThenBy(part => part.File, StringComparer.Ordinal)
+                .ThenBy(part => part.Line)
+                .First();
+            var marks = group
+                .SelectMany(part => part.Marks)
+                .OrderBy(mark => mark.File, StringComparer.Ordinal)
+                .ThenBy(mark => mark.Line)
+                .ToList();
+
+            merged.Add(first with { Marks = marks });
+        }
+
+        return merged
+            .OrderBy(element => element.File, StringComparer.Ordinal)
+            .ThenBy(element => element.Line)
+            .ThenBy(element => element.Class, StringComparer.Ordinal)
+            .ThenBy(element => element.Member ?? "", StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>Whether the element sits in its root's main file: the file named for the class.</summary>
+    /// <param name="element">The marked element.</param>
+    /// <returns>True when the element's file is the class's main file; otherwise false.</returns>
+    private static bool IsMainFile(MarkedElement element) =>
+        string.Equals(Path.GetFileName(element.File), element.Class + ".cs", StringComparison.Ordinal);
 
     /// <summary>
     ///     Merges the partial parts of one technical class into one element: parts

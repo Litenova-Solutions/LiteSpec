@@ -8,16 +8,16 @@ public sealed class ModuleBoundaryAnalyzerTests
 {
     /// <summary>LS2020 reports a module naming another module outside its Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 reports a module naming another module outside its Contracts")]
     public Task ReportsAModuleNamingAnotherModuleOutsideContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations;
-                    using Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations.Contracts.Identifiers;
+                    using Claimwick.Organizations.Domain.Team;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -27,19 +27,19 @@ public sealed class ModuleBoundaryAnalyzerTests
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
@@ -48,15 +48,15 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 reports a module that publishes no Contracts folder yet.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 reports a module that publishes no Contracts folder yet")]
     public Task ReportsAModuleWithoutContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations.Domain.Team;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -65,8 +65,8 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
@@ -77,7 +77,7 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 stays quiet in a project laid out without product layer folders, such as a tool.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 stays quiet in a project laid out without product layer folders")]
     public Task StaysQuietWithoutProductLayerFolders() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
@@ -106,15 +106,16 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 accepts a module naming another module through its Contracts.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 accepts a module naming another module through its Contracts")]
     public Task AcceptsAModuleNamingContracts() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Billing.Domain.Invoice;
+                    using Claimwick.Organizations.Contracts.Identifiers;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -122,17 +123,17 @@ public sealed class ModuleBoundaryAnalyzerTests
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
-                ("Claimwick.Modules/Billing/Invoices/Domain/Money.cs", """
-                    namespace Claimwick.Billing;
+                ("Claimwick.Modules/Billing/Domain/Invoice/Money.cs", """
+                    namespace Claimwick.Billing.Domain.Invoice;
 
                     internal readonly record struct Money(decimal Amount);
                     """),
@@ -141,35 +142,37 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 accepts a module naming its own types.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 accepts a module naming its own types")]
     public Task AcceptsAModuleNamingItsOwnTypes() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamHandler.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamHandler.cs", """
+                    using Claimwick.Organizations.Domain.Team;
+
+                    namespace Claimwick.Organizations.Application.CreateTeam;
 
                     internal sealed class CreateTeamHandler
                     {
                         internal Team Handle(CreateTeamCommand command) => null!;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/CreateTeamCommand.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Application/CreateTeam/CreateTeamCommand.cs", """
+                    namespace Claimwick.Organizations.Application.CreateTeam;
 
                     internal sealed class CreateTeamCommand
                     {
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
@@ -178,13 +181,13 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 still reports a reference resolved through a global using.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 still reports a reference resolved through a global using")]
     public Task ReportsThroughAGlobalUsing() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    namespace Claimwick.Billing;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -193,23 +196,23 @@ public sealed class ModuleBoundaryAnalyzerTests
                         }
                     }
                     """),
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/Globals.cs", """
-                    global using Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/Globals.cs", """
+                    global using Claimwick.Organizations.Domain.Team;
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
@@ -218,13 +221,13 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 stays quiet for shared files outside every module.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 stays quiet for shared files outside every module")]
     public Task StaysQuietOutsideModules() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
                 ("Claimwick.Modules/Composition/Application/ModuleComposition.cs", """
-                    using Claimwick.Organizations.Teams;
+                    using Claimwick.Organizations.Domain.Team;
 
                     namespace Claimwick;
 
@@ -233,15 +236,15 @@ public sealed class ModuleBoundaryAnalyzerTests
                         internal Team? Current() => null;
                     }
                     """),
-                ("Claimwick.Modules/Organizations/Teams/Domain/Team.cs", """
-                    namespace Claimwick.Organizations.Teams;
+                ("Claimwick.Modules/Organizations/Domain/Team/Team.cs", """
+                    namespace Claimwick.Organizations.Domain.Team;
 
                     internal sealed class Team
                     {
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
@@ -250,15 +253,16 @@ public sealed class ModuleBoundaryAnalyzerTests
 
     /// <summary>LS2020 accepts another module naming a Contracts kind subfolder.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
     [Fact(DisplayName = "LS2020 accepts another module naming a Contracts kind subfolder")]
     public Task AcceptsAContractsKindSubfolder() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Claimwick.Modules/Billing/Invoices/UseCases/CreateInvoice/CreateInvoiceHandler.cs", """
-                    using Claimwick.Organizations;
+                ("Claimwick.Modules/Billing/Application/CreateInvoice/CreateInvoiceHandler.cs", """
+                    using Claimwick.Organizations.Contracts.Identifiers;
+                    using Claimwick.Organizations.Contracts.Ports;
 
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Application.CreateInvoice;
 
                     internal sealed class CreateInvoiceHandler
                     {
@@ -266,50 +270,58 @@ public sealed class ModuleBoundaryAnalyzerTests
                     }
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Identifiers/TeamId.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Identifiers;
 
                     internal readonly record struct TeamId(System.Guid Value);
                     """),
                 ("Claimwick.Modules/Organizations/Contracts/Ports/IOrganizerReader.cs", """
-                    namespace Claimwick.Organizations;
+                    namespace Claimwick.Organizations.Contracts.Ports;
 
                     internal interface IOrganizerReader
                     {
                     }
                     """),
                 ("Claimwick.Modules/Billing/Contracts/Identifiers/InvoiceId.cs", """
-                    namespace Claimwick.Billing;
+                    namespace Claimwick.Billing.Contracts.Identifiers;
 
                     internal readonly record struct InvoiceId(System.Guid Value);
                     """),
             ],
             assemblyName: "Claimwick.Modules");
 
-    /// <summary>LS2020 stays quiet under layer-projects, which has no Contracts folders.</summary>
+    /// <summary>LS2020 stays quiet in a one-module-project compilation, where visibility holds the boundary.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</proves>
-    [Fact(DisplayName = "LS2020 stays quiet under layer-projects, which has no Contracts folders")]
-    public Task StaysQuietUnderLayerProjects() =>
+    /// <proves>litespec/packs/dotnet/architecture#reach-another-module-only-through-contracts</proves>
+    [Fact(DisplayName = "LS2020 stays quiet in a one-module-project compilation")]
+    public Task StaysQuietInAModuleProject() =>
         Verify.AnalyzerAsync<ModuleBoundaryAnalyzer>(
             [
-                ("Source.cs", """
-                    namespace Shop.Orders;
+                ("Claimwick.Spending/Domain/Stubs.cs", """
+                    namespace Claimwick.Spending.Domain;
 
-                    internal sealed class CreateOrderHandler
+                    internal sealed class Unused
                     {
-                        internal void Handle(OrderStore store)
+                    }
+                    """),
+                ("Claimwick.Spending/Application/SubmitExpense/SubmitExpenseCommandHandler.cs", """
+                    using Claimwick.Spending.Migrations;
+
+                    namespace Claimwick.Spending.Application.SubmitExpense;
+
+                    internal sealed class SubmitExpenseCommandHandler
+                    {
+                        internal void Handle(MigrationPlan plan)
                         {
                         }
                     }
                     """),
-                ("Stubs.cs", """
-                    namespace Shop.Orders;
+                ("Claimwick.Spending/Migrations/MigrationPlan.cs", """
+                    namespace Claimwick.Spending.Migrations;
 
-                    internal sealed class OrderStore
+                    internal sealed class MigrationPlan
                     {
                     }
                     """),
             ],
-            assemblyName: "Shop.Application",
-            layout: "layer-projects");
+            assemblyName: "Claimwick.Spending");
 }

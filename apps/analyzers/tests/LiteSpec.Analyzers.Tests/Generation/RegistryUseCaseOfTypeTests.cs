@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class RegistryUseCaseOfTypeTests
 {
     /// <summary>UseCaseOfType answers the use case of a marked type and null for an unmarked type.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOfType answers the use case of a marked type and null for an unmarked type")]
     public void UseCaseOfTypeAnswersTheMarkedUseCase()
     {
@@ -34,13 +34,13 @@ public sealed class RegistryUseCaseOfTypeTests
         var files = RecordPages.Files(
             "xml",
             ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Spending");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("public static string? UseCaseOfType(System.Type type)", registry, StringComparison.Ordinal);
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
 
-        var assembly = Emit(sources, run, "Shop.Application");
+        var assembly = Emit(sources, run, "Shop.Spending");
         var lookup = Lookup(assembly, "UseCaseOfType");
 
         var handler = assembly.GetType("Shop.Spending.SubmitExpenseCommandHandler");
@@ -53,7 +53,7 @@ public sealed class RegistryUseCaseOfTypeTests
     }
 
     /// <summary>UseCaseOfType normalizes the nested-type separator before the lookup.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOfType normalizes the nested-type separator before the lookup")]
     public void UseCaseOfTypeNormalizesNestedTypeNames()
     {
@@ -75,13 +75,13 @@ public sealed class RegistryUseCaseOfTypeTests
         var files = RecordPages.Files(
             "xml",
             ("approve-expense.yaml", RecordPages.UseCasePage("use-case/spending.approve-expense", "permission/approve-expense")));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Spending");
         Assert.True(run.Sources.TryGetValue("LiteSpecRegistry.g.cs", out var registry), "The registry source is missing.");
         Assert.Contains("[\"Shop.Spending.ExpenseHandlers.ApproveExpenseCommandHandler\"] = new string[] { \"use-case/spending.approve-expense\" },", registry, StringComparison.Ordinal);
         Assert.Empty(run.ReportedDiagnostics);
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
 
-        var assembly = Emit(sources, run, "Shop.Application");
+        var assembly = Emit(sources, run, "Shop.Spending");
         var lookup = Lookup(assembly, "UseCaseOfType");
 
         var handler = assembly.GetType("Shop.Spending.ExpenseHandlers+ApproveExpenseCommandHandler");

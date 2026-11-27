@@ -6,7 +6,7 @@ namespace LiteSpec.Standards;
 ///     The visible-text helpers the validators share: the visible text of a line, its words, and
 ///     its sentences, which the one-sentence Statement rule counts.
 /// </summary>
-/// <follows>litespec/core/authoring#write-atomic-standards-provisions</follows>
+/// <follows>litespec/core/authoring#keep-each-standard-to-one-obligation</follows>
 public static class Prose
 {
     // .NET \b reaches Unicode letters, so every word boundary is written out as
@@ -20,7 +20,7 @@ public static class Prose
     const RegexOptions PlainOptions = RegexOptions.Compiled;
 
     /// <summary>The pattern of a labeled paragraph prefix.</summary>
-    static readonly Regex LabelPrefix = new(@"^\s*\*\*(?:Statement|Deviation|Rationale|Example|Default|Replacement):\*\*\s*", WordOptions);
+    static readonly Regex LabelPrefix = new(@"^\s*\*\*(?:Statement|Waiver|Rationale|Example|Default|Replacement):\*\*\s*", WordOptions);
     /// <summary>The pattern of an inline code span.</summary>
     static readonly Regex InlineCode = new(@"`[^`]*`", PlainOptions);
     /// <summary>The pattern of an image.</summary>

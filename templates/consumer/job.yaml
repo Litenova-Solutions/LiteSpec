@@ -1,17 +1,86 @@
 type: job
-id: job/spending.erase-expired-personal-data
-title: Erase Expired Personal Data
-summary: Each night the job erases the personal data of decided expenses past their retention. The bare business facts stay for the tax file.
-kind: scheduled
+id: job/<module>.<name>
+title: <Title in Title Case>
+terms:
+  - <term id, or remove this line>
+summary: <what the job does and when it runs, or remove this line>
+kind: <scheduled|one-off>
 schedule:
-  every: P1D
-  timezone: Europe/Amsterdam
-selection: Decided expenses past their retention.
-runbook: runbook/clear-stuck-reimbursements
+  every: <how often the job runs, such as P1D>
+  timeZone: <IANA timezone, such as Europe/Amsterdam, or remove this line>
+selection: <which rows the run selects, or remove this line>
+batchSize: <rows per batch, or remove this line>
+lease:
+  name: <lease name>
+  duration: <how long the lease holds, such as PT5M>
+cursor: <where the run resumes, or remove this line>
+runbook: runbook/<name, or remove this line>
+runsWhen: <when a one-off job runs, or remove this line>
+serviceLevel: <the promised freshness or completion, or remove this line>
+evidence: <where the run is observed, or remove this line>
 effects:
-- runs: use-case/spending.erase-personal-data
-  timing: async
+  - runs: use-case/<module>.<name>
+    timing: <inline|after-commit|async, or remove this line>
+  - runs: use-case/<module>.<name>
+    timing: <inline|after-commit|async, or remove this line>
+  - queries: use-case/<module>.<name>
+    timing: <inline|after-commit|async, or remove this line>
+outcomes:
+  - name: completed
+    meaning: <what completed means>
+  - name: nothing-selected
+    meaning: <what nothing-selected means>
+  - name: failed
+    meaning: <what failed means>
 fulfills:
-- requirement/approval.erased-after-retention
+  - requirement/<feature>.<name, or remove this line>
+serves:
+  - step/<flow>.<act>
+onFailure:
+  mode: <retry|skip-and-log|discard>
+  retry:
+    maxAttempts: <how many tries>
+    initialDelay: <first wait, such as PT5M>
+    maxDelay: <longest wait, such as PT1H>
+    backoff: <exponential|fixed>
+  ifExhausted: dead-letter
+  deadLetter:
+    after: <how long the failure is kept, such as P1D>
+    action: <what happens to the exhausted job>
+  surfacesIn: entry-point/<name, or remove this line>
+  runbook: runbook/<name, or remove this line>
+idempotency:
+  mode: <key|state|none>
+  key: <key template, or remove this line>
+  scope: <tenant|account|login|global, or remove this line>
+  replay: <returns-first-result|refuses|acts-again, or remove this line>
+  recognizedBy: <the state that shows a repeat, or remove this line>
+  reason: <why this job needs no idempotency, or remove this line>
 reads:
-- aggregate/spending.expense
+  - <aggregate/<module>.<name>, setting/<module>.<name>, read-model/<module>.<name> or reference-data/<module>.<name>, or remove this line>
+tracksState:
+  aggregate: aggregate/<module>.<name>
+  pending: <state the run leaves>
+  done: <state the run enters>
+  refused: <state a terminal refusal enters, or remove this line when another attempt returns the run to pending>
+scenarios:
+  - id: scenario/<job>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    given: <the situation>
+    when: <the run selects>
+    then: <the expected effect>
+    outcome: completed
+    exercises:
+      - rule/<home>.<name, or remove this line>
+  - id: scenario/<job>.<name>
+    title: <Title in Title Case>
+    terms:
+      - <term id, or remove this line>
+    given: <the situation>
+    when: <the run selects>
+    then: <the expected effect>
+    result: result/<use-case>.<name>
+    exercises:
+      - rule/<home>.<name, or remove this line>

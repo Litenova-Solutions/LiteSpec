@@ -1,7 +1,7 @@
 namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>Address matching and call mapping shared by every frontend reader.</summary>
-/// <follows>litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 static class FrontendFactsRules
 {
     /// <summary>

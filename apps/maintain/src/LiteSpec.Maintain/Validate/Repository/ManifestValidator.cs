@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Maintain.ProvisionIndex;
 using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Standards;
 using static LiteSpec.Maintain.Validate.PageText;
@@ -170,9 +171,9 @@ internal sealed partial class ManifestValidator
         CheckManifestExtensions(extensions, activeIds, provisionsByPage);
     }
 
-    // A stack ships a folder of pages, so the folder names the stack's area and holds
-    // its entry page. Anything else selects nothing.
-    /// <summary>Checks that every stack folder holds its entry page.</summary>
+    // A stack ships one pack folder of pages and names its kind, so the folder sits
+    // under docs/packs/ and holds its entry page. Anything else selects nothing.
+    /// <summary>Checks that every stack names its kind and holds its entry page in its pack folder.</summary>
     /// <param name="stacks">The manifest stacks object.</param>
     private void CheckStackFolders(JsonObject? stacks)
     {
@@ -191,13 +192,20 @@ internal sealed partial class ManifestValidator
                 continue;
             }
 
-            if (StackSelection.KindFor(folder).Length == 0)
+            var trimmed = folder.Replace('\\', '/').TrimEnd('/');
+            if (!trimmed.StartsWith("docs/packs/", StringComparison.Ordinal))
             {
-                add("litespec.manifest.yaml", 1, MaintainerDiagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' is not under 'docs/backend/' or 'docs/frontend/'");
+                add("litespec.manifest.yaml", 1, MaintainerDiagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' is not under 'docs/packs/'");
                 continue;
             }
 
-            var trimmed = folder.TrimEnd('/');
+            var kind = JsonString((stackNode as JsonObject)?["kind"]);
+            if (kind is not "backend" and not "frontend")
+            {
+                add("litespec.manifest.yaml", 1, MaintainerDiagnostics.Codes.StackFolder, $"stack '{id}' names kind '{kind ?? "null"}'; a stack names 'backend' or 'frontend'");
+                continue;
+            }
+
             if (!Directory.Exists(JoinRoot(root, trimmed)))
             {
                 add("litespec.manifest.yaml", 1, MaintainerDiagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' does not exist");
@@ -251,8 +259,8 @@ internal sealed partial class ManifestValidator
     }
 
     // A shape lists backend pages for projects without a backend stack. Only a page
-    // directly in docs/backend/ can stand in for the backend layer.
-    /// <summary>Checks that shape backend pages sit directly in docs/backend.</summary>
+    // directly in docs/core/ can stand in for the backend layer.
+    /// <summary>Checks that shape backend pages sit directly in docs/core.</summary>
     /// <param name="shapes">The manifest shapes object.</param>
     private void CheckShapePages(JsonObject? shapes)
     {
@@ -262,7 +270,7 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        const string backendPrefix = "docs/backend/";
+        const string corePrefix = "docs/core/";
         foreach (var (id, shapeNode) in shapes)
         {
             var pagesNode = (shapeNode as JsonObject)?["backendPages"] as JsonArray;
@@ -280,10 +288,10 @@ internal sealed partial class ManifestValidator
 
             foreach (var page in pages)
             {
-                var rest = page.StartsWith(backendPrefix, StringComparison.Ordinal) ? page[backendPrefix.Length..] : null;
+                var rest = page.StartsWith(corePrefix, StringComparison.Ordinal) ? page[corePrefix.Length..] : null;
                 if (rest is null || rest.Length <= ".md".Length || rest.Contains('/') || !rest.EndsWith(".md", StringComparison.Ordinal))
                 {
-                    add("litespec.manifest.yaml", 1, MaintainerDiagnostics.Codes.ShapePage, $"shape '{id}' backend page '{page}' is not a page directly in 'docs/backend/'");
+                    add("litespec.manifest.yaml", 1, MaintainerDiagnostics.Codes.ShapePage, $"shape '{id}' backend page '{page}' is not a page directly in 'docs/core/'");
                 }
             }
         }
@@ -359,10 +367,10 @@ internal sealed partial class ManifestValidator
         }
     }
 
-    // A backend or frontend page applies through a stack folder: the page's folder is
-    // a stack folder, an ancestor of one, or a folder holding no stack below one of
-    // those. Anything else no selection reaches.
-    /// <summary>Checks that every layer page is reached by a stack selection.</summary>
+    // A pack page applies through its pack folder: the page sits in the selected
+    // pack's folder or in a companion folder under it that holds no stack of its
+    // own. Anything else no selection reaches.
+    /// <summary>Checks that every pack page is reached by a stack selection.</summary>
     /// <param name="stacks">The manifest stacks object.</param>
     private void CheckLayerCoverage(JsonObject? stacks)
     {
@@ -377,54 +385,41 @@ internal sealed partial class ManifestValidator
         foreach (var (_, stackNode) in stacks)
         {
             var folder = JsonString((stackNode as JsonObject)?["folder"]);
-            var kind = folder is null ? "" : StackSelection.KindFor(folder);
-            if (folder is null || folder.Length == 0 || kind.Length == 0)
+            if (folder is null || folder.Length == 0)
             {
                 continue;
             }
 
-            var area = kind == "backend" ? "docs/backend" : "docs/frontend";
-            var current = folder.Replace('\\', '/').TrimEnd('/');
-            while (current.Length >= area.Length
-                && current.StartsWith(area, StringComparison.Ordinal)
-                && (current.Length == area.Length || current[area.Length] == '/'))
-            {
-                covered.Add(current);
-                if (current.Length == area.Length)
-                {
-                    break;
-                }
-
-                current = current[..current.LastIndexOf('/')];
-            }
-        }
-
-        foreach (var folder in covered.ToList())
-        {
-            covered.UnionWith(StackSelection.CompanionFolders(root, folder));
-        }
-
-        foreach (var area in new[] { "docs/backend", "docs/frontend" })
-        {
-            var directory = JoinRoot(root, area);
-            if (!Directory.Exists(directory))
+            // The folder check reports folders outside the packs tree.
+            var normalized = folder.Replace('\\', '/').TrimEnd('/');
+            if (!normalized.StartsWith("docs/packs/", StringComparison.Ordinal))
             {
                 continue;
             }
 
-            foreach (var file in Directory.GetFiles(directory, "*.md", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
-            {
-                var relative = PathText.Relative(root, file);
-                if (Path.GetFileName(relative) == "README.md" || relative.Contains("/ext/", StringComparison.Ordinal))
-                {
-                    continue;
-                }
+            covered.Add(normalized);
+            covered.UnionWith(StackSelection.CompanionFolders(root, normalized));
+        }
 
-                var folder = FileText.Slash(Path.GetDirectoryName(relative) ?? "");
-                if (!covered.Contains(folder))
-                {
-                    add(relative, 1, MaintainerDiagnostics.Codes.LayerUnreachable, "page is applied by no stack selection in litespec.manifest.yaml");
-                }
+        const string area = "docs/packs";
+        var directory = JoinRoot(root, area);
+        if (!Directory.Exists(directory))
+        {
+            return;
+        }
+
+        foreach (var file in Directory.GetFiles(directory, "*.md", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
+        {
+            var relative = PathText.Relative(root, file);
+            if (Path.GetFileName(relative) == "README.md" || relative.Contains("/ext/", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var folder = FileText.Slash(Path.GetDirectoryName(relative) ?? "");
+            if (!covered.Contains(folder))
+            {
+                add(relative, 1, MaintainerDiagnostics.Codes.LayerUnreachable, "page is applied by no stack selection in litespec.manifest.yaml");
             }
         }
     }
@@ -435,8 +430,8 @@ internal sealed partial class ManifestValidator
     /// <summary>Gets the known documentation areas.</summary>
     private static readonly string[] KnownAreas =
     [
-        "docs/core/", "docs/workspace/", "docs/quality/", "docs/ext/", "docs/backend/",
-        "docs/frontend/", "docs/guide/", "docs/learn/", "docs/reference/", "docs/tools/", "docs/maintain/", "docs/tutorial/",
+        "docs/core/", "docs/workspace/", "docs/quality/", "docs/ext/", "docs/packs/",
+        "docs/guide/", "docs/learn/", "docs/reference/", "docs/tools/", "docs/maintain/", "docs/tutorial/",
         "docs/analyzers/", "docs/example/", "docs/intent/", "docs/implementation/",
     ];
 
@@ -587,11 +582,13 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        foreach (var file in Directory.GetFiles(schemas, "*.schema.yaml").OrderBy(name => name, StringComparer.Ordinal))
+        // The schema ships as one composed record schema plus fragment schemas
+        // under schemas/fragments/, so every fragment carries the same
+        // published-home $id rule as a top-level schema.
+        foreach (var file in Directory.GetFiles(schemas, "*.schema.yaml", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
         {
-            var name = Path.GetFileName(file);
-            var relative = $"schemas/{name}";
-            var expected = $"{SchemaHome}{version}/schemas/{name}";
+            var relative = PathText.Relative(root, file).Replace('\\', '/');
+            var expected = $"{SchemaHome}{version}/{relative}";
             string? id;
             try
             {
@@ -642,7 +639,8 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        JsonSchema.UnsupportedKeywords(schema, schemaRelative, "#", add);
+        // The link annotations are keywords the schema carries for the Links table, so the gate reads a copy without them.
+        JsonSchema.UnsupportedKeywords(LinkTable.WithoutAnnotations(schema), schemaRelative, "#", add);
         var errors = new List<string>();
         try
         {

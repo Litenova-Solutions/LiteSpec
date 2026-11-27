@@ -8,7 +8,7 @@ public sealed class QueryRepositoryAnalyzerTests
 {
     /// <summary>LS2011 reports a query handler constructor parameter typed as a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#project-queries-directly</proves>
+    /// <proves>litespec/core/backend-application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 reports a query handler constructor parameter typed as a repository")]
     public Task ReportsARepositoryConstructorParameter() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -22,11 +22,11 @@ public sealed class QueryRepositoryAnalyzerTests
             internal sealed class ListLoansQueryHandler({|LS2011:ILoanRepository|} loanRepository)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2011 reports a query handler detected through IQueryHandler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#project-queries-directly</proves>
+    /// <proves>litespec/core/backend-application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 reports a query handler detected through IQueryHandler")]
     public Task ReportsAnInterfaceDetectedQueryHandler() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -45,11 +45,11 @@ public sealed class QueryRepositoryAnalyzerTests
             {
                 public ListLoansReader({|LS2011:ILoanRepository|} loanRepository) { }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2011 reports a nullable repository parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#project-queries-directly</proves>
+    /// <proves>litespec/core/backend-application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 reports a nullable repository parameter")]
     public Task ReportsANullableRepositoryParameter() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -63,11 +63,11 @@ public sealed class QueryRepositoryAnalyzerTests
             internal sealed class ListLoansQueryHandler({|LS2011:ILoanRepository?|} loanRepository)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2011 accepts a command handler taking a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#project-queries-directly</proves>
+    /// <proves>litespec/core/backend-application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 accepts a command handler taking a repository")]
     public Task AcceptsACommandHandlerTakingARepository() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -81,11 +81,11 @@ public sealed class QueryRepositoryAnalyzerTests
             internal sealed class RenewLoanCommandHandler(ILoanRepository loanRepository)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2011 accepts a query handler projecting through the read session.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#project-queries-directly</proves>
+    /// <proves>litespec/core/backend-application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 accepts a query handler projecting through the read session")]
     public Task AcceptsAQueryHandlerProjectingThroughTheReadSession() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -99,11 +99,11 @@ public sealed class QueryRepositoryAnalyzerTests
             internal sealed class ListLoansQueryHandler(IQuerySession session)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2011 accepts a concrete repository class parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#project-queries-directly</proves>
+    /// <proves>litespec/core/backend-application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 accepts a concrete repository class parameter")]
     public Task AcceptsAConcreteRepositoryClass() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -116,11 +116,11 @@ public sealed class QueryRepositoryAnalyzerTests
             internal sealed class ListLoansQueryHandler(LoanRepository loanRepository)
             {
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2011 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#project-queries-directly</proves>
+    /// <proves>litespec/core/backend-application#project-queries-directly</proves>
     [Fact(DisplayName = "LS2011 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<QueryRepositoryAnalyzer>("""
@@ -134,5 +134,5 @@ public sealed class QueryRepositoryAnalyzerTests
             internal sealed class ListLoansQueryHandler(ILoanRepository loanRepository)
             {
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

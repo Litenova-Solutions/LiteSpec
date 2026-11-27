@@ -1,0 +1,31 @@
+type: refusal-set
+summary: The refusals the expense aggregate raises.
+refusals:
+- id: refusal/spending.own-expense
+  title: Own Expense
+  meaning: The approver submitted the expense.
+  status: 422
+- id: refusal/spending.not-submitted
+  title: Not Submitted
+  meaning: The expense is already decided.
+  status: 422
+- id: refusal/spending.not-approved
+  title: Not Approved
+  meaning: The expense is not approved.
+  status: 422
+- id: refusal/spending.already-reimbursed
+  title: Already Reimbursed
+  meaning: The expense is already reimbursed.
+  status: 422
+- id: refusal/spending.receipt-missing
+  title: Receipt Missing
+  meaning: The expense is above the receipt threshold and carries no receipt.
+  status: 422
+- id: refusal/spending.nothing-approved
+  title: Nothing Approved
+  meaning: No approved expense awaits the export.
+  status: 422
+- id: refusal/spending.retention-not-ended
+  title: Retention Not Ended
+  meaning: The retention of the expense has not ended.
+  status: 422

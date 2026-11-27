@@ -9,3 +9,7 @@ Fixture text for the Capabilities section.
 ## Success Criteria
 
 Fixture text for the Success Criteria section.
+
+## Boundaries
+
+Fixture text for the Boundaries section.

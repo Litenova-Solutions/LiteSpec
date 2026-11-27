@@ -1,6 +1,6 @@
 # Keep Each Requirement in Its Own Folder
 
-A requirement states one commitment that Behavior fulfills. Until now, every requirement was an entry in its feature's record file. This decision gives each requirement its own folder inside its feature's folder, with an optional explanation file, so each commitment has one authoritative file that can carry the context its statement leaves out.
+A requirement states one commitment that Behavior fulfills. An entry in its feature's record file gives a requirement nowhere to explain a condition, a term or an edge case that its statement leaves out. This decision gives each requirement its own folder inside its feature's folder, with an optional explanation file, so each commitment has one authoritative file.
 
 ## Context
 

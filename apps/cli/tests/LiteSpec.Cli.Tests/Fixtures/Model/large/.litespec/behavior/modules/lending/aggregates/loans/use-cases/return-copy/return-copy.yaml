@@ -6,35 +6,50 @@ access:
   grant: permission/borrow-copy
   tenant: own
 serves:
-- journey/borrow-and-return#s5
+- step/borrow-and-return.return-copy
 fulfills:
 - requirement/borrowing.loan-period-days
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
-- event/loan.loan-returned
+- domain-event/loan.loan-returned
+inputs:
+- name: loanId
+  meaning: The loan whose copy the reader returns.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call returns its own copy, and returning an inactive loan is refused.
 audit:
-  level: none
-  target: No audit trail; the loan record shows each return.
-records:
-- type: result
-  id: result/return-copy.returned
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader returns the copy to the desk.
+results:
+- id: result/return-copy.returned
   title: Returned
   outcome: success
   meaning: The copy is returned.
-- type: result
-  id: result/return-copy.loan-inactive
+- id: result/return-copy.loan-inactive
   title: Loan inactive
   outcome: refusal
-  code: lending.loan-not-active
-  meaning: The loan is inactive.
-- type: scenario
-  id: scenario/return-copy.returning-a-borrowed-copy-succeeds
+  refusal: refusal/lending.loan-not-active
+  message: This loan is already returned, so there is nothing to return.
+scenarios:
+- id: scenario/return-copy.returning-a-borrowed-copy-succeeds
   title: Returning a borrowed copy succeeds
   given: A reader holds an active loan.
   when: The reader returns the copy.
   then: The loan is returned.
   result: result/return-copy.returned
+- id: scenario/return-copy.returning-an-inactive-loan-is-refused
+  title: Returning an inactive loan is refused
+  given: A loan already stands returned.
+  when: The reader returns the copy.
+  then: The return is refused because the loan is inactive.
+  result: result/return-copy.loan-inactive
+  exercises:
+  - rule/loan.returned-while-active

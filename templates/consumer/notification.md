@@ -12,4 +12,4 @@ Say when the message is sent, when it is suppressed and through which channel.
 
 ## Example
 
-Write one concrete message for the example cast, with the real values filled in.
+Write one concrete message for the cast, with the real values filled in.

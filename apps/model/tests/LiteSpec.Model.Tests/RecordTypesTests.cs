@@ -6,7 +6,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the reaction, job and departure record types and the link verbs are registered.</summary>
+/// <summary>Proves the reaction, job and waiver record types and the link verbs are registered.</summary>
 public sealed class RecordTypesTests
 {
     /// <summary>The topic record type and the review report page style are gone.</summary>
@@ -20,24 +20,26 @@ public sealed class RecordTypesTests
         Assert.DoesNotContain("requirement-page", RecordTypes.PageStyles);
     }
 
-    /// <summary>Cites links the seven reason types and the requirements a journey shows.</summary>
+    /// <summary>Cites links the seven reason types and the requirements a flow shows.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void CitesLinksReasonsAndRequirements()
     {
         Assert.True(RecordTypes.LinkTargets["cites"].SetEquals(
-            ["goal", "vision", "problem", "feature", "constraint", "research", "decision", "requirement"]));
+            ["goal", "direction", "problem", "feature", "constraint", "research", "decision", "requirement"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("features"));
     }
 
-    /// <summary>Addresses links the actors a page speaks to and the permission an event needs.</summary>
+    /// <summary>Audience links the actors a page speaks to, and requires links actors and permissions.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact]
-    public void AddressesLinksActorsAndPermissions()
+    public void AudienceAndRequiresLinkActorsAndPermissions()
     {
-        Assert.True(RecordTypes.LinkTargets["addresses"].SetEquals(
+        Assert.True(RecordTypes.LinkTargets["audience"].SetEquals(
+            ["actor"]));
+        Assert.True(RecordTypes.LinkTargets["requires"].SetEquals(
             ["actor", "permission"]));
-        Assert.False(RecordTypes.LinkTargets.ContainsKey("audience"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("addresses"));
     }
 
     /// <summary>The reaction and the job are Behavior record types with a home, and automation is gone.</summary>
@@ -54,28 +56,69 @@ public sealed class RecordTypesTests
         Assert.DoesNotContain("automation", RecordTypes.All);
     }
 
-    /// <summary>The departure is a Governance record type, and deviation and known gap are gone.</summary>
+    /// <summary>The waiver is a Governance record type, and deviation and known gap are gone.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void DepartureIsAGovernanceRecordType()
+    public void WaiverIsAGovernanceRecordType()
     {
-        Assert.Contains("departure", RecordTypes.All);
-        Assert.Equal("governance", RecordTypes.LayerByType["departure"]);
+        Assert.Contains("waiver", RecordTypes.All);
+        Assert.Equal("governance", RecordTypes.LayerByType["waiver"]);
         Assert.DoesNotContain("deviation", RecordTypes.All);
         Assert.DoesNotContain("known-gap", RecordTypes.All);
     }
 
-    /// <summary>The effect verbs link the records each effect reaches, with no retired verb left.</summary>
+    /// <summary>The effect verbs link the records each effect reaches, and an event publish is no verb.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</proves>
     [Fact]
     public void EffectVerbsLinkTheirTargets()
     {
         Assert.True(RecordTypes.LinkTargets["runs"].SetEquals(["use-case"]));
         Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(["notification"]));
-        Assert.True(RecordTypes.LinkTargets["emits"].SetEquals(["integration-event"]));
         Assert.True(RecordTypes.LinkTargets["calls"].SetEquals(["external-system"]));
+        Assert.True(RecordTypes.LinkTargets["queries"].SetEquals(["use-case"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("commands"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("answers"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("emits"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("issues"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
+    }
+
+    /// <summary>A use case is reached through entry points, and an event through entry points and external systems.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void ViaLinksEntryPointsAndExternalSystems()
+    {
+        Assert.True(RecordTypes.LinkTargets["via"].SetEquals(["entry-point", "external-system", "module"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("reachedThrough"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("through"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("arrivesThrough"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("deliveredThrough"));
+    }
+
+    /// <summary>A read model links the aggregate it is keyed by, the integration events it takes fields from and removes rows on, and the use cases that read it.</summary>
+    /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
+    [Fact]
+    public void ReadModelLinksItsSourcesAndReaders()
+    {
+        Assert.Contains("read-model", RecordTypes.All);
+        Assert.Contains("read-model", RecordTypes.WithHome);
+        Assert.Equal("behavior", RecordTypes.LayerByType["read-model"]);
+        Assert.True(RecordTypes.LinkTargets["keyedBy"].SetEquals(["aggregate"]));
+        Assert.True(RecordTypes.LinkTargets["from"].SetEquals(["module-event", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["erasedBy"].SetEquals(["module-event", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["removedBy"].SetEquals(["module-event", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "setting", "read-model", "reference-data"]));
+    }
+
+    /// <summary>A read model is a technical type that code implements, and its record home is its module's read-models folder.</summary>
+    /// <proves>litespec/packs/dotnet/architecture#place-each-read-model-in-its-application-read-models-folder</proves>
+    [Fact]
+    public void ReadModelHomeIsTheModuleReadModelsFolder()
+    {
+        Assert.Contains("read-models", RecordFolders.BehaviorModuleFolders);
+        Assert.Equal("behavior/modules/reporting/read-models/reimbursed-expense/reimbursed-expense.yaml", RecordFolders.ScaffoldPath("read-model", "reporting", "reimbursed-expense"));
+        Assert.True(RecordFolders.Places("read-model", ["behavior", "modules", "reporting", "read-models", "reimbursed-expense"], "reimbursed-expense.yaml"));
     }
 
     /// <summary>The reaction trigger links the events that set it off, and the old trigger is gone.</summary>
@@ -84,7 +127,7 @@ public sealed class RecordTypesTests
     public void TriggeredByLinksEvents()
     {
         Assert.True(RecordTypes.LinkTargets["triggeredBy"].SetEquals(
-            ["event", "integration-event"]));
+            ["domain-event", "module-event", "integration-event"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("on"));
     }
 
@@ -95,10 +138,10 @@ public sealed class RecordTypesTests
     {
         Assert.Empty(RecordTypes.LinkTargets["freshness"]);
         Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
-            ["external-system", "integration-event"]));
-        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["reaction", "job"]));
+            ["external-system", "module-event", "integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["enforcedBy"].SetEquals(["job", "use-case"]));
         Assert.True(RecordTypes.LinkTargets["dataClasses"].SetEquals(
-            ["reaction", "job", "decision", "requirement"]));
+            ["job", "use-case", "decision", "requirement", "constraint", "domain-event", "module-event", "integration-event"]));
     }
 
     /// <summary>BasedOn links the records a limit or a choice rests on, and the renamed fields are gone.</summary>
@@ -107,9 +150,22 @@ public sealed class RecordTypesTests
     public void BasedOnLinksLimitsAndChoices()
     {
         Assert.True(RecordTypes.LinkTargets["basedOn"].SetEquals(
-            ["constraint", "research", "vision", "decision", "requirement"]));
+            ["constraint", "research", "direction", "decision", "requirement", "goal", "problem", "feature"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("acceptedBy"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("entryPoint"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("basis"));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("binds"));
+    }
+
+    /// <summary>A rule governs the aggregates, use cases and modules it holds for, and a flow solves the problems it answers.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    [Fact]
+    public void GovernsAndSolvesLinkTheirTargets()
+    {
+        Assert.True(RecordTypes.LinkTargets["governs"].SetEquals(
+            ["aggregate", "use-case", "module"]));
+        Assert.True(RecordTypes.LinkTargets["solves"].SetEquals(["problem"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("binds"));
     }
 
     /// <summary>The link sets match the Written on columns of the Links table.</summary>
@@ -127,18 +183,18 @@ public sealed class RecordTypesTests
 
         var steps = rows
             .Where(row => row.Field == "serves"
-                && row.PointsAt.Contains("journey step", StringComparison.OrdinalIgnoreCase)
-                && !row.WrittenOn.Contains("screen", StringComparison.OrdinalIgnoreCase))
+                && row.PointsAt.Contains("flow step", StringComparison.OrdinalIgnoreCase))
             .ToList();
         Assert.Single(steps);
+        Assert.Contains("screen", WritersOf(steps[0]));
         Assert.Equal(
-            WritersOf(steps[0]),
+            WritersOf(steps[0]).Where(type => type != "screen").OrderBy(type => type, StringComparer.Ordinal).ToList(),
             RecordTypes.StepServingTypes.OrderBy(type => type, StringComparer.Ordinal).ToList());
 
         var linked = RecordTypes.FulfillingTypes
             .Concat(RecordTypes.StepServingTypes)
             .Distinct(StringComparer.Ordinal)
-            .Where(type => type != "rule")
+            .Where(type => type != "rule" && type != "entry-point")
             .OrderBy(type => type, StringComparer.Ordinal)
             .ToList();
         Assert.Equal(linked, RecordTypes.UpLinkedTypes.OrderBy(type => type, StringComparer.Ordinal).ToList());

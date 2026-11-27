@@ -24,7 +24,7 @@ public sealed class LinkExportTests
             TestModel.Record("goal", "goal/shorter-queues", Path.Combine(temp.Path, "goal.yaml"), """{"statement": "Readers wait less.", "measure": "Median wait", "target": "Under two days"}"""),
             TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "feature.yaml"), """{"advances": ["goal/shorter-queues"]}"""));
 
-        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "field-invalid" && finding.Message.Contains("advances", StringComparison.Ordinal));
+        Assert.DoesNotContain(Checker.Check(model).Findings, finding => finding.Code == "record-invalid" && finding.Message.Contains("advances", StringComparison.Ordinal));
     }
 
     /// <summary>Feature Advancing A Problem Reports Invalid Field.</summary>
@@ -35,11 +35,11 @@ public sealed class LinkExportTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("problem", "problem/long-waits", Path.Combine(temp.Path, "problem.yaml"), """{"affects": ["actor/reader"], "statement": "Readers wait weeks."}"""),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "feature.yaml"), """{"advances": ["problem/long-waits"]}"""));
+            TestModel.Record("problem", "problem/long-waits", Path.Combine(temp.Path, "problem.yaml"), """{"affects": ["actor/reader"], "statement": "Readers wait weeks.", "failureCases": ["A reader waits weeks for a hold to arrive."], "workaround": "Readers ask staff to check the shelf by hand.", "cost": "Each wait costs a reader weeks of delay.", "resolutionCriteria": ["Holds arrive within two days."]}"""),
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "feature.yaml"), """{"advances": ["problem/long-waits"], "successCriteria": ["Holds arrive within two days."], "excludes": ["The queue tracks no fines."]}"""));
 
         Assert.Contains(Checker.Check(model).Findings, finding =>
-            finding.Code == "field-invalid" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));
+            finding.Code == "record-invalid" && finding.Message.Contains("links advances to 'problem/long-waits', which is a problem", StringComparison.Ordinal));
     }
 
     /// <summary>Use Case Reads Setting Is Exported As A Link.</summary>
@@ -48,7 +48,7 @@ public sealed class LinkExportTests
     public void UseCaseReadsSettingIsExportedAsALink()
     {
         using var temp = ModelFixture.Prepare("large");
-        TestRecords.Write(temp.Path, ".litespec/operations/reading.yaml", SettingJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/loan-days/loan-days.yaml", SettingJson);
         PatchRecord(
             temp.Path,
             ".litespec/behavior/modules/lending/aggregates/loans/use-cases/borrow-copy/borrow-copy.yaml",
@@ -133,9 +133,9 @@ public sealed class LinkExportTests
         Assert.Equal(
             ["integration-event/payout-voided"],
             ModelBuilder.TargetsOf(Element("""{"mode": "event", "event": "integration-event/payout-voided"}""")));
-        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "none", "reason": "money has moved"}""")));
-        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "never", "reason": "the hold never releases"}""")));
-        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "impossible", "reason": "the processor keeps no erasure call"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "not-applicable", "reason": "money has moved"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "unsupported", "reason": "the hold never releases"}""")));
+        Assert.Empty(ModelBuilder.TargetsOf(Element("""{"mode": "manual", "reason": "the processor keeps no erasure call"}""")));
     }
 
     /// <summary>Wave6 Effects Triggers And Steps Export Their Ids As Links.</summary>
@@ -147,11 +147,11 @@ public sealed class LinkExportTests
             ["use-case/lending.release-hold"],
             ModelBuilder.TargetsOf(Element("""{"runs": "use-case/lending.release-hold"}""")));
         Assert.Equal(
-            ["integration-event/hold-released"],
-            ModelBuilder.TargetsOf(Element("""{"emits": "integration-event/hold-released"}""")));
+            ["notification/lending.due-reminder"],
+            ModelBuilder.TargetsOf(Element("""{"sends": "notification/lending.due-reminder"}""")));
         Assert.Equal(
-            ["event/loan.loan-borrowed"],
-            ModelBuilder.TargetsOf(Element("""{"event": "event/loan.loan-borrowed"}""")));
+            ["domain-event/loan.loan-borrowed"],
+            ModelBuilder.TargetsOf(Element("""{"event": "domain-event/loan.loan-borrowed"}""")));
         Assert.Equal(
             ["use-case/lending.release-hold"],
             ModelBuilder.TargetsOf(Element("""{"id": "release", "runs": "use-case/lending.release-hold", "guard": "the hold is expired"}""")));
@@ -185,20 +185,16 @@ public sealed class LinkExportTests
 
     const string SettingJson = """
         {
-          "type": "setting-set",
-          "title": "Reading Settings",
-          "records": [
-            {
-              "type": "setting",
-              "id": "setting/lending.loan-days",
-              "title": "Loan Days",
-              "valueType": "integer",
-              "default": 21,
-              "range": "7..60",
-              "unit": "days",
-              "setBy": "product"
-            }
-          ]
+          "type": "setting",
+          "id": "setting/lending.loan-days",
+          "title": "Loan Days",
+          "value": {
+            "type": "integer",
+            "default": 21,
+            "range": "7..60",
+            "unit": "days"
+          },
+          "setBy": "product"
         }
         """;
 }

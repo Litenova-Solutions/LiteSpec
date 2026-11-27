@@ -14,7 +14,7 @@ namespace LiteSpec.Cli.Model.Readers.Settings;
 ///     <c>implements</c> mark naming a <c>setting/</c> record, with its
 ///     <c>SectionName</c> constant value and its property names.
 /// </summary>
-/// <follows>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</follows>
+/// <follows>litespec/packs/dotnet/stack#read-net-code-through-the-stack-reader</follows>
 static class OptionsClassReader
 {
     /// <summary>Reads every marked options class under the .NET source roots.</summary>

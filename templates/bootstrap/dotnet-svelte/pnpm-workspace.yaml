@@ -1,0 +1,6 @@
+packages:
+  - apps/*
+  - packages/*
+# esbuild ships Vite's platform binary through an install script.
+allowBuilds:
+  esbuild: true

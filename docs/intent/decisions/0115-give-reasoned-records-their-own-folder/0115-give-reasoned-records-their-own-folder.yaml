@@ -1,0 +1,17 @@
+type: decision
+id: decision/0115-give-reasoned-records-their-own-folder
+title: Give Reasoned Records Their Own Folder
+context: "Rules sat together in rule-set files, settings in setting-set files, and domain events as entries of their aggregate file. One explanation file covered every rule of a set, so a rule's reasons, sources and examples sat in a long shared page that drifted from the rules it described, and many rules had no section at all. A consumer's set grew past two thousand lines, a change to one rule rewrote the whole set, and splitting rules by condition made the sets grow further. Requirements had already left their feature file for the same reasons."
+options:
+  - name: "Keep rules, settings and domain events in sets and aggregate files"
+    pros: "One file shows all the rules of an aggregate, and nothing moves."
+    cons: "A rule has no explanation of its own, a set grows with every rule, a change to one rule rewrites the set, and each new field lengthens every set."
+  - name: "Give every record type its own folder, including results, scenarios, permissions, refusals and cast entries"
+    pros: "One rule for every type."
+    cons: "A refusal code or a permission carries no reasoning of its own, so a folder per entry adds files without adding information, and scenarios read best beside the use case they prove."
+  - name: "Give each record with reasoning of its own its own folder, and keep closed lists as entries"
+    pros: "Each rule, setting and domain event has one file and one explanation with room for its rationale, example and limits, the history of one record is its own, and a new field changes one file. Closed lists stay short and together."
+    cons: "Every consumer moves its rules, settings and domain events into folders, and a hand edit opens more files."
+choice: "Give each record with reasoning of its own its own folder, and keep closed lists as entries"
+consequences: "A rule lives at `rules/<name>/<name>.yaml` under its aggregate, its module or `behavior/`, a setting at `settings/<name>/<name>.yaml` under its module, and a domain event at `domain-events/<name>/<name>.yaml` under its aggregate. The `rule-set` and `setting-set` page styles are removed, and an aggregate file holds no domain events. A rule's explanation holds Rationale, then an optional Example and Limits; a setting's holds Defaults and an optional Changes; a domain event's holds an optional Example. `litespec new rule`, `litespec new setting` and `litespec new domain-event` write the folder, and `litespec new entry` takes permissions only. The provision on module rules becomes `litespec/core/model#hold-module-rules-in-rule-folders`. Each consumer moves its records under the changelog's upgrade step."
+reopenedWhen: "Consumers report that editing many small rule files costs more than the separate explanations and history gain, or that readers need a combined view of an aggregate's rules the book does not give them."

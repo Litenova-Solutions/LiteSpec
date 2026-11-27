@@ -7,44 +7,99 @@ access:
   grant: permission/request-expense
   tenant: own
 serves:
-- journey/submit-and-reimburse#s2
+- step/submit-and-reimburse.attach-receipt
 fulfills:
 - requirement/approval.above-threshold-receipt
-reachedThrough:
+via:
 - entry-point/claimwick-app
 raises:
-- event/receipt.attached
-changes:
+- domain-event/receipt.attached
+inputs:
+- name: expense
+  meaning: The submitted expense the receipt supports.
+  type: id
+  identifies: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+- name: receipt
+  meaning: The identifier the app mints for the receipt, so a retried request attaches the same receipt.
+  type: id
+  identifies: aggregate/spending.receipt
+  required: true
+  origin: caller
+  classification: internal
+- name: attachedAt
+  meaning: The time the receipt attaches, read from the clock.
+  type: date-time
+  required: false
+  origin: derived
+  classification: internal
+writes:
 - aggregate/spending.expense
+- aggregate/spending.receipt
+reads:
+- aggregate/spending.expense
+consistency:
+  mode: atomic
+  boundBy:
+  - rule/spending.receipt-attached-atomically
 idempotency:
-  mode: none
-  reason: a repeat attaches the same receipt to the same submitted expense, leaving the same receipt attached
+  mode: key
+  key: "{receipt}"
+  scope: account
+  replay: returns-first-result
 audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
-records:
-- type: result
-  id: result/attach-receipt.attached
+  level: required
+  category: monetary-action
+  target:
+  - expense
+  - receipt
+  targetKind: aggregate/spending.receipt
+steps:
+- statement: The employee sends the receipt for a submitted expense.
+  cites:
+  - aggregate/spending.expense
+- statement: Spending refuses the receipt with `spending.expense-decided` when the expense is decided.
+  cites:
+  - result/attach-receipt.expense-decided
+  - rule/receipt.attaches-before-decision
+- statement: Spending attaches the receipt and raises the attached event.
+  cites:
+  - result/attach-receipt.attached
+  - domain-event/receipt.attached
+  - aggregate/spending.receipt
+  - rule/spending.receipt-filed-once
+edgeCases:
+- Spending refuses a receipt on a decided expense with `spending.expense-decided`.
+results:
+- id: result/attach-receipt.attached
   title: Attached
   outcome: success
   meaning: The receipt is attached.
-- type: result
-  id: result/attach-receipt.expense-decided
+- id: result/attach-receipt.expense-decided
   title: Expense Decided
   outcome: refusal
-  code: spending.expense-decided
-  meaning: The expense is already decided.
-- type: scenario
-  id: scenario/attach-receipt.attaching-a-receipt-succeeds
+  refusal: refusal/spending.expense-decided
+  message: This expense is already decided, so it takes no more receipts.
+  translations:
+    nl: Over deze uitgave is al beslist, dus er kunnen geen bonnetjes meer bij.
+scenarios:
+- id: scenario/attach-receipt.attaching-a-receipt-succeeds
   title: Attaching a Receipt Succeeds
   given: An employee submitted an expense below the threshold with no receipt.
   when: The employee attaches the receipt.
   then: The receipt is attached.
   result: result/attach-receipt.attached
-- type: scenario
-  id: scenario/attach-receipt.attaching-to-decided-expense-refused
+  exercises:
+  - rule/receipt.attaches-before-decision
+  - rule/spending.receipt-filed-once
+  - rule/spending.receipt-attached-atomically
+- id: scenario/attach-receipt.attaching-to-decided-expense-refused
   title: Attaching to a Decided Expense Is Refused
   given: A manager approved an expense.
   when: The employee attaches the receipt.
   then: The receipt is refused because the expense is already decided.
   result: result/attach-receipt.expense-decided
+  exercises:
+  - rule/receipt.attaches-before-decision

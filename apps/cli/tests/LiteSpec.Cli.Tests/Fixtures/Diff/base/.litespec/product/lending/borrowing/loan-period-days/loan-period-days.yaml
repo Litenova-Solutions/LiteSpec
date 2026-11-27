@@ -4,4 +4,4 @@ title: Loan period days
 kind: functional
 statement: A loan lasts 21 days.
 rationale: Three weeks lets most readers finish while copies keep moving.
-cites: []
+basedOn: []

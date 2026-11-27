@@ -15,6 +15,9 @@ sealed class CodeFacts
     /// <summary>Gets every domain event class the backend read found, in read order.</summary>
     public List<CodeDomainEvent> Events { get; } = [];
 
+    /// <summary>Gets every outbox decision the backend read found, in read order.</summary>
+    public List<CodeOutboxDecision> OutboxDecisions { get; } = [];
+
     /// <summary>Gets every refusal code literal the backend read found, in read order.</summary>
     public List<CodeLiteral> Literals { get; } = [];
 
@@ -23,6 +26,9 @@ sealed class CodeFacts
 
     /// <summary>Gets every marked element of no known kind, sorted by file then line.</summary>
     public List<StrayMark> StrayMarks { get; } = [];
+
+    /// <summary>Gets every seeds mark the code names: the cast entries a seed or fixture uses, in file then line order.</summary>
+    public List<CodeMark> Seeds { get; } = [];
 
     /// <summary>Gets every kebab-case string literal in the code, the keys a composed refusal code is built from.</summary>
     public HashSet<string> KeyLiterals { get; } = new(StringComparer.Ordinal);

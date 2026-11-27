@@ -4,5 +4,5 @@ title: Copy shelf home
 kind: functional
 statement: A copy lives on one home shelf.
 rationale: One home shelf keeps every copy findable.
-cites:
+basedOn:
 - decision/0001-loan-period

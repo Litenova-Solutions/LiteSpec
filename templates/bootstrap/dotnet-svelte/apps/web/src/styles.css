@@ -1,0 +1,5 @@
+/* The __PROJECT__ web styles: the shared UI tokens carry the theme. Tailwind
+   scans the web app from its working folder, so the shared UI package that
+   lives beside it is named as a source here. */
+@import "@__SCOPE__/ui/tokens.css";
+@source "../../../packages/ui/src";

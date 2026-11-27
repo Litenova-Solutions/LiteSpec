@@ -24,27 +24,32 @@ namespace LiteSpec.Cli.Book.Outline;
 
 
 /// <summary>
-///     The outline over the model: every placed record sits once under its parent, with layer and
-///     type groups laid transparently on the path. The code implementing a record, the tests proving
-///     it and the findings about it sit under it as leaves. A record no rule places, or whose parent
-///     is itself unplaced, has no node and is only listed unplaced.
+///     The outline over the model: every placed record sits in its layer, under its parent
+///     or topping the layer under its record type group when the product parents it. A
+///     feature solving problems sits under each one, and only there: the Features group
+///     holds the features that solve no problem. The product holds no node. The code
+///     implementing a record, the tests proving it and the findings about it sit under it
+///     as leaves. A record no rule places, or whose parent is itself unplaced, has no node
+///     and is only listed unplaced.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookOutline
 {
     /// <summary>The layer keys in outline order.</summary>
-    public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
+    public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary", "cast"];
 
-    /// <summary>The record types that top the intent layer, in display order.</summary>
-    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "vision", "problem", "constraint", "research", "decision", "actor"];
-    /// <summary>The record types under a module, in display order.</summary>
-    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "integration-event"];
+    /// <summary>The record types that top the intent layer under their type groups, in display order.</summary>
+    static readonly IReadOnlyList<string> IntentTopOrder = ["direction", "goal", "problem", "requirement", "flow", "constraint", "research", "decision", "actor", "role", "term"];
+    /// <summary>The record types under a module, in display order: aggregates with their use cases first, then the module's other records by type.</summary>
+    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "use-case", "rule", "domain-event", "reaction", "job", "read-model", "reference-data", "notification", "setting", "permission"];
+    /// <summary>The record types under a knowledge area, in display order: its reference-data tables.</summary>
+    static readonly IReadOnlyList<string> KnowledgeAreaChildOrder = ["reference-data"];
     /// <summary>The record types under an aggregate, in display order.</summary>
-    static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
-    /// <summary>The list record types in the behavior layer, in display order.</summary>
-    static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
+    static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "domain-event", "module-event", "integration-event"];
+    /// <summary>The list record types in the behavior layer, in display order: entry points with their screens, then external systems.</summary>
+    static readonly IReadOnlyList<string> BehaviorListOrder = ["entry-point", "external-system"];
     /// <summary>The record types in the governance layer, in display order.</summary>
-    static readonly IReadOnlyList<string> GovernanceOrder = ["departure"];
+    static readonly IReadOnlyList<string> GovernanceOrder = ["waiver"];
 
     /// <summary>Builds the outline over a parsed model object with every layer claimed.</summary>
     /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
@@ -80,11 +85,12 @@ static class BookOutline
         foreach (var pair in byId)
         {
             var title = StrProp(pair.Value, "title");
+            var type = StrProp(pair.Value, "type") ?? "";
             nodes[pair.Key] = new BookOutlineNode(
                 pair.Key,
                 BookOutlineKinds.Record,
-                title is { Length: > 0 } ? title : pair.Key,
-                StrProp(pair.Value, "type") ?? "",
+                title is { Length: > 0 } ? LiteSpec.Cli.Book.BookModel.DisplayTitle(type, title) : pair.Key,
+                type,
                 []);
         }
 
@@ -100,7 +106,7 @@ static class BookOutline
             var id = layer + "/" + type;
             if (!groups.TryGetValue(id, out var group))
             {
-                group = new BookOutlineNode(id, BookOutlineKinds.Group, PluralOf(type), type, []);
+                group = new BookOutlineNode(id, BookOutlineKinds.Group, GroupLabel(layer, type), type, []);
                 groups[id] = group;
                 layers[layer].Children.Add(group);
             }
@@ -153,24 +159,42 @@ static class BookOutline
 
             if (string.Equals(type, "product", StringComparison.Ordinal))
             {
-                layers["intent"].Children.Add(nodes[id]);
+                // The product holds no outline node: it tops no layer, and its children top their own.
+                continue;
+            }
+
+            if (string.Equals(type, "scenario", StringComparison.Ordinal)
+                && ShownResult(record, byId, attached) is { } shown)
+            {
+                // A use-case scenario groups under the result it shows; containment stays with its owner.
+                nodes[shown].Children.Add(nodes[id]);
                 continue;
             }
 
             var parent = parents[id]!;
             var parentType = StrProp(byId[parent], "type") ?? "";
             var ownLayer = OwnLayer(record, type);
-            if (string.Equals(type, "decision", StringComparison.Ordinal) && string.Equals(ownLayer, "implementation", StringComparison.Ordinal))
+            if (string.Equals(type, "decision", StringComparison.Ordinal))
             {
-                // A technical decision tops the implementation layer at product
-                // and module level alike, so the decision chapter holds every
-                // technical decision in one place.
+                // A decision tops its own layer at product and module level
+                // alike, so each decision chapter holds every decision of its
+                // kind in one place.
                 PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
                 continue;
             }
 
-            if (string.Equals(parentType, "product", StringComparison.Ordinal) && !string.Equals(ownLayer, "intent", StringComparison.Ordinal))
+            if (type is "runbook" or "waiver" or "external-system")
             {
+                // A runbook, waiver or external system filed under a module
+                // still tops its own layer, so a Behavior module holds only
+                // the module's own records.
+                PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
+                continue;
+            }
+
+            if (string.Equals(parentType, "product", StringComparison.Ordinal))
+            {
+                // Every product child tops its own layer under its type group, except a module, which tops Behavior directly.
                 PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
                 continue;
             }
@@ -351,7 +375,7 @@ static class BookOutline
         }
     }
 
-    /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
+    /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings when the project claims neither Implementation nor Proof. Each node id names its subject and its 1-based position among that subject's findings, in the same open-then-covered order the record shards carry, so the id opens the subject record at that finding.</summary>
     /// <param name="model">The parsed model object that holds the open and covered findings.</param>
     /// <param name="byId">The record object for each record identifier.</param>
     /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
@@ -368,10 +392,9 @@ static class BookOutline
         entries.AddRange(FindingEntries(model["findings"]));
         entries.AddRange(FindingEntries(model["covered"]));
 
-        var at = 0;
+        var perSubject = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var finding in entries)
         {
-            at++;
             if (claims.Implementation is null && claims.Proof is null && IsLevelS(finding))
             {
                 continue;
@@ -385,9 +408,12 @@ static class BookOutline
 
             if (attached.TryGetValue(target, out var placed) && placed)
             {
+                perSubject.TryGetValue(target, out var seen);
+                var position = seen + 1;
+                perSubject[target] = position;
                 var message = StrProp(finding, "message") ?? "";
                 nodes[target].Children.Add(new BookOutlineNode(
-                    "finding/" + at,
+                    target + "#finding-" + position.ToString(CultureInfo.InvariantCulture),
                     BookOutlineKinds.Finding,
                     message.Length > 110 ? message[..108] + "..." : message,
                     BookOutlineKinds.Finding,
@@ -472,8 +498,8 @@ static class BookOutline
         return tail.Replace('_', ' ');
     }
 
-    /// <summary>Strips the step fragment of an id, such as journey/name#s1.</summary>
-    /// <param name="id">The identifier, optionally with a step fragment after a hash.</param>
+    /// <summary>Strips the hash fragment of an id, such as an external-system operation.</summary>
+    /// <param name="id">The identifier, optionally with a fragment after a hash.</param>
     /// <returns>The identifier without its fragment, unchanged when it holds no hash.</returns>
     static string BaseId(string id)
     {
@@ -514,7 +540,7 @@ static class BookOutline
         BookOutlineNode node)
     {
         // A record whose parent is the product in another layer tops its own layer.
-        if (string.Equals(layer, "behavior", StringComparison.Ordinal) && string.Equals(type, "module", StringComparison.Ordinal))
+        if (string.Equals(layer, "behavior", StringComparison.Ordinal) && type is "module" or "knowledge-area")
         {
             layers["behavior"].Children.Add(node);
         }
@@ -532,7 +558,7 @@ static class BookOutline
         }
         else if (string.Equals(layer, "implementation", StringComparison.Ordinal))
         {
-            layers["implementation"].Children.Add(node);
+            group("implementation", type).Children.Add(node);
         }
         else
         {
@@ -541,19 +567,28 @@ static class BookOutline
     }
 
     /// <summary>Selects the layer a record tops when placement lifts it out of its parent.</summary>
-    /// <param name="record">The record object, whose file path marks a technical decision.</param>
+    /// <param name="record">The record object, whose file path marks a technical decision and whose layer field marks a behavior term.</param>
     /// <param name="type">The record type.</param>
-    /// <returns>The layer key for the record type, with technical decisions in implementation and unknown types in intent.</returns>
+    /// <returns>The layer key for the record type: root for the product, with technical decisions and runbooks in implementation, waivers in governance, behavior terms in behavior, and unknown types in intent.</returns>
     static string OwnLayer(JsonObject record, string type) =>
         type switch
         {
-            "term" => "glossary",
-            "departure" => "governance",
+            "product" => "root",
+            "waiver" => "governance",
+            "cast" or "party" or "person" or "occasion" or "figure" => "cast",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
-            "product" or "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
-            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
+            "runbook" => "implementation",
+            "term" => IsBehaviorTerm(record) ? "behavior" : "intent",
+            "goal" or "direction" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "step" or "actor" or "role" => "intent",
+            "module" or "knowledge-area" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "module-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "reference-data" or "permission" or "entry-point" or "screen" or "external-system" => "behavior",
             _ => "intent",
         };
+
+    /// <summary>Determines whether a term record belongs to the behavior layer from its written layer field.</summary>
+    /// <param name="record">The record object that holds the layer field.</param>
+    /// <returns>True when the record states layer behavior; otherwise false.</returns>
+    static bool IsBehaviorTerm(JsonObject record) =>
+        string.Equals(BookRender.StrProp(BookRender.Fields(record), "layer"), "behavior", StringComparison.Ordinal);
 
     /// <summary>Determines whether a decision record is a technical decision from its file path.</summary>
     /// <param name="record">The record object that holds the file path.</param>
@@ -602,6 +637,7 @@ static class BookOutline
             "proof" => "Proof",
             "governance" => "Governance",
             "glossary" => "Glossary",
+            "cast" => "Cast",
             _ => key,
         };
 
@@ -612,6 +648,15 @@ static class BookOutline
         string.Equals(type, "screen", StringComparison.Ordinal)
             ? "Screens"
             : LiteSpec.Cli.Book.BookModel.TypeLabel(type, plural: true);
+
+    /// <summary>Gives the display label of one type group: the plural of its record type, with the intent requirements under their own name.</summary>
+    /// <param name="layer">The layer key the group tops.</param>
+    /// <param name="type">The record type the group holds.</param>
+    /// <returns>The group label: Product requirements for the intent requirements group, else the plural label of the type.</returns>
+    static string GroupLabel(string layer, string type) =>
+        string.Equals(layer, "intent", StringComparison.Ordinal) && string.Equals(type, "requirement", StringComparison.Ordinal)
+            ? "Product requirements"
+            : PluralOf(type);
 
     /// <summary>Sorts every layer tree and then each layer root by its layer order.</summary>
     /// <param name="layers">The layer root nodes keyed by layer key.</param>
@@ -654,8 +699,8 @@ static class BookOutline
     {
         var order = node.Type switch
         {
-            "product" => IntentTopOrder,
             "module" => ModuleChildOrder,
+            "knowledge-area" => KnowledgeAreaChildOrder,
             "aggregate" => AggregateChildOrder,
             _ => null,
         };
@@ -698,25 +743,17 @@ static class BookOutline
             _ => 4,
         };
 
-    /// <summary>Compares two intent layer children, placing the product record first.</summary>
+    /// <summary>Compares two intent layer children by record type order, then by label.</summary>
     /// <param name="left">The first node to compare.</param>
     /// <param name="right">The second node to compare.</param>
     /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int IntentLayerOrder(BookOutlineNode left, BookOutlineNode right)
     {
-        var leftProduct = IsRecordOf(left, "product") ? 0 : 1;
-        var rightProduct = IsRecordOf(right, "product") ? 0 : 1;
-        if (leftProduct != rightProduct)
-        {
-            return leftProduct.CompareTo(rightProduct);
-        }
-
-        return leftProduct == 0
-            ? CompareByLabel(left, right)
-            : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
+        var typed = OrderIndex(IntentTopOrder, left.Type).CompareTo(OrderIndex(IntentTopOrder, right.Type));
+        return typed != 0 ? typed : CompareByLabel(left, right);
     }
 
-    /// <summary>Compares two behavior layer children, placing module records first and list groups next in their order.</summary>
+    /// <summary>Compares two behavior layer children, placing module and knowledge area records first and list groups next in their order.</summary>
     /// <param name="left">The first node to compare.</param>
     /// <param name="right">The second node to compare.</param>
     /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
@@ -745,10 +782,10 @@ static class BookOutline
 
     /// <summary>Ranks one behavior layer child for the layer order.</summary>
     /// <param name="node">The outline node to rank.</param>
-    /// <returns>0 for a module record, 1 for a list group in the behavior list order, and 2 for any other node.</returns>
+    /// <returns>0 for a module or knowledge area record, 1 for a list group in the behavior list order, and 2 for any other node.</returns>
     static int BehaviorRank(BookOutlineNode node)
     {
-        if (IsRecordOf(node, "module"))
+        if (IsRecordOf(node, "module") || IsRecordOf(node, "knowledge-area"))
         {
             return 0;
         }
@@ -842,4 +879,24 @@ static class BookOutline
     /// <param name="name">The property name to read.</param>
     /// <returns>The string value of the property, or null when the object or property is missing or the value is not a string.</returns>
     static string? StrProp(JsonObject? obj, string name) => BookRender.StrProp(obj, name);
+
+    /// <summary>The result a scenario shows, when the outline places that result; the grouping under it is presentation only.</summary>
+    /// <param name="record">The scenario record.</param>
+    /// <param name="byId">The records by identifier.</param>
+    /// <param name="attached">Whether each record attaches to the tree.</param>
+    /// <returns>The attached result identifier, or null when the scenario shows none.</returns>
+    static string? ShownResult(JsonObject record, Dictionary<string, JsonObject> byId, Dictionary<string, bool> attached)
+    {
+        var target = BookParents.FirstLink(record, "result");
+        if (target is not { Length: > 0 }
+            || !byId.TryGetValue(target, out var holder)
+            || !string.Equals(StrProp(holder, "type"), "result", StringComparison.Ordinal)
+            || !attached.TryGetValue(target, out var ok)
+            || !ok)
+        {
+            return null;
+        }
+
+        return target;
+    }
 }

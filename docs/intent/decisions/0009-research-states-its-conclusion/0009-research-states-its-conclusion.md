@@ -1,10 +1,10 @@
 # Research States Its Conclusion
 
-A research record in LiteSpec answers one question and cites the sources it read. This decision requires each research record to state its conclusion in one sentence, and to date every source it reads. It matters because the book shows the conclusion beside the question, and a decision can cite that one sentence.
+Readers and citing decisions need each research record to state its conclusion in one sentence. A research record answers one question and cites the sources it read. This decision requires that one-sentence conclusion and a read date on every source, so the book shows the conclusion beside the question and a decision can cite that one sentence.
 
 ## Context
 
-Every research record states its finding in an Answer section. Beyond that section, conclusions drift into invented section names and into index tables that no tool reads.
+Every research record states its finding in an Answer section. Beyond that section, conclusions sit under invented section names and in index tables that no tool reads.
 
 ## Options
 
@@ -25,11 +25,11 @@ Each research record gains a required `conclusion` field, which holds one senten
 
 ## Consequences
 
-The provision `litespec/core/intent#record-research-with-read-sources` states the question, the conclusion, the dated sources and the Answer. The book shows the conclusion beside the question.
+The provision `litespec/core/intent#record-research-with-its-question-conclusion-and-sources` states the question, the conclusion, the dated sources, and the Answer. The book shows the conclusion beside the question.
 
 ## Evidence
 
-`research/research-conclusion-evidence` is read from the research folder of the largest consumer on 2026-10-30. Its finding on section drift and its counts of read dates have high confidence.
+`research/research-conclusion-evidence` comes from a reading of the research folder of the largest consumer on 2026-10-30. Its finding on section drift and its counts of read dates have high confidence.
 
 ## Revisit Conditions
 

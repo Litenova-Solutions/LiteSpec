@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Tests.Model.Frontend;
 public sealed class ProofTargetTests
 {
     /// <summary>Proof Targets Hold Frontend Provisions And No Other Provision.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void ProofTargetsHoldFrontendProvisionsAndNoOtherProvision()
     {
@@ -21,14 +21,14 @@ public sealed class ProofTargetTests
             Config = ConsumerConfig.Load(temp.Path),
             Provisions = new HashSet<string>(StringComparer.Ordinal)
             {
-                "litespec/frontend/ui#check-every-route",
-                "litespec/backend/persistence#commit-each-command-pipeline-once",
+                "litespec/core/ui-verification#run-geometry-sensors-on-every-route",
+                "litespec/core/backend-persistence#commit-each-command-pipeline-once",
             },
         };
 
         var targets = FrontendRecords.ProofTargetIds(model);
 
-        Assert.Contains("litespec/frontend/ui#check-every-route", targets);
-        Assert.DoesNotContain("litespec/backend/persistence#commit-each-command-pipeline-once", targets);
+        Assert.Contains("litespec/core/ui-verification#run-geometry-sensors-on-every-route", targets);
+        Assert.DoesNotContain("litespec/core/backend-persistence#commit-each-command-pipeline-once", targets);
     }
 }

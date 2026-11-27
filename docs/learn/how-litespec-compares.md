@@ -1,36 +1,34 @@
 # How LiteSpec Compares
 
-## Intent
-
-LiteSpec is one of many ways to specify work for AI coding agents, beside per-feature workflows, standards systems, instruction files, and tests. This page compares LiteSpec with 14 other approaches on the same dimensions: what each one specifies, how its rules are checked, and how it fits beside LiteSpec. Technical leads read it while they evaluate options, so they can place LiteSpec correctly instead of treating every approach as a rival.
+LiteSpec is one of many ways to specify work for AI coding agents, beside per-feature workflows, standards systems, instruction files, and tests. Technical leads use this page while they evaluate options. It compares LiteSpec with 14 other approaches on the same dimensions: what each one specifies, how its rules are checked, and how it fits beside LiteSpec. Read it when you want to place LiteSpec correctly instead of treating every approach as a rival.
 
 ## The Short Answer
 
-Spec-driven development means writing down what to build before an AI coding agent builds it. Most approaches structure one feature or change at a time. They guide an agent through requirements, design, and tasks for a single piece of work, then archive the result. LiteSpec instead specifies one whole bounded-context application with versioned, citable rules, a tool-checked subset of them, and a written agent protocol.
+Spec-driven development means writing down what to build before an AI coding agent builds it. Most approaches handle one feature or change at a time. They lead an agent through requirements, design, and tasks for a single piece of work, then archive the result. LiteSpec instead specifies one whole bounded-context application: versioned, citable rules, a tool-checked subset of them, and a written agent protocol.
 
-Its rules carry stable provision IDs for exact citation, and its checks run in the editor, the build, and CI. The other approaches stay neutral about stack and architecture, which keeps them light but leaves structural decisions to each team. LiteSpec fixes the application shape and its stacks, which lets it state concrete rules an agent follows the same way twice.
-
-The two sides combine: a team can run a per-feature workflow or behavior examples inside a LiteSpec product, with instruction files as the agent entry point.
+Every LiteSpec rule carries a stable provision ID for exact citation, and its checks run in the editor, the build, and CI. The other approaches stay neutral about stack and architecture. That neutrality keeps them light, but it leaves structural decisions to each team. LiteSpec fixes the application shape and its stacks, so it states concrete rules that an agent follows the same way twice. A team can also run a per-feature workflow or behavior examples inside a LiteSpec product, with instruction files as the agent entry point.
 
 ## The Approaches
 
+Each section below summarizes one approach from its own official pages, linked at the start. The side-by-side table after them compares all of them on the same dimensions.
+
 ### LiteSpec
 
-LiteSpec ([Why LiteSpec Exists](why-litespec.md)) is a standard for building one bounded-context business application. It has three parts: versioned rules, project records written top down through Intent, Behavior, Implementation, and Proof, and the model with the tools that follow the marks by which code and tests point up to records and render the book product people read.
+LiteSpec ([Why LiteSpec Exists](why-litespec.md)) is a standard for building one bounded-context business application. It has three parts: versioned rules, project records written top down through Intent, Behavior, Implementation, and Proof, and a model with tools. The tools follow the marks by which code and tests point up to records, and render the book that product people read.
 
-A project selects one size, one shape, and its stacks from .NET, React, Svelte, Blazor, and Android, and the standard states concrete rules for that selection. Every rule carries a stable provision ID, as [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows. A project also declares the record layers it claims, as the [supported scope page](../core/scope.md#layer-claims) states, and the tools report only the claimed part. The `litespec` CLI, Roslyn analyzers, and model findings check the claimed part. A project pins one release, as [How LiteSpec Works](how-litespec-works.md) describes.
+Your project selects one size, one shape, and its stacks from .NET, Svelte, and Android, and the standard states concrete rules for that selection. Every rule carries a stable provision ID, as [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows. Your project also declares the record layers it claims, as [Supported Scope](../core/scope.md#layer-claims) states, and the tools report only the claimed part. The `litespec` CLI, the Roslyn analyzers, and model findings check that claimed part. Your project pins one release, as [How LiteSpec Works](how-litespec-works.md) describes.
 
 ### GitHub Spec Kit
 
 GitHub Spec Kit ([github/spec-kit](https://github.com/github/spec-kit)) is an MIT-licensed, language-neutral open source toolkit in the `github` organization. It gives AI coding agents structured processes, reusable templates, and documented outcomes.
 
-A project creates a constitution once, then repeats per-feature steps in the agent's chat: `/speckit-specify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-implement`, and `/speckit-converge`. Bug fixing and assessment ship as bundled extensions. Each step ends in a human review gate, with convergence repeated until the report reads `Converged`. It works with a supported agent on Linux, macOS, or Windows.
+Your project writes a constitution once, then repeats per-feature steps in the agent's chat: `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.implement`, and `/speckit.converge`. Bug fixing and assessment ship as bundled extensions. Each step ends in a human review gate, with convergence repeated until the report reads `Converged`. It works with a supported agent on Linux, macOS, or Windows.
 
 ### Kiro
 
-Kiro ([kiro.dev](https://kiro.dev/)) describes itself as an agentic AI with an IDE, CLI, web interface, mobile app, and Kiro Crew, built and operated by AWS. It works with Anthropic Claude, OpenAI GPT, and open-weight models, supports AGENTS.md and MCP, and prices paid use by credit while Kiro Crew stays free and open source.
+Kiro ([kiro.dev](https://kiro.dev/)) describes itself as an agentic AI with an IDE, a CLI, a web interface, a mobile app, and Kiro Crew, built and operated by AWS. It works with Anthropic Claude, OpenAI GPT, and open-weight models, supports AGENTS.md and MCP, and prices paid use by credit while Kiro Crew stays free and open source.
 
-Each spec covers one feature or bug fix and generates `requirements.md` (or `bugfix.md`), `design.md`, and `tasks.md`. Requirements analysis checks a spec for contradictions and gaps, and the IDE runs property-based and correctness testing.
+Each spec covers one feature or bug fix and produces `requirements.md` (or `bugfix.md`), `design.md`, and `tasks.md`. Requirements analysis checks a spec for contradictions and gaps, and the IDE runs property-based and correctness testing.
 
 ### Tessl
 
@@ -40,19 +38,19 @@ Specs are `.spec.md` files with YAML frontmatter and inline references to the te
 
 ### BMAD Method
 
-The BMAD Method ([BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD)), short for Breakthrough Method for Agile Ai Driven Development, turns an idea or change request into working software through named skills added to AI coding tools.
+The BMAD Method ([BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD)), short for Breakthrough Method for Agile AI Driven Development, turns an idea or change request into working software through named skills added to AI coding tools.
 
-Thinking skills cover exploring, researching, arguing, and recording, `bmad-build` writes and reviews code, and briefs, specifications, and architecture documents carry durable context forward. Work scales from a small fix to whole-product planning, with teams following their own rules and the human in control. It is MIT licensed, free and open source with no paywalled workflows. BMad and BMAD-METHOD are trademarks of BMad Code, LLC. The core method names no stack beyond a game module for Unity, Unreal, Godot, and Phaser.
+Thinking skills cover exploring, researching, arguing, and recording, `bmad-build` writes and reviews code, and briefs, specifications, and architecture documents carry durable context forward. Work scales from a small fix to whole-product planning, with teams following their own rules and the human in control. It is MIT licensed, free and open source with no paywalled workflows. BMad and BMAD-METHOD are trademarks of BMad Code, LLC. The core method lists no stack beyond a game module for Unity, Unreal, Godot, and Phaser.
 
 ### OpenSpec
 
 OpenSpec ([OpenSpec](https://github.com/Fission-AI/OpenSpec)) is spec-driven development (SDD) for AI coding assistants, maintained by Fission AI and built brownfield-first around a fluid and iterative approach.
 
-Each change gets a folder with a proposal, specs, design, and tasks, and shipped changes archive when done. Durable specs with beta Stores share the shape. It covers one change at a time: you bring your preferred AI and OpenSpec brings the structure. Plans pass human review before code, with an expanded `/opsx:verify` workflow. It is MIT licensed, neutral, and working with 30 or more assistants through slash commands.
+Each change gets a folder with a proposal, specs, design, and tasks, and shipped changes archive when done. Durable specs with beta Stores share the shape. It covers one change at a time: you bring your preferred AI and OpenSpec brings the structure. Plans pass human review before code, with an expanded `/opsx:verify` workflow. It is MIT licensed and neutral, and it works with 30 or more assistants through slash commands.
 
 ### Agent OS
 
-Agent OS ([Agent OS](https://buildermethods.com/agent-os)) by Brian Casel at Builder Methods is a system for injecting your codebase standards and writing better specs for spec-driven development. It discovers, deploys, and indexes a team's standards, pairing standing codebase standards with per-spec shaping for better plans and better builds.
+Agent OS ([Agent OS](https://buildermethods.com/agent-os)) by Brian Casel at Builder Methods is a system for injecting codebase standards and writing better specs for spec-driven development. It discovers, deploys, and indexes a team's standards, pairing standing codebase standards with per-spec shaping for better plans and better builds.
 
 Standards live as plain Markdown files any tool can read, complementing assistants such as Claude Code, Cursor, Windsurf, and Codex. It is MIT licensed, free and open source, in any language and any framework.
 
@@ -68,9 +66,7 @@ Nothing enforces the format: Claude treats these files as context, not configura
 
 Behavior-driven development with Gherkin ([Cucumber](https://cucumber.io/docs/), [Reqnroll](https://reqnroll.net/)) writes behavior as executable examples. Cucumber is a tool that supports Behaviour-Driven Development, and Gherkin is its grammar.
 
-Teams write `.feature` files of Given-When-Then scenarios, versioned with the software and wired to code through step definitions. Reqnroll is an open-source Cucumber-style framework that automates them for .NET as a SpecFlow reboot.
-
-BDD is about discovery, collaboration, and examples rather than testing alone. Cucumber reads executable specifications in plain text and validates the software against them, reporting pass or fail per scenario through step definitions that hard-wire each specification to its implementation.
+Teams write `.feature` files of Given-When-Then scenarios, versioned with the software and wired to code through step definitions. Reqnroll is an open-source Cucumber-style framework that automates them for .NET as a SpecFlow reboot. Cucumber reads executable specifications in plain text and validates the software against them, reporting pass or fail per scenario through step definitions that hard-wire each specification to its implementation.
 
 ### ADRs, arc42, and C4
 
@@ -88,13 +84,13 @@ ArchUnit is a free, simple, and extensible library for checking Java architectur
 
 OpenFastTrace ([openfasttrace.itsallcode.org](https://openfasttrace.itsallcode.org/)) is a requirement tracing suite that traces each tagged specification item from requirements through design and implementation to tests and reports coverage, uncovered items, and broken or outdated links.
 
-Like LiteSpec, it follows explicit IDs from a specification to the code and tests that cover it and computes coverage from those links. It does not ship an application rulebook, stack rules, an application code layout, or analyzers; the project defines the items it traces.
+Like LiteSpec, it follows explicit IDs from a specification to the code and tests that cover it and computes coverage from those links. It does not ship an application rulebook, stack rules, an application code layout, or analyzers; your project defines the items it traces.
 
 ### StrictDoc
 
 StrictDoc ([strictdoc.readthedocs.io](https://strictdoc.readthedocs.io/en/stable/)) is open-source software for technical documentation and requirements management that holds requirements as structured text with unique IDs, links them to parent requirements, and generates traceability views from the source files.
 
-Like LiteSpec, it keeps each requirement citable by ID and derives traceability from the written source instead of a separate database. It does not state stack-specific engineering provisions, a bounded-context record model, code marks checked by analyzers, or a fixed application shape; its documents state the requirements a project writes.
+Like LiteSpec, it keeps each requirement citable by ID and derives traceability from the written source instead of a separate database. It does not state stack-specific engineering provisions, a bounded-context record model, code marks checked by analyzers, or a fixed application shape; its documents state the requirements your project writes.
 
 ### Sphinx-Needs
 
@@ -110,11 +106,11 @@ Like LiteSpec, it stores each requirement as version-controlled text beside the 
 
 ## Side-by-Side Comparison
 
-The table summarizes each approach on the same dimensions, as described on the official pages linked in each section. Cells that read `None described` mean the pages read describe no such item.
+The table summarizes each approach on the same dimensions, from the official pages linked in each section. Cells that read `None described` mean those official pages describe no such item.
 
 | Approach | Unit of specification | Ships rules or process | Stable rule IDs | Verified by tools | Versioned rules | Intent linked to code | Stack coverage |
 |:---|:---|:---|:---|:---|:---|:---|:---|
-| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | Checked share in the [provision index](../reference/provisions.md); the rest reviewed | Pinned releases | Marks up, computed completion | .NET, React, Svelte, Blazor, Android |
+| LiteSpec | Bounded-context application | Versioned rulebook | Provision IDs | Checked share in the [provision index](../reference/provisions.md); the rest reviewed | Pinned releases | Marks up, computed completion | .NET, Svelte, Android |
 | GitHub Spec Kit | Feature, bug, idea | Process, templates | None described | Converge gates, review | Pinned CLI; specs in the repository | None described | Neutral; Linux, macOS, Windows |
 | Kiro | Feature, bug fix | Process, design docs | None described | Requirements analysis, correctness tests | Project files | Tasks tracked in IDE | Neutral |
 | Tessl tile | Task; org-wide skills | Process, format rules, library tiles | Named skills, rules | Spec lint, link checks, evals | Tiles versioned in registry | `[@test]` links, `targets` | Neutral; MCP agents |
@@ -136,22 +132,24 @@ The diagram places each approach by scope against verification.
 
 ## Reasons for LiteSpec
 
-Each property below names the page that states it.
+Each property below names the page that states it. Together they answer when LiteSpec is the right choice: a team that wants a standing, citable, checked standard for one whole application.
 
-- A standing product standard. LiteSpec ships the whole rulebook for one bounded-context application, while per-feature approaches ship a workflow the team fills in. The [supported scope page](../core/scope.md) states the boundary.
-- Citable rules. Every rule has a provision ID, so a review comment, an agent report, or a departure cites exactly one rule. [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows the anatomy, and the [authoring page](../core/authoring.md) defines the grammar.
-- Automated verification for a checked subset. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unraised refusals, undeclared edges, unresolved references, and expired departures, each with a check level: record checks always block, code checks block where the stack reader is qualified, and advisory checks never block. Most provisions carry a Reviewed for question a person judges; a checked subset carries a Checked by line a tool runs. The [provision index](../reference/provisions.md) lists each provision with its mark and states the checked share for each page. Code and tests point up to records through their marks, and the model computes completion from those marks on every run, so it cannot go stale. The [analyzer reference](../analyzers/README.md) documents every rule, and the [model page](../tools/model.md) lists every finding code.
-- Layer claims. A project claims each record layer it uses, and the tools report only the claimed part, as the [supported scope page](../core/scope.md#layer-claims) states.
-- A versioned contract. Each release states every active provision, a project pins one release, and adoption is recorded in `reviewedLiteSpecVersion`. The [authoring page](../core/authoring.md) states the release model, and the [project file reference](../reference/project-file.md) lists the field.
-- Stack depth where it applies. The fixed application shape allows concrete rules such as the modules project ordered by module, aggregate, and use case, one way to model a lifecycle, and one way to report a refused command. The [supported scope page](../core/scope.md) states the selection, and the [.NET](../backend/dotnet/stack.md), [React](../frontend/web/react/stack.md), [Svelte](../frontend/web/svelte/stack.md), [Blazor](../frontend/blazor/stack.md), and [Android](../frontend/mobile/android/stack.md) stack pages carry the per-stack rules.
-- A written agent protocol. Agents find the rules for their files, follow the task order, and finish with check-backed reports, as [Work with Agents](working-with-agents.md) describes and the [agent page](../core/agent.md) states. The protocol itself is written instructions no tool checks; the tools check the records and code the agent leaves behind.
+- A standing product standard. LiteSpec ships the whole rulebook for one bounded-context application, while per-feature approaches ship a workflow your team fills in. [Supported Scope](../core/scope.md) states the boundary.
+- Citable rules. Every rule has a provision ID, so a review comment, an agent report, or a waiver cites exactly one rule. [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows the anatomy, and the [Authoring Standard](../core/authoring.md) defines the grammar.
+- Automated verification for a checked subset. The CLI checks records and the model, Roslyn analyzer rules flag breaches in the editor and build with links to their provisions, and model findings report unimplemented use cases, unraised refusals, undeclared edges, unresolved references, and expired waivers.
+- Each finding has a check level. Record checks always block, code checks block where the stack reader is qualified, and prose review findings never block. Most provisions carry a Reviewed for question a person judges; a checked subset carries a Checked by line a tool runs. The [provision index](../reference/provisions.md) lists each provision with its mark and states the checked share for each page. The [analyzer reference](../analyzers/README.md) documents every rule, and the [Model Builder](../tools/model.md) lists every finding code.
+- Completion computed from marks. Code and tests point up to records through their marks, and the model computes completion from those marks on every run, so it cannot go stale.
+- Layer claims. Your project claims each record layer it uses, and the tools report only the claimed part, as [Supported Scope](../core/scope.md#layer-claims) states.
+- A versioned contract. Each release states every active provision, your project pins one release, and adoption is recorded in `reviewedLiteSpecVersion`. The [Authoring Standard](../core/authoring.md) states the release model, and the [project file reference](../reference/project-file.md) lists the field.
+- Stack depth where it applies. The fixed application shape allows concrete rules such as one project per module ordered by aggregate and use case, one way to model a lifecycle, and one way to report a refused command. [Supported Scope](../core/scope.md) states the selection, and the [.NET](../packs/dotnet/stack.md), [Svelte](../packs/svelte/stack.md), and [Android](../packs/android/stack.md) stack pages carry the per-stack rules.
+- A written agent protocol. Agents find the rules for their files, follow the task order, and finish with check-backed reports, as [Work with Agents](working-with-agents.md) describes and the [Agent](../core/agent.md) page states. The protocol itself is written instructions no tool checks; the tools check the records and code the agent leaves behind.
 
 ## Reasons for Another Approach
 
 LiteSpec is not the right answer everywhere. The points below favor another approach, stated in the makers' own terms.
 
 - A team that wants a light per-feature flow can use OpenSpec, Spec Kit, or Kiro. OpenSpec is brownfield-first across 30 or more tools, Spec Kit pairs a constitution with per-feature commands and convergence gates, and Kiro turns requirements into design and tasks.
-- A team on another stack can use a neutral approach. LiteSpec supports .NET with React, Svelte, Blazor, or Android, while BMAD names Unity, Unreal, Godot, and Phaser, ArchUnit covers Java bytecode, and Cucumber spans many programming languages.
+- A team on another stack can use a neutral approach. LiteSpec supports .NET with Svelte or Android, while BMAD names Unity, Unreal, Godot, and Phaser, ArchUnit covers Java bytecode, and Cucumber spans many programming languages.
 - A team with strong conventions to keep can use Agent OS or plain instruction files. Agent OS discovers, deploys, and indexes the team's standards, and instruction files carry whatever the team writes.
 - A team whose agents misuse library APIs can use Tessl tiles. The registry holds library-usage tiles per ecosystem alongside the methodology tile, while LiteSpec pins package versions without teaching API surfaces.
 - A team that wants architecture documentation for readers rather than checks for machines can use ADRs, arc42, and C4. ADRs keep the decision log, arc42 gives the 12-section template, and C4 diagrams the system from context to code.
@@ -162,9 +160,9 @@ LiteSpec is not the right answer everywhere. The points below favor another appr
 LiteSpec acts as the product standard, and the others work inside it.
 
 - With AGENTS.md. A short `AGENTS.md` block points agents at the selection index and raw pages: instruction files carry the pointer, and LiteSpec carries the rules. [Work with Agents](working-with-agents.md) shows the block.
-- With BDD. The manifest pins Reqnroll and LightBDD, and the `bdd` extension states how executable acceptance tests prove LiteSpec scenarios. The [BDD extension](../backend/dotnet/ext/bdd.md) states the provisions, including `litespec/backend/dotnet/ext/bdd#prove-a-scenario-from-every-bdd-scenario`.
-- With ADRs, arc42, and C4. A team can keep ADRs as its decision log and cite them from LiteSpec decision records, and draw arc42 or C4 views to present the architecture LiteSpec states. One side records for humans, and the other checks for machines.
-- With a per-feature workflow. A team can shape a change with Spec Kit, OpenSpec, Kiro, BMAD, or the Tessl tile, then carry the result into LiteSpec use-case and result records. The workflow handles one change, and LiteSpec holds the product around it.
+- With BDD. The manifest pins Reqnroll and LightBDD, and the [testing page](../packs/dotnet/testing.md) states how executable acceptance tests prove LiteSpec scenarios.
+- With ADRs, arc42, and C4. Your team can keep ADRs as its decision log and cite them from LiteSpec decision records, and draw arc42 or C4 views to present the architecture LiteSpec states. One side records for humans, and the other checks for machines.
+- With a per-feature workflow. Your team can shape a change with Spec Kit, OpenSpec, Kiro, BMAD, or the Tessl tile, then carry the result into LiteSpec use-case and result records. The workflow handles one change, and LiteSpec holds the product around it.
 
 ## Sources
 

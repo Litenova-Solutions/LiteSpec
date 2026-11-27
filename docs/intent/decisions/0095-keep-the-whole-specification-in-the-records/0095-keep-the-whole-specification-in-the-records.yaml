@@ -1,0 +1,17 @@
+type: decision
+id: decision/0095-keep-the-whole-specification-in-the-records
+title: Keep the Whole Specification in the Records
+context: "Several fixed sections asked for facts no field held, so an agent reading only the YAML missed build facts such as session timeouts, screen states and legal rules. The gap was measured on one consumer product, where constraints, research, screens and entry points hold far more words of explanation than YAML."
+options:
+  - name: "The records state the whole specification, and each explanation file restates it for people"
+    pros: "An agent builds from the YAML alone, every fact has one primary home a check can read, and people still get an elaborated version with context and examples."
+    cons: "Each type gains fields, every explanation repeats its record and can drift, and authors update both in one change."
+  - name: "Keep fixed sections that carry facts only in prose"
+    pros: "No new fields, and prose carries nuance easily."
+    cons: "An agent reading the records misses build facts such as session timeouts, screen states and legal rules, and no check can see them."
+  - name: "Drop explanation files and keep only the records"
+    pros: "One copy of every fact and nothing to drift."
+    cons: "People lose the context, reasons and examples that make a specification readable cold."
+choice: "The records state the whole specification, and each explanation file restates it for people"
+consequences: "The records state the whole specification under `litespec/core/model#keep-the-whole-specification-in-the-records`, and `litespec/core/writing#write-human-docs-for-the-cold-reader` replaces the provision that told explanation files to interpret fields and never restate them, so an explanation file restates and elaborates its record, adds no fact, and contradicts no field. Both change in one commit, so the restatement stays equal to its record. Intent records gain fields: a problem states `failureCases`, `workaround`, `cost` and `resolutionCriteria`; a constraint states `coverage`, `obligations`, `productEffect` and `openPoints`; research states `findings` and `openQuestions`, and each source may carry a `note`; a feature states `successCriteria` and `excludes`; an actor states `responsibilities` and `knowledge`; a role states `excludes`; a decision states `context`. Behavior records gain fields: a module states `covers` and `excludes`; an aggregate states `excludes`; a use case states `steps` and `edgeCases`; a rule states its `rationale`; module and integration events state `compatibility`; an entry point states `audience`, `session`, `reauthenticationTriggers` and `excludes`; a screen states `task` and `displayStates`; a permission set states `excludes`. Each explanation section explains named fields, as `litespec/core/model#require-explanation-files-on-the-layers-a-project-names` requires. `litespec model check` reports `explanation-section-unbacked`, `constraint-obligation-source-unknown` and `research-finding-source-unknown`. Research and decision records no longer always need an explanation file. `litespec context` writes records only by default. Claimwick carries every new field."
+reopenedWhen: "Authors routinely leave explanations out of step with their records, or a fact proves impossible to state in a field."

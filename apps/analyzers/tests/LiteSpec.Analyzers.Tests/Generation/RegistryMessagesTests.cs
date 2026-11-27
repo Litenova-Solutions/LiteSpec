@@ -12,7 +12,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 public sealed class RegistryMessagesTests
 {
     /// <summary>A command handler maps its message to its use case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A command handler maps its message to its use case")]
     public void CommandHandlerMapsItsMessage()
     {
@@ -42,7 +42,7 @@ public sealed class RegistryMessagesTests
     }
 
     /// <summary>A query handler maps its message to its use case.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A query handler maps its message to its use case")]
     public void QueryHandlerMapsItsMessage()
     {
@@ -70,7 +70,7 @@ public sealed class RegistryMessagesTests
     }
 
     /// <summary>An unmarked handler adds no message entry.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "An unmarked handler adds no message entry")]
     public void UnmarkedHandlerAddsNothing()
     {
@@ -98,7 +98,7 @@ public sealed class RegistryMessagesTests
     }
 
     /// <summary>A handler with two use-case marks adds no message entry.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "A handler with two use-case marks adds no message entry")]
     public void HandlerWithTwoUseCaseMarksAddsNothing()
     {
@@ -166,7 +166,7 @@ public sealed class RegistryMessagesTests
     }
 
     /// <summary>UseCaseOf and GrantOf answer the use case and its grant from the message.</summary>
-    /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
+    /// <proves>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact(DisplayName = "UseCaseOf and GrantOf answer the use case and its grant from the message")]
     public void MessageLookupsAnswerTheUseCaseAndItsGrant()
     {
@@ -193,11 +193,11 @@ public sealed class RegistryMessagesTests
             "xml",
             ("submit-expense.yaml", RecordPages.UseCasePage("use-case/spending.submit-expense", "permission/submit-expense")),
             ("rename-expense.yaml", RecordPages.UseCasePage("use-case/spending.rename-expense", null)));
-        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
+        var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Spending");
         Assert.True(run.Sources.ContainsKey("LiteSpecRegistry.g.cs"), "The registry source is missing.");
         Assert.Empty(run.ReportedDiagnostics);
 
-        var compilation = GeneratorVerify.CreateCompilation(sources, "Shop.Application");
+        var compilation = GeneratorVerify.CreateCompilation(sources, "Shop.Spending");
         var trees = new List<SyntaxTree>();
 
         foreach (var generated in run.Sources)

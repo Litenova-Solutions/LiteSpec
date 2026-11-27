@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
 
@@ -10,7 +11,7 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</follows>
 internal static class RecordNameChecks
 {
-    /// <summary>Audience words a template key may end with whatever the record declares.</summary>
+    /// <summary>Audience words a template key may end with when the notification declares no audience.</summary>
     private static readonly HashSet<string> TemplateAudienceAliases = new(StringComparer.Ordinal)
     {
         "customer", "member", "owner", "team", "staff", "approver", "requester", "reader",
@@ -50,19 +51,8 @@ internal static class RecordNameChecks
                 continue;
             }
 
-            var accepted = new HashSet<string>(TemplateAudienceAliases, StringComparer.Ordinal);
-
-            foreach (var audience in notification.Ids(RecordFields.Addresses))
-            {
-                accepted.Add(audience);
-
-                var slash = audience.LastIndexOf('/');
-
-                if (slash >= 0 && slash < audience.Length - 1)
-                {
-                    accepted.Add(audience[(slash + 1)..]);
-                }
-            }
+            // Each key ends with the audience the record declares; without a declared audience, the audience aliases stand in.
+            var accepted = AudienceEndings(notification);
 
             var keys = template.Split(',')
                 .Select(key => key.Trim())
@@ -76,10 +66,24 @@ internal static class RecordNameChecks
 
                 if (!names)
                 {
-                    findings.Add(new Finding("template-key-invalid", $"Notification '{notification.Id}' has template key '{key}', which names no addresses the record declares.", notification.File, notification.Line, SubjectOf(notification)));
+                    findings.Add(new Finding("template-key-invalid", $"Notification '{notification.Id}' has template key '{key}', which names no audience the record declares.", notification.File, notification.Line, SubjectOf(notification)));
                 }
             }
         }
+    }
+
+    /// <summary>The endings a notification's template keys may end with: the name of each declared audience, else the audience aliases.</summary>
+    /// <param name="notification">The notification record whose declared audience is read.</param>
+    /// <returns>The accepted key endings.</returns>
+    private static HashSet<string> AudienceEndings(Record notification)
+    {
+        var declared = notification.Ids(RecordFields.Audience)
+            .Select(id => Identifiers.TrySplit(id, out _, out _, out var name) ? name : null)
+            .Where(name => name is { Length: > 0 })
+            .Select(name => name!);
+
+        var endings = new HashSet<string>(declared, StringComparer.Ordinal);
+        return endings.Count > 0 ? endings : new HashSet<string>(TemplateAudienceAliases, StringComparer.Ordinal);
     }
 
     /// <summary>Reports a setting holding a number or a duration with no unit.</summary>
@@ -89,16 +93,52 @@ internal static class RecordNameChecks
     {
         foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
         {
-            if (setting.Field(RecordFields.ValueType) is not { } valueType || !QuantityValueTypes.Contains(valueType))
+            if (SettingValueType(setting) is not { } valueType || !QuantityValueTypes.Contains(valueType))
             {
                 continue;
             }
 
-            if (setting.Field(RecordFields.Unit) is not { Length: > 0 })
+            if (SettingValueUnit(setting) is not { Length: > 0 })
             {
                 findings.Add(new Finding("setting-unit-missing", $"Setting '{setting.Id}' holds a {valueType} with no unit.", setting.File, setting.Line, SubjectOf(setting)));
             }
         }
+    }
+
+    /// <summary>Reads the value type a setting declares in its value object.</summary>
+    /// <param name="setting">The setting record whose value type is read.</param>
+    /// <returns>The value type name, or null when the setting carries none.</returns>
+    private static string? SettingValueType(Record setting)
+    {
+        if (setting.Raw.ValueKind != System.Text.Json.JsonValueKind.Object
+            || !setting.Raw.TryGetProperty(RecordFields.Value, out var value)
+            || value.ValueKind != System.Text.Json.JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return value.TryGetProperty(RecordFields.Type, out var type)
+            && type.ValueKind == System.Text.Json.JsonValueKind.String
+            ? type.GetString()
+            : null;
+    }
+
+    /// <summary>Reads the unit a setting declares in its value object.</summary>
+    /// <param name="setting">The setting record whose unit is read.</param>
+    /// <returns>The unit text, or null when the setting carries none.</returns>
+    private static string? SettingValueUnit(Record setting)
+    {
+        if (setting.Raw.ValueKind != System.Text.Json.JsonValueKind.Object
+            || !setting.Raw.TryGetProperty(RecordFields.Value, out var value)
+            || value.ValueKind != System.Text.Json.JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return value.TryGetProperty(RecordFields.Unit, out var unit)
+            && unit.ValueKind == System.Text.Json.JsonValueKind.String
+            ? unit.GetString()
+            : null;
     }
 
     /// <summary>Reports an outbound integration event named with an internal word.</summary>
@@ -106,7 +146,7 @@ internal static class RecordNameChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckIntegrationEventWording(ProjectModel model, List<Finding> findings)
     {
-        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Direction) == "out"))
+        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent && record.Field(RecordFields.Direction) == "send"))
         {
             if (!Identifiers.TrySplit(record.Id, out _, out _, out var name) || name is null)
             {

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">__PROJECT__</string>
+  <string name="check_in_list_title">Check-ins</string>
+  <string name="check_in_list_empty">No check-in is recorded yet.</string>
+  <string name="check_in_list_failed">The check-ins are unavailable. Try again.</string>
+  <string name="check_in_list_retry">Try again</string>
+  <string name="check_in_detail_title">Check-in</string>
+  <string name="check_in_detail_identifier">Identifier</string>
+  <string name="check_in_detail_state">State</string>
+  <string name="check_in_detail_failed">The check-in is unavailable.</string>
+  <string name="check_in_state_recorded">Recorded</string>
+</resources>

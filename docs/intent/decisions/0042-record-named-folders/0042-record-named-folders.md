@@ -22,7 +22,7 @@ LiteSpec compared 3 layouts for named records. The table sets each option agains
 
 LiteSpec places each named record in its own folder, `<container>/<name>/<name>.yaml`. Its explanation file `<name>.md` sits beside it in that folder. The folder name equals the file stem.
 
-A named record whose folder name differs from its file stem is a `record-folder-drift` finding. A named record placed flat is a `record-placement-invalid` finding.
+A named record whose folder name differs from its file stem is a `record-placement-invalid` finding. A named record placed flat is a `record-placement-invalid` finding.
 
 Fixed-name files, such as `product.yaml` and `aggregate.yaml`, keep the places that the placement table gives. So do list files, and child records that sit in their parent's file.
 

@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Readers;
 /// <param name="Routes">The route entries.</param>
 /// <param name="Tests">The browser tests.</param>
 /// <param name="Diagnostics">The files the reader could not parse.</param>
-/// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
+/// <follows>litespec/packs/svelte/structure#mark-each-web-route-entry-with-its-screen</follows>
 sealed record FrontendFacts(
     string Name,
     string Reader,

@@ -1,0 +1,5 @@
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://litespec.dev/7.0.0/schemas/fragments/ext/realtime.schema.yaml'
+title: LiteSpec realtime Extension Fragment
+description: 'Schema fragment for the realtime live-update push extension.'
+$defs: {}

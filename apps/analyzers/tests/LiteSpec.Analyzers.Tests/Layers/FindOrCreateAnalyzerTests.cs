@@ -8,7 +8,7 @@ public sealed class FindOrCreateAnalyzerTests
 {
     /// <summary>LS2014 reports a static factory where the find came back empty.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a static factory where the find came back empty")]
     public Task ReportsAStaticFactoryAfterAFind() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -41,11 +41,11 @@ public sealed class FindOrCreateAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a constructor as the fallback of an async find.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a constructor as the fallback of an async find")]
     public Task ReportsAConstructorAfterAnAsyncFind() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -75,11 +75,11 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = await readerRepository.FindByCardAsync(command.CardId) ?? new {|LS2014:Reader|}(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a creation after a branch that leaves when the record was found.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a creation after a branch that leaves when the record was found")]
     public Task ReportsACreationAfterALeavingFoundBranch() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -116,11 +116,11 @@ public sealed class FindOrCreateAnalyzerTests
                     return Reader.{|LS2014:Register|}(command.CardId).Id;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a coalescing assignment of a found record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a coalescing assignment of a found record")]
     public Task ReportsACoalescingAssignment() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -150,11 +150,11 @@ public sealed class FindOrCreateAnalyzerTests
                     reader ??= Reader.{|LS2014:Register|}(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a creation after refusing a missing record.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a creation after refusing a missing record")]
     public Task AcceptsACreationAfterRefusingAMissingRecord() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -193,11 +193,11 @@ public sealed class FindOrCreateAnalyzerTests
                     var followUp = Notice.FollowUp(first);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a creation that reads another record of its type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a creation that reads another record of its type")]
     public Task AcceptsACreationReadingAnotherRecordOfItsType() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -225,11 +225,11 @@ public sealed class FindOrCreateAnalyzerTests
                     var statement = new FineStatement(command.Day, previous);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a handler that only finds.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a handler that only finds")]
     public Task AcceptsAHandlerThatOnlyFinds() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -256,11 +256,11 @@ public sealed class FindOrCreateAnalyzerTests
                     var existing = readerRepository.FindByCard(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a handler that only creates.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a handler that only creates")]
     public Task AcceptsAHandlerThatOnlyCreates() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -284,11 +284,11 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = Reader.Register(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a find and a creation of another type.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a find and a creation of another type")]
     public Task AcceptsAFindAndACreationOfAnotherType() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -321,11 +321,11 @@ public sealed class FindOrCreateAnalyzerTests
                     var hold = new Hold(command.BookId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a find and a creation in different methods.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a find and a creation in different methods")]
     public Task AcceptsAFindAndACreationInDifferentMethods() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -357,11 +357,11 @@ public sealed class FindOrCreateAnalyzerTests
                 public Reader Register(RegisterReaderCommand command) =>
                     Reader.Register(command.CardId);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a find or create in a query handler.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a find or create in a query handler")]
     public Task AcceptsAFindOrCreateInAQueryHandler() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -391,11 +391,11 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = Reader.Register(query.CardId);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 accepts a policy-switch creation after an idempotent replay.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 accepts a policy-switch creation after an idempotent replay")]
     public Task AcceptsAPolicySwitchCreationAfterAnIdempotentReplay() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -435,11 +435,11 @@ public sealed class FindOrCreateAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 reports a constructor after a leaving found branch.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 reports a constructor after a leaving found branch")]
     public Task ReportsAConstructorAfterALeavingFoundBranch() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -474,11 +474,11 @@ public sealed class FindOrCreateAnalyzerTests
                     return new {|LS2014:Reader|}(command.CardId).Id;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2014 stays silent outside Application and Infrastructure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/application#implement-one-outcome-path-per-command</proves>
+    /// <proves>litespec/core/backend-application#implement-one-outcome-path-per-command</proves>
     [Fact(DisplayName = "LS2014 stays silent outside Application and Infrastructure")]
     public Task StaysSilentOutsideItsLayers() =>
         Verify.AnalyzerAsync<FindOrCreateAnalyzer>("""
@@ -508,5 +508,5 @@ public sealed class FindOrCreateAnalyzerTests
                     var reader = Reader.Register(command.CardId);
                 }
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 }

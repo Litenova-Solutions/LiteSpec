@@ -1,0 +1,12 @@
+type: domain-event
+id: domain-event/hold.hold-placed
+title: Hold placed
+meaning: A hold was placed.
+fields:
+- name: holdId
+  type: text
+- name: copyId
+  type: text
+- name: readerId
+  type: text
+ignored: true

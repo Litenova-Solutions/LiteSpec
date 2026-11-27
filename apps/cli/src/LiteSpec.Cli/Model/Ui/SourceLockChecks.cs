@@ -8,8 +8,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The source-lock checks of the UI validator: the lock the pinned CLI
 ///     wrote, its preset against the baseline, and each recorded digest.
 /// </summary>
-/// <follows>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</follows>
-/// <follows>litespec/frontend/web/ui#track-source-changes</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</follows>
 sealed class SourceLockChecks
 {
     /// <summary>The state of the run.</summary>
@@ -53,7 +52,7 @@ sealed class SourceLockChecks
             session.Required(lockNode, key, label, "ui-sourcelock-invalid", file);
         }
 
-        session.SchemaCheck("ui-source-lock.schema.yaml", lockNode, label, "litespec/frontend/web/ui#track-source-changes", "ui-sourcelock-invalid");
+        session.SchemaCheck("ui-source-lock.schema.yaml", lockNode, label, "litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream", "ui-sourcelock-invalid");
         var cliPackage = platform == "svelte" ? "shadcn-svelte" : "shadcn";
         var expectedCli = JsonRead.Chain(manifest, "packages", "npm", cliPackage);
         var cli = JsonRead.Child(lockNode, "cli");
@@ -74,7 +73,7 @@ sealed class SourceLockChecks
         var baselineRegistry = JsonRead.Child(baseline, "registry");
         if ((!JsonRead.StrictEqual(JsonRead.Dot(lockRegistry, "name"), JsonRead.Dot(baselineRegistry, "name")) || !JsonRead.StrictEqual(JsonRead.Dot(lockRegistry, "url"), JsonRead.Dot(baselineRegistry, "url"))) && !baselineOverride)
         {
-            session.Add("ui-sourcelock-invalid", $"[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] registry '{JsonRead.ShowOr(JsonRead.Dot(lockRegistry, "name"), "(unnamed)")}' is not the built-in {JsonRead.ShowOr(JsonRead.Dot(baselineRegistry, "name"), "registry")} registry; an additional registry requires an exception", file);
+            session.Add("ui-sourcelock-invalid", $"[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] registry '{JsonRead.ShowOr(JsonRead.Dot(lockRegistry, "name"), "(unnamed)")}' is not the built-in {JsonRead.ShowOr(JsonRead.Dot(baselineRegistry, "name"), "registry")} registry; an additional registry requires an exception", file);
         }
 
         foreach (var key in new[] { "style", "base", "cssVariables", "baseColor", "theme", "chartColor", "font", "fontHeading", "icons", "radius", "menuAccent", "menuColor", "componentsStyle" })
@@ -82,7 +81,7 @@ sealed class SourceLockChecks
             var want = JsonRead.Child(baseline, key);
             if (want.Found && !JsonRead.StrictEqual(JsonRead.Dot(JsonRead.Child(lockNode, "preset"), key), want))
             {
-                session.Add("ui-sourcelock-invalid", $"[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] preset.{key} does not match the manifest baseline", file);
+                session.Add("ui-sourcelock-invalid", $"[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] preset.{key} does not match the manifest baseline", file);
             }
         }
 
@@ -102,7 +101,7 @@ sealed class SourceLockChecks
                 var name = dependency is JsonValue dependencyValue && dependencyValue.TryGetValue<string>(out var dependencyName) ? dependencyName : null;
                 if (name is null || !pinnedPackages.Contains(name))
                 {
-                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: dependency '{JsonValues.Text(dependency)}' is not pinned in the LiteSpec manifest", file);
+                    session.Add("ui-sourcelock-invalid", $"[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] {itemLabel}: dependency '{JsonValues.Text(dependency)}' is not pinned in the LiteSpec manifest", file);
                 }
             }
 
@@ -148,7 +147,7 @@ sealed class SourceLockChecks
                 var isBaseline = status is { Node: JsonValue statusValue } && statusValue.TryGetValue<string>(out var statusText) && statusText == "baseline";
                 if (!matches && isBaseline)
                 {
-                    session.Add("ui-sourcelock-invalid", $"[litespec/frontend/web/ui#track-source-changes] {itemLabel}: its source no longer matches the recorded digest; record it as extended or forked", file);
+                    session.Add("ui-sourcelock-invalid", $"[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] {itemLabel}: its source no longer matches the recorded digest; record it as extended or forked", file);
                 }
             }
         }

@@ -5,7 +5,7 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
 /// <summary>The reasonless-name check: no folder or type is named for the absence of a reason, such as Common, Shared or Helpers.</summary>
-/// <follows>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</follows>
+/// <follows>litespec/packs/dotnet/naming#name-every-folder-and-type-for-its-reason</follows>
 internal static class ReasonlessNameChecks
 {
     /// <summary>Folder and type names that name the absence of a reason.</summary>
@@ -17,12 +17,12 @@ internal static class ReasonlessNameChecks
     /// <summary>Type suffixes that name the absence of a reason.</summary>
     private static readonly string[] ReasonlessSuffixes = ["Helper", "Manager", "Util", "Utils"];
 
-    /// <summary>Reports each folder or type outside the shared kernel whose name states no reason.</summary>
-    /// <param name="model">The loaded project model that holds the scanned code and the shared kernel path.</param>
+    /// <summary>Reports each folder or type outside the Kernel whose name states no reason.</summary>
+    /// <param name="model">The loaded project model that holds the scanned code and the Kernel path.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        var kernel = model.Config.SharedKernelRoot;
+        var kernel = model.Config.KernelRoot;
         var reportedFolders = new HashSet<string>(StringComparer.Ordinal);
         var reportedTypes = new HashSet<string>(StringComparer.Ordinal);
         var files = new List<string>();
@@ -59,7 +59,7 @@ internal static class ReasonlessNameChecks
 
         foreach (var file in files.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
         {
-            if (UnderSharedKernel(kernel, file))
+            if (UnderKernel(kernel, file))
             {
                 continue;
             }
@@ -85,7 +85,7 @@ internal static class ReasonlessNameChecks
 
         foreach (var (type, file, line) in ReasonlessTypeSites(model))
         {
-            if (UnderSharedKernel(kernel, file) || !reportedTypes.Add(type))
+            if (UnderKernel(kernel, file) || !reportedTypes.Add(type))
             {
                 continue;
             }
@@ -99,11 +99,11 @@ internal static class ReasonlessNameChecks
         }
     }
 
-    /// <summary>Whether the file sits under the shared kernel project.</summary>
-    /// <param name="kernel">The shared kernel project path.</param>
+    /// <summary>Whether the file sits under the Kernel project.</summary>
+    /// <param name="kernel">The Kernel project path.</param>
     /// <param name="file">The full path of the file under test.</param>
-    /// <returns>True when the file sits under the shared kernel project; otherwise false.</returns>
-    private static bool UnderSharedKernel(string kernel, string file)
+    /// <returns>True when the file sits under the Kernel project; otherwise false.</returns>
+    private static bool UnderKernel(string kernel, string file)
     {
         if (kernel.Length == 0)
         {

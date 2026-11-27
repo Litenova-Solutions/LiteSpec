@@ -1,0 +1,13 @@
+type: rule
+id: rule/expense.erased-after-retention
+title: Erased After Retention
+kind: precondition
+statement: The personal data of an expense is erased only after its retention ends.
+governs:
+- use-case/spending.erase-personal-data
+- aggregate/spending.expense
+refusal: refusal/spending.retention-not-ended
+basedOn: []
+fulfills:
+- requirement/approval.erased-after-retention
+rationale: Erasing personal data cannot be undone, and erasing it before retention ends destroys a record the company must keep.

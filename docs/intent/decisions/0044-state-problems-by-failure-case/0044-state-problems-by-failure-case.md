@@ -1,6 +1,6 @@
 # State Each Problem by Its Failure Cases
 
-A problem explanation tells a reader what goes wrong for the people a product serves. Until now, it described what those people do by hand and left the failures behind that work implied. This decision gives every problem a list of failure cases, an optional example and one resolution criterion for each failure, and it states how a problem opens, claims and cites its evidence. A reader can then judge the problem and propose a different solution without asking its author.
+A problem explanation tells a reader what goes wrong for the people a product serves. An explanation that describes only what those people do by hand leaves the failures behind that work implied. This decision gives every problem a list of failure cases, an optional example and one resolution criterion for each failure, and it states how a problem opens, claims and cites its evidence. A reader can then judge the problem and propose a different solution without asking its author.
 
 ## Context
 
@@ -28,13 +28,13 @@ A problem explanation carries Affected Users, Failure Cases, Example (optional),
 
 Its opening paragraph states what the sufferer cannot reliably do, the gap that causes it and what they lose or risk. Each failure that can happen on its own gets its own entry, with how the sufferer finds it and what follows when they do not.
 
-Each claim stays within its evidence, an estimate is named as an estimate, and an evidence entry shows the pain, never only that a solution can be built. Each failure case gets one resolution criterion: an observable outcome for the sufferer that names no feature or implementation.
+Each claim stays within its evidence, an estimate is named as an estimate, and an evidence entry shows the pain, never only that a solution can be built. Each failure case gets one resolution criterion: an observable outcome for the sufferer that lists no feature or implementation.
 
 A problem title names the failure or its consequence, never a theme or a feature.
 
 ## Consequences
 
-`explanation-missing` reports a problem explanation without the new sections in order. Five new provisions on the intent page state the opening, failure case, claim, evidence and resolution rules, and the cost and workaround provision now asks for the burden of the workaround and keeps time, money and risk apart.
+A reviewer checks a problem explanation for the new sections in order. Five new provisions on the intent page state the opening, failure case, claim, evidence and resolution rules, and the cost and workaround provision asks for the burden of the workaround and keeps time, money and risk apart.
 
 The provision that lists the sections takes the heading Explain Every Problem in Its Fixed Sections, and its ID follows the heading.
 

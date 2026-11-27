@@ -23,6 +23,7 @@ internal sealed class ValidationContext
         Add = add;
         Pages = new PageValidator(this);
         Provisions = new ProvisionValidator(this);
+        CheckScopes = new CheckScopeValidator(this);
         Manifest = new ManifestValidator(this);
         Repository = new RepositoryValidator(this);
         Templates = new TemplateValidator(this);
@@ -53,6 +54,9 @@ internal sealed class ValidationContext
 
     /// <summary>Gets the provision contract validator.</summary>
     public ProvisionValidator Provisions { get; }
+
+    /// <summary>Gets the provision check-scope validator.</summary>
+    public CheckScopeValidator CheckScopes { get; }
 
     /// <summary>Gets the manifest and schema validator.</summary>
     public ManifestValidator Manifest { get; }

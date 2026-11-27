@@ -2,39 +2,11 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
-/// <summary>
-///     Proves each aggregate act takes one use case: a root method with two marks
-///     reports mark-count-invalid, and a mark on a reading method, a private method, or a
-///     method with no test attribute reports mark-unknown.
-/// </summary>
+/// <summary>Proves a mark on a reading method, a private method, or a method with no test attribute reports mark-unknown.</summary>
 public sealed class OneActTests
 {
-    /// <summary>Two Marks On A Root Method Report Mark Count.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
-    [Fact]
-    public void TwoMarksOnARootMethodReportMarkCount()
-    {
-        using var fixture = MarksFixture.Prepare("act");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
-
-        var finding = Assert.Single(counts, found => found.Message.Contains("Loan.Borrow"));
-        Assert.Contains("carries 2 marks", finding.Message);
-        Assert.Contains("takes one", finding.Message);
-    }
-
-    /// <summary>Single Mark On A Root Method Reports No Mark Count.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
-    [Fact]
-    public void SingleMarkOnARootMethodReportsNoMarkCount()
-    {
-        using var fixture = MarksFixture.Prepare("clean");
-        var counts = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "mark-count-invalid");
-
-        Assert.Empty(counts);
-    }
-
     /// <summary>Marked Reading Method Reports Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void MarkedReadingMethodReportsMarkUnresolved()
     {
@@ -47,7 +19,7 @@ public sealed class OneActTests
     }
 
     /// <summary>Unmarked Reading Method Reports No Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void UnmarkedReadingMethodReportsNoMarkUnresolved()
     {
@@ -59,7 +31,7 @@ public sealed class OneActTests
     }
 
     /// <summary>Marked Private Method Reports Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void MarkedPrivateMethodReportsMarkUnresolved()
     {
@@ -72,7 +44,7 @@ public sealed class OneActTests
     }
 
     /// <summary>Unmarked Private Helper Reports No Mark Unresolved.</summary>
-    /// <proves>litespec/backend/domain#give-each-use-case-its-own-act</proves>
+    /// <proves>litespec/core/backend-domain#give-each-use-case-its-own-act</proves>
     [Fact]
     public void UnmarkedPrivateHelperReportsNoMarkUnresolved()
     {
@@ -129,7 +101,7 @@ public sealed class OneActTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "7.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -144,10 +116,8 @@ public sealed class OneActTests
                   },
                   "stackConfig": {
                     "dotnet": {
-                      "modules": "apps/api/src/Library.Application",
-                      "domain": "apps/api/src/Library.Domain",
+                      "modules": "apps/api/src/Modules/Library.Lending",
                       "webapi": "apps/api/src/Library.WebApi",
-                      "infrastructure": "apps/api/src/Library.Infrastructure"
                     }
                   },
                   "vocabulary": {
@@ -171,22 +141,22 @@ public sealed class OneActTests
                   "status": "reviewed",
                   "kind": "command",
                   "raises": [
-                    "event/loan.loan-borrowed"
+                    "domain-event/loan.loan-borrowed"
                   ],
-                  "changes": [
+                  "writes": [
                     "aggregate/lending.loan"
                   ],
-                  "records": [
+                  "results": [
                     {
-                      "type": "result",
                       "id": "result/borrow-copy.borrowed",
                       "title": "Borrowed",
                       "owner": "lending-team",
                       "outcome": "success",
                       "meaning": "The copy is lent."
-                    },
+                    }
+                  ],
+                  "scenarios": [
                     {
-                      "type": "scenario",
                       "id": "scenario/borrow-copy.borrowing-succeeds",
                       "title": "Borrowing succeeds",
                       "owner": "lending-team",
@@ -216,19 +186,19 @@ public sealed class OneActTests
                       "name": "Active",
                       "meaning": "The loan is open."
                     }
-                  ],
-                  "records": [
-                    {
-                      "type": "event",
-                      "id": "event/loan.loan-borrowed",
-                      "title": "Loan borrowed",
-                      "owner": "lending-team",
-                      "status": "reviewed",
-                      "meaning": "A copy was lent.",
-                      "carries": [
-                        "loanId"
-                      ]
-                    }
+                  ]
+                }
+                """);
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/domain-events/loan-borrowed/loan-borrowed.yaml", """
+                {
+                  "type": "domain-event",
+                  "id": "domain-event/loan.loan-borrowed",
+                  "title": "Loan borrowed",
+                  "owner": "lending-team",
+                  "status": "reviewed",
+                  "meaning": "A copy was lent.",
+                  "fields": [
+                    "loanId"
                   ]
                 }
                 """);
@@ -237,8 +207,8 @@ public sealed class OneActTests
 
                 A loan lends one copy to one reader.
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Loan.cs", """
-                namespace Library.Domain.Lending.Loans;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Loan.cs", """
+                namespace Library.Lending.Domain.Loans;
 
                 /// <implements>aggregate/lending.loan</implements>
                 public sealed class Loan : AggregateRoot<LoanId>
@@ -263,8 +233,8 @@ public sealed class OneActTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/LoanReader.cs", """
-                namespace Library.Domain.Lending.Loans;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/LoanReader.cs", """
+                namespace Library.Lending.Domain.Loans;
 
                 public sealed class LoanReader
                 {
@@ -274,14 +244,14 @@ public sealed class OneActTests
                     public int OpenCount() => 0;
                 }
                 """);
-            Write(temp.Path, "apps/api/src/Library.Domain/Lending/Loans/Events/LoanBorrowedEvent.cs", """
-                namespace Library.Domain.Lending.Loans.Events;
+            Write(temp.Path, "apps/api/src/Modules/Library.Lending/Domain/Loans/Events/LoanBorrowedEvent.cs", """
+                namespace Library.Lending.Domain.Loans.Events;
 
-                /// <implements>event/loan.loan-borrowed</implements>
+                /// <implements>domain-event/loan.loan-borrowed</implements>
                 public sealed record LoanBorrowedEvent(Guid LoanId, Guid ReaderId, DateOnly DueDate) : IDomainEvent;
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/BadBorrowCopyScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/BadBorrowCopyScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class BadBorrowCopyScenarios
                 {
@@ -292,8 +262,8 @@ public sealed class OneActTests
                     }
                 }
                 """);
-            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/Loans/BorrowCopy/GoodBorrowCopyScenarios.cs", """
-                namespace Library.Tests.Lending.Loans.BorrowCopy;
+            Write(temp.Path, "apps/api/tests/Library.Tests/Lending/BorrowCopy/GoodBorrowCopyScenarios.cs", """
+                namespace Library.Tests.Lending.BorrowCopy;
 
                 public sealed class GoodBorrowCopyScenarios
                 {

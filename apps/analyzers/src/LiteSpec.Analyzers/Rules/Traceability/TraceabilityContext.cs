@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Analyzers.Records;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
@@ -12,10 +13,10 @@ using Microsoft.CodeAnalysis;
 namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
-///     What every traceability rule needs for one compilation: its layer, the
-///     record layers the project claims, the consumer's records, the
-///     cross-file kind names, the event id of every event type marked in
-///     source, and the live departures built once so reporting a diagnostic
+///     What every traceability rule needs for one compilation: the assembly name
+///     that places its files, the record layers the project claims, the consumer's
+///     records, the cross-file kind names, the event id of every event type marked
+///     in source, and the live waivers built once so reporting a diagnostic
 ///     never rescans every record.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
@@ -29,20 +30,16 @@ internal sealed class TraceabilityContext
     private readonly List<LiveException> live;
 
     /// <summary>Initializes a new instance of the <see cref="TraceabilityContext"/> class.Creates the context for one compilation.</summary>
-    /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="claims">The record layers the project claims.</param>
-    /// <param name="store">The consumer's records.</param>
+    /// <param name="records">The consumer's records.</param>
     /// <param name="kinds">The cross-file kind names.</param>
     /// <param name="eventIds">The event id by simple event type name.</param>
     /// <param name="project">The assembly name, for project checks.</param>
     public TraceabilityContext(
-        BackendLayout layout, string? declared, LayerClaims claims, CompilationRecords store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
+        LayerClaims claims, CompilationRecords records, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
     {
-        Layout = layout;
-        Declared = declared;
         Claims = claims;
-        Store = store;
+        Records = records;
         Kinds = kinds;
         EventIds = eventIds;
         Project = project;
@@ -50,14 +47,14 @@ internal sealed class TraceabilityContext
         var today = DateTime.UtcNow.Date;
         live = new List<LiveException>();
 
-        foreach (var record in store.Index.Records)
+        foreach (var record in records.Index.Records)
         {
-            if (record.Type != "departure")
+            if (record.Type != "waiver")
             {
                 continue;
             }
 
-            // A departure with no expiry date is lasting: it stays live until the record changes.
+            // A waiver with no expiry date is lasting: it stays live until the record changes.
             var expiresOn = record.Field("expiresOn");
 
             if (expiresOn is null
@@ -68,17 +65,11 @@ internal sealed class TraceabilityContext
         }
     }
 
-    /// <summary>Gets the backend layout the consumer builds.</summary>
-    public BackendLayout Layout { get; }
-
-    /// <summary>Gets the declared layer name, or null when the project sets none.</summary>
-    public string? Declared { get; }
-
     /// <summary>Gets the record layers the project claims.</summary>
     public LayerClaims Claims { get; }
 
     /// <summary>Gets the consumer's records.</summary>
-    public CompilationRecords Store { get; }
+    public CompilationRecords Records { get; }
 
     /// <summary>Gets the cross-file kind names.</summary>
     public KindContext Kinds { get; }
@@ -89,37 +80,36 @@ internal sealed class TraceabilityContext
     /// <summary>Gets the assembly name, for project checks.</summary>
     public string Project { get; }
 
-    /// <summary>Returns the layer of the file declaring the symbol, or None when it has none.</summary>
+    /// <summary>Returns the layer of the file declaring the symbol: Application for a Contracts file, otherwise the resolver's layer, or None when it has none.</summary>
     /// <param name="symbol">The symbol declared by the element under inspection.</param>
     /// <returns>The layer.</returns>
     public ArchitectureLayer LayerOf(ISymbol symbol)
     {
         foreach (var reference in symbol.DeclaringSyntaxReferences)
         {
-            return ArchitectureLayerResolver.FileLayer(reference.SyntaxTree?.FilePath, Project, Layout, Declared);
+            var path = reference.SyntaxTree?.FilePath;
+
+            if (CodeMap.IsContracts(path) || CodeMap.IsContractsAssembly(Project))
+            {
+                return ArchitectureLayer.Application;
+            }
+
+            return ArchitectureLayerResolver.FileLayer(path, Project, declared: null);
         }
 
         return ArchitectureLayer.None;
     }
 
-    /// <summary>
-    ///     The project name the kind reader checks the symbol against: the assembly
-    ///     name under layer-projects, otherwise the short name of the symbol's file layer.
-    /// </summary>
+    /// <summary>The project name the kind reader checks the symbol against: the short name of the symbol's file layer.</summary>
     /// <param name="symbol">The symbol declared by the element under inspection.</param>
     /// <returns>The project name.</returns>
     public string ProjectOf(ISymbol symbol)
     {
-        if (Layout == BackendLayout.LayerProjects)
-        {
-            return Project;
-        }
-
         switch (LayerOf(symbol))
         {
             case ArchitectureLayer.Domain: return "Domain";
-            case ArchitectureLayer.ApplicationAbstractions: return "Application.Abstractions";
             case ArchitectureLayer.Application: return "Application";
+            case ArchitectureLayer.Ports: return "Ports";
             case ArchitectureLayer.Infrastructure: return "Infrastructure";
             case ArchitectureLayer.WebApi: return "WebApi";
             case ArchitectureLayer.Worker: return "Worker";
@@ -129,16 +119,16 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>
-    ///     Whether a live departure covers the finding, as
+    ///     Whether a live waiver covers the finding, as
     ///     <see cref="Suppression.Partition" /> decides for the CLI but from the
-    ///     sets built once in the constructor. A departure is live when it is
+    ///     sets built once in the constructor. A waiver is live when it is
     ///     present and unexpired.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>
     public bool IsKnown(Finding finding)
     {
-        if (finding.Code == "departure-expired")
+        if (finding.Code == "waiver-expired")
         {
             return false;
         }
@@ -152,23 +142,23 @@ internal sealed class TraceabilityContext
             if ((finding.Subject.StartsWith("scenario/", StringComparison.Ordinal) || finding.Subject.StartsWith("result/", StringComparison.Ordinal))
                 && Identifiers.TrySplit(finding.Subject, out _, out var home, out _)
                 && home is not null
-                && Store.UseCaseOfHome(home) is string holder)
+                && Records.UseCaseOfHome(home) is string holder)
             {
                 subjects.Add(holder);
             }
         }
 
-        var relative = RootRelative(Store.Root, finding.Path);
+        var relative = RootRelative(Records.Root, finding.Path);
 
-        foreach (var departure in live)
+        foreach (var waiver in live)
         {
-            if (!departure.Codes.Contains(finding.Code))
+            if (!waiver.Codes.Contains(finding.Code))
             {
                 continue;
             }
 
-            if (subjects.Any(subject => departure.Subjects.Contains(subject))
-                || departure.Paths.Any(pattern => GlobMatches(pattern, relative)))
+            if (subjects.Any(subject => waiver.Subjects.Contains(subject))
+                || waiver.Paths.Any(pattern => GlobMatches(pattern, relative)))
             {
                 return true;
             }
@@ -182,21 +172,17 @@ internal sealed class TraceabilityContext
     ///     for the aggregate roots, domain exceptions, marked ports and event ids.
     /// </summary>
     /// <param name="compilation">The compilation.</param>
-    /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
-    /// <param name="store">The consumer's records.</param>
+    /// <param name="records">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, CompilationRecords store) =>
-        Create(compilation, layout, declared, LayerClaims.All, store);
+    public static TraceabilityContext Create(Compilation compilation, CompilationRecords records) =>
+        Create(compilation, LayerClaims.All, records);
 
     /// <summary>Builds the context for one compilation under the layers it claims.</summary>
     /// <param name="compilation">The compilation.</param>
-    /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="claims">The record layers the project claims.</param>
-    /// <param name="store">The consumer's records.</param>
+    /// <param name="records">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, CompilationRecords store)
+    public static TraceabilityContext Create(Compilation compilation, LayerClaims claims, CompilationRecords records)
     {
         var roots = new HashSet<string>(StringComparer.Ordinal);
         var exceptions = new HashSet<string>(StringComparer.Ordinal);
@@ -230,7 +216,7 @@ internal sealed class TraceabilityContext
         }
 
         return new TraceabilityContext(
-            layout, declared, claims, store, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
+            claims, records, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
     }
 
     /// <summary>Reads the cached context for the compilation, when one was built.</summary>
@@ -245,35 +231,29 @@ internal sealed class TraceabilityContext
     ///     every traceability analyzer reuses the one walk over the source types.
     /// </summary>
     /// <param name="compilation">The compilation.</param>
-    /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
-    /// <param name="store">The consumer's records.</param>
+    /// <param name="records">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, CompilationRecords store) =>
-        GetOrCreate(compilation, layout, declared, LayerClaims.All, store);
+    public static TraceabilityContext GetOrCreate(Compilation compilation, CompilationRecords records) =>
+        GetOrCreate(compilation, LayerClaims.All, records);
 
     /// <summary>Reads the cached context for the compilation or builds and caches it under the layers it claims.</summary>
     /// <param name="compilation">The compilation.</param>
-    /// <param name="layout">The backend layout the consumer builds.</param>
-    /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="claims">The record layers the project claims.</param>
-    /// <param name="store">The consumer's records.</param>
+    /// <param name="records">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, CompilationRecords store)
+    public static TraceabilityContext GetOrCreate(Compilation compilation, LayerClaims claims, CompilationRecords records)
     {
         if (Cache.TryGetValue(compilation, out var cached)
-            && cached.Layout == layout
-            && cached.Declared == declared
             && cached.Claims == claims
-            && ReferenceEquals(cached.Store, store))
+            && ReferenceEquals(cached.Records, records))
         {
             return cached;
         }
 
-        var created = Create(compilation, layout, declared, claims, store);
+        var created = Create(compilation, claims, records);
         var result = Cache.GetValue(compilation, _ => created);
 
-        if (result.Layout == layout && result.Declared == declared && result.Claims == claims && ReferenceEquals(result.Store, store))
+        if (result.Claims == claims && ReferenceEquals(result.Records, records))
         {
             return result;
         }
@@ -423,7 +403,7 @@ internal sealed class TraceabilityContext
             {
                 foreach (var mark in MarkReader.Read(member))
                 {
-                    if (mark.RecordId.StartsWith("event/", StringComparison.Ordinal))
+                    if (mark.RecordId.StartsWith("domain-event/", StringComparison.Ordinal))
                     {
                         return mark.RecordId;
                     }
@@ -520,25 +500,25 @@ internal sealed class TraceabilityContext
     private static bool IsoDate(string text, out DateTime date) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
-    /// <summary>A live departure, with the codes, subjects and paths it holds.</summary>
+    /// <summary>A live waiver, with the codes, subjects and paths it holds.</summary>
     private sealed class LiveException
     {
         /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>
-        /// <param name="departure">The departure record under inspection.</param>
-        public LiveException(IRecordFields departure)
+        /// <param name="waiver">The waiver record under inspection.</param>
+        public LiveException(IRecordFields waiver)
         {
-            Subjects = new HashSet<string>(departure.Ids("subject"), StringComparer.Ordinal);
-            Paths = departure.Ids("paths");
-            Codes = new HashSet<string>(departure.Ids("covers"), StringComparer.Ordinal);
+            Subjects = new HashSet<string>(waiver.Ids("appliesTo"), StringComparer.Ordinal);
+            Paths = waiver.Ids("paths");
+            Codes = new HashSet<string>(waiver.Ids("waives"), StringComparer.Ordinal);
         }
 
-        /// <summary>Gets the subjects for the live departure.</summary>
+        /// <summary>Gets the subjects for the live waiver.</summary>
         public HashSet<string> Subjects { get; }
 
-        /// <summary>Gets the paths for the live departure.</summary>
+        /// <summary>Gets the paths for the live waiver.</summary>
         public IReadOnlyList<string> Paths { get; }
 
-        /// <summary>Gets the covers for the live departure.</summary>
+        /// <summary>Gets the covers for the live waiver.</summary>
         public HashSet<string> Codes { get; }
     }
 

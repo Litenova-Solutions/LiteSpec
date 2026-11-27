@@ -1,0 +1,14 @@
+type: decision
+id: decision/0105-store-each-aggregate-root-as-its-own-document
+title: Store Each Aggregate Root as Its Own Document
+context: "No sentence stated that LiteSpec stores the aggregate itself: only one repository example showed it. A consumer backend therefore wrote a parallel document type per aggregate with mapping code, and query handlers queried those Infrastructure documents from Application, which the layer analyzer then reported."
+options:
+  - name: "Store each aggregate root as its own Marten document, with the JSON contract owned in Infrastructure"
+    pros: "One shape from the handler to the disk, no mapping code, and queries read the aggregate type through the read session."
+    cons: "The store serializer carries the converters, discriminator registrations, and non-public access the aggregate shape needs."
+  - name: "Let each project choose between storing the aggregate and writing parallel document types"
+    pros: "Projects keep their existing document habit."
+    cons: "Two models of one thing, mapping code between them, and reads split across both."
+choice: "Store each aggregate root as its own Marten document, with the JSON contract owned in Infrastructure"
+consequences: "Marten stores each aggregate root as its own document under `litespec/packs/dotnet/persistence#store-each-aggregate-root-as-its-own-document`, and a project writes no parallel document type for an aggregate. The Infrastructure store setup carries the alias, the typed-identifier mapping, the serializer with its converters and discriminator registrations, and optimistic concurrency, while Domain carries no serialization attribute. LS2018 names the fix when the Infrastructure type it reports is a Marten document of an aggregate: query the aggregate type through IQuerySession."
+reopenedWhen: "A stored shape proves unreachable through the aggregate type with the contract Infrastructure can own."

@@ -1,14 +1,12 @@
 ---
 // One HTML page per spec page: the sidebar tree, the content column with the
 // browse button, breadcrumb, title, meta row, introduction, tool buttons and
-// rendered body, the "On this page" list, and Previous / Next cards. Pattern
-// pages add the pattern viewer beside the same frame.
+// rendered body, the "On this page" list, and Previous / Next cards.
 import Base from "../../layouts/Base.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import DocsSidebar from "../../components/DocsSidebar.astro";
 import Icon from "../../components/Icon.astro";
 import PageToc from "../../components/PageToc.astro";
-import PatternViewer from "../../components/PatternViewer.astro";
 import "../../styles/docs.css";
 import "../../styles/prose.css";
 import "../../styles/code.css";
@@ -33,7 +31,6 @@ if (!page) throw new Error(`No page for ${file}`);
 
 const { html, intro, toc, meta } = await renderPage(page);
 const group = groupOf(page.area);
-const isPattern = page.style === "pattern";
 const markdownUrl = rawUrl(page);
 const editUrl = `https://github.com/Litenova-Solutions/LiteSpec/blob/v${version}/${page.file}`;
 const kinds = new Set(page.provisions.map((provision) => provision.kind));
@@ -139,5 +136,4 @@ const neighbors: { prev: Page | null; next: Page | null; nextGroup: { url: strin
     </article>
     <PageToc entries={toc} markdownUrl={markdownUrl} editUrl={editUrl} />
   </div>
-  {isPattern && <PatternViewer />}
 </Base>

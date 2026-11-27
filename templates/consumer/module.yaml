@@ -1,5 +1,12 @@
 type: module
-id: module/spending
-title: Spending
-summary: Spending submits, decides, reimburses and exports work expenses.
-dependsOn: []
+id: module/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <what product area this module covers, or remove this line>
+dependsOn:
+- module/<name, or remove this line>
+covers:
+- <one thing the module owns, in one sentence>
+excludes:
+- <one thing the module leaves to another module, in one sentence>

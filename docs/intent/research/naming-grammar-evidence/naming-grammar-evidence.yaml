@@ -4,21 +4,173 @@ title: Naming Grammar Evidence
 sources:
   - url: https://cucumber.io/docs/gherkin/reference
     readOn: 2026-10-31
-    key: cucumber-docs-gherkin-reference
+    name: cucumber-docs-gherkin-reference
+    note: The record read the Gherkin reference on 31 October 2026, including its keywords, Rule, and Background sections. Its index page notes an update on 27 October 2026.
   - url: https://github.com/cloudevents/spec
     readOn: 2026-10-31
-    key: github-cloudevents-spec
+    name: github-cloudevents-spec
+    note: The record read the CloudEvents text as version 1.0.3-wip on 31 October 2026.
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
-    key: record-schema
+    name: record-schema
+    note: The 248 count comes from a fresh script run over the current record schema on 31 October 2026. The script output truncates definition counts per name, so the record relied only on the shape lists.
   - path: docs/intent/research/field-naming-evidence/field-naming-evidence.md
     readOn: 2026-10-31
-    key: field-naming-evidence
+    name: field-naming-evidence
+    note: The consumer illustrations come second-hand from this record. It measured them on 30 October 2026 over 434 scanned files and the largest consumer built model.
   - path: docs/core/model.md
     readOn: 2026-10-31
-    key: model
+    name: model
+    note: The record read the core model page to check the layer, aliases, and schema-version drift that research/field-naming-evidence reports.
   - path: schemas/glossary.schema.yaml
     readOn: 2026-10-31
-    key: glossary-schema
+    name: glossary-schema
+    note: The record read the glossary schema to check the layer, aliases, and schema-version drift that research/field-naming-evidence reports.
 question: What does the 248-field inventory show about name collisions and value shapes, and which grammar follows from it?
-conclusion: The inventory counts 248 field names with 18 genuine collisions plus link-shaped justifications and string mini-languages, so one grammar of eight word classes with no exceptions, objects for mini-languages, and American spelling follows.
+conclusion: The inventory counts 248 field names with 18 genuine collisions plus link-shaped justifications and string mini-languages. One grammar of eight word classes with no exceptions, objects for mini-languages, and American spelling follows.
+findings:
+  - statement: The record schema holds 248 distinct field names.
+    sources:
+      - record-schema
+  - statement: Twenty-one names carry more than one shape, and 18 are genuine collisions.
+    sources:
+      - record-schema
+  - statement: A reader cannot tell the colliding shapes apart.
+    sources:
+      - record-schema
+  - statement: The record infers one naming grammar where each concept keeps one name, shape, and cardinality.
+    sources:
+      - record-schema
+  - statement: A script walked every properties block in the record schema on 31 October 2026.
+    sources:
+      - record-schema
+  - statement: The count lists the declaring definitions and the value shape for each name.
+    sources:
+      - record-schema
+  - statement: The same run re-verified the multi-shape table and still counts 248 names.
+    sources:
+      - record-schema
+  - statement: The record calls the field set mostly systematic.
+    sources:
+      - record-schema
+  - statement: All 37 page types share one header of type, id, title, and terms.
+    sources:
+      - record-schema
+  - statement: Links read as present-tense verbs, plural when they hold arrays.
+    sources:
+      - record-schema
+  - statement: The verbs fulfills, governs, solves, decides, and basedOn each carry one meaning.
+    sources:
+      - record-schema
+  - statement: Every field name reads as camelCase or as a single lowercase word.
+    sources:
+      - record-schema
+  - statement: The id and kind names vary by type by design.
+    sources:
+      - record-schema
+  - statement: The audience name holds actor lists on a product and a notification but one permission on an integration event.
+    sources:
+      - record-schema
+  - statement: The basedOn name holds two different arrays.
+    sources:
+      - record-schema
+  - statement: The code name holds one refusal code or a list of codes.
+    sources:
+      - record-schema
+  - statement: Ten names each span two or three shapes, namely direction, effects, fields, key, mode, runbook, scope, sends, steps, and subject.
+    sources:
+      - record-schema
+  - statement: The onFailure name holds a string policy on effects and a structured object on reactions and jobs.
+    sources:
+      - record-schema
+  - statement: The record calls onFailure the most mechanical inconsistency in the schemas.
+    sources:
+      - record-schema
+  - statement: The reason name holds free prose in most places but an enum on audit and idempotency objects.
+    sources:
+      - record-schema
+  - statement: The setBy name holds product or tenant on requirements and adds operator on settings.
+    sources:
+      - record-schema
+  - statement: The serves name spans two shapes across five record types with three target sets.
+    sources:
+      - record-schema
+  - statement: The source name carries four shapes across 21 definitions.
+    sources:
+      - record-schema
+  - statement: Those shapes are the origin marker, the constraint free text, the CloudEvents source, and the nested origin.
+    sources:
+      - record-schema
+  - statement: Research sources form a sixth shape beside the source shapes.
+    sources:
+      - record-schema
+  - statement: The record counts two collisions already showing bad data in the consumer.
+    sources:
+      - field-naming-evidence
+  - statement: All 111 consumer features carry milestone-style by values where the convention expects dates.
+    sources:
+      - field-naming-evidence
+  - statement: Eleven use-case serves values name a whole flow where the schema allows only a flow step or a goal.
+    sources:
+      - field-naming-evidence
+  - statement: The record infers one name, one shape, and one cardinality for each concept, with no exemptions.
+    sources:
+      - record-schema
+  - statement: The because field holds a rule list and wideningBecause holds a requirement link.
+    sources:
+      - record-schema
+  - statement: The appliesBecause field holds prose.
+    sources:
+      - record-schema
+  - statement: The record infers cites as the one verb for a reason link everywhere.
+    sources:
+      - record-schema
+  - statement: The applies, secret, recorded, builtAsynchronously, and sharesTransaction fields read as present-tense predicates.
+    sources:
+      - record-schema
+  - statement: The record infers that a boolean stays a present-tense predicate true about the record.
+    sources:
+      - record-schema
+  - statement: The bare freshness, schedule, duration, string onFailure policy, retry, dead-letter, call, via, and operator values parse only by convention.
+    sources:
+      - record-schema
+  - statement: The record infers objects with named fields for each string mini-language.
+    sources:
+      - record-schema
+  - statement: The record infers reads for the settings a use case reads, with readBy as a computed inverse.
+    sources:
+      - record-schema
+  - statement: The record infers American spelling for field names, enum values, and prose, such as license and pseudonymize.
+    sources:
+      - record-schema
+  - statement: The record infers that the word when keeps only its Gherkin meaning.
+    sources:
+      - cucumber-docs-gherkin-reference
+      - record-schema
+  - statement: The record infers condition with fallback for an exception entry and guard for a coordinator guard.
+    sources:
+      - record-schema
+  - statement: The record infers provisions for the value style, with checks covering their mechanical half.
+    sources:
+      - record-schema
+  - statement: The inventory supports eight word classes, including reason links, boolean predicates, classifiers, dates, justifications, defining and normative sentences, conditions, and outside-standard names.
+    sources:
+      - record-schema
+  - statement: The record infers an exemption only for names fixed by an outside standard.
+    sources:
+      - record-schema
+  - statement: The Gherkin reference confirms the step words Given, When, Then, And, and But.
+    sources:
+      - cucumber-docs-gherkin-reference
+  - statement: The Gherkin reference also confirms Rule, Background, and Examples.
+    sources:
+      - cucumber-docs-gherkin-reference
+  - statement: The CloudEvents text confirms id, source, type, and specversion as required.
+    sources:
+      - github-cloudevents-spec
+  - statement: The CloudEvents text confirms dataschema and subject as optional.
+    sources:
+      - github-cloudevents-spec
+  - statement: The language page holds the normative list of classes, and this record holds only the evidence.
+    sources:
+      - record-schema

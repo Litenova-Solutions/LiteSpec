@@ -1,6 +1,0 @@
-type: role
-id: role/ghost
-title: Ghost
-scope: self
-allows:
-  - permission/borrow-copy

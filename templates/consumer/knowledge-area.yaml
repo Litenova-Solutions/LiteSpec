@@ -1,0 +1,8 @@
+type: knowledge-area
+id: knowledge-area/name
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+meaning: <what rules this area holds, in one sentence>
+variants:
+- <a variant the area has a set for, or remove this line>

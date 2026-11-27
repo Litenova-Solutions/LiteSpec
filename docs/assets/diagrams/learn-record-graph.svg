@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="530" viewBox="0 0 720 530" role="img" aria-labelledby="learn-record-graph-title learn-record-graph-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="learn-record-graph-title">Record types and their written and computed links</title>
-  <desc id="learn-record-graph-desc">The use case sits in the center. Rules govern it, journeys step through it, and it names results, scenarios, events, and entry points. Rules and journeys fulfill requirements, and each scenario names its result. The builder computes three more links: a handler implements the use case, a screen calls it, and a test proves its scenario.</desc>
+  <desc id="learn-record-graph-desc">The use case sits in the center. Rules govern it, flows step through it, and it names results, scenarios, domain events, and entry points. Rules and flows fulfill requirements, and each scenario names its result. The builder computes three more links: a handler implements the use case, a screen calls it, and a test proves its scenario.</desc>
   <defs>
     <marker id="learn-record-graph-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 10 5 0 10z" style="fill: var(--muted-fg, #77706a)" />
@@ -38,10 +38,10 @@
   <g style="fill: var(--fg, #19151c)" font-size="14" font-weight="600" text-anchor="middle">
     <text x="360" y="44">requirement</text>
     <text x="250" y="144">rule</text>
-    <text x="470" y="144">journey</text>
+    <text x="470" y="144">flow</text>
     <text x="80" y="244">entry point</text>
     <text x="360" y="244">use case</text>
-    <text x="625" y="244">event</text>
+    <text x="625" y="244">domain event</text>
     <text x="410" y="344">result</text>
     <text x="610" y="344">scenario</text>
     <text x="210" y="444">handler</text>

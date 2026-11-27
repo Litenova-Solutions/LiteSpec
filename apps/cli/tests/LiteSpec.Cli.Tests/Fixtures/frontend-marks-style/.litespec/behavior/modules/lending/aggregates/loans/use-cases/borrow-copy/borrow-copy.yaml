@@ -2,11 +2,15 @@ type: use-case
 id: use-case/lending.borrow-copy
 title: Borrow copy
 kind: command
-reachedThrough:
-  - entry-point/library-app
-records:
-  - type: result
-    id: result/borrow-copy.borrowed
-    title: Borrowed
-    outcome: success
-    meaning: The copy is lent.
+via:
+- entry-point/library-app
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader sends the copy to borrow.
+- statement: Lending lends the copy and raises the borrowed event.
+results:
+- id: result/borrow-copy.borrowed
+  title: Borrowed
+  outcome: success
+  meaning: The copy is lent.

@@ -7,43 +7,66 @@ access:
   grant: permission/manage-policy
   tenant: own
 serves:
-- journey/set-receipt-threshold#s1
+- step/set-receipt-threshold.set-threshold
 fulfills:
 - requirement/approval.above-threshold-receipt
-reachedThrough:
+via:
 - entry-point/claimwick-app
 raises: []
-changes:
+inputs:
+- name: threshold
+  meaning: The new receipt threshold with its currency.
+  type: money
+  required: true
+  origin: caller
+  classification: internal
+writes:
 - aggregate/spending.policy
 idempotency:
-  mode: none
+  mode: state
   reason: a repeat sets the same threshold on the policy, leaving the same value in place
+  replay: acts-again
+  recognizedBy: the aggregate state already holds the outcome this command sets
 audit:
-  level: none
-  target: no audit trail; the example stores no audit entry
-records:
-- type: result
-  id: result/change-receipt-threshold.threshold-set
+  exemptBecause: The policy holds its threshold; the change trails nothing further.
+steps:
+- statement: The manager sends the new threshold with its currency.
+  cites:
+  - aggregate/spending.policy
+- statement: Spending refuses the change with `spending.negative-threshold` when the threshold is negative.
+  cites:
+  - result/change-receipt-threshold.negative-threshold
+  - rule/policy.threshold-never-negative
+- statement: Spending stores the new threshold on the policy.
+  cites:
+  - result/change-receipt-threshold.threshold-set
+  - aggregate/spending.policy
+results:
+- id: result/change-receipt-threshold.threshold-set
   title: Threshold Set
   outcome: success
   meaning: The receipt threshold is set.
-- type: result
-  id: result/change-receipt-threshold.negative-threshold
+- id: result/change-receipt-threshold.negative-threshold
   title: Negative Threshold
   outcome: refusal
-  code: spending.negative-threshold
-  meaning: The threshold is negative.
-- type: scenario
-  id: scenario/change-receipt-threshold.setting-the-threshold-succeeds
+  refusal: refusal/spending.negative-threshold
+  message: Enter a threshold of zero or more.
+  translations:
+    nl: Voer een drempel van nul of meer in.
+scenarios:
+- id: scenario/change-receipt-threshold.setting-the-threshold-succeeds
   title: Setting the Threshold Succeeds
   given: Finance agreed a new receipt threshold with the managers.
   when: The manager sets the receipt threshold.
   then: The receipt threshold is set.
   result: result/change-receipt-threshold.threshold-set
-- type: scenario
-  id: scenario/change-receipt-threshold.setting-a-negative-threshold-is-refused
+  exercises:
+  - rule/policy.threshold-never-negative
+- id: scenario/change-receipt-threshold.setting-a-negative-threshold-is-refused
   title: Setting a Negative Threshold Is Refused
   given: Finance agreed a new receipt threshold with the managers.
   when: The manager sets a negative receipt threshold.
   then: The change is refused because the threshold is negative.
   result: result/change-receipt-threshold.negative-threshold
+  exercises:
+  - rule/policy.threshold-never-negative

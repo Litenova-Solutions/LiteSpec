@@ -54,7 +54,7 @@ describe("pageOrder", () => {
         "scopes.md",
         "principles.md",
         "model.md",
-        "departures.md",
+        "waivers.md",
         "layers.md",
         "intent.md",
         "behavior.md",
@@ -62,22 +62,41 @@ describe("pageOrder", () => {
         "use-cases.md",
         "automation.md",
         "edges.md",
+        "backend-architecture.md",
+        "backend-domain.md",
+        "backend-application.md",
+        "backend-persistence.md",
+        "backend-api.md",
+        "knowledge.md",
+        "testing.md",
         "privacy.md",
         "access.md",
+        "audit.md",
+        "tenancy.md",
+        "concurrency.md",
+        "integrations.md",
+        "outbox.md",
+        "jobs.md",
+        "lifecycle.md",
+        "locale.md",
+        "ui-ia.md",
+        "ui-verification.md",
         "agent.md",
         "authoring.md",
         "language.md",
         "writing.md",
         "maintaining.md",
+        "designing.md",
+        "evolution.md",
         "release.md",
       ],
     );
   });
 
-  it("lists pages the README does not link after, by title", () => {
-    const files = pageOrder("docs/frontend/web").map((page) => page.file);
-    assert.strictEqual(files[0], "docs/frontend/web/README.md");
-    assert.strictEqual(files[files.length - 1], "docs/frontend/web/patterns.md");
+  it("follows docs/packs/svelte/README.md after its overview", () => {
+    const files = pageOrder("docs/packs/svelte").map((page) => page.file);
+    assert.strictEqual(files[0], "docs/packs/svelte/README.md");
+    assert.strictEqual(files[files.length - 1], "docs/packs/svelte/golden-slice.md");
   });
 
   it("keeps path order in a folder with no README", () => {
@@ -89,17 +108,15 @@ describe("pageOrder", () => {
 });
 
 describe("folderOrder", () => {
-  it("follows the parent README lists, where patterns.md comes before web/README.md", () => {
-    assert.deepStrictEqual(folderOrder("docs/frontend"), [
-      "docs/frontend/patterns",
-      "docs/frontend/web",
-      "docs/frontend/mobile",
-      "docs/frontend/blazor",
+  it("follows the parent README lists, in pack order", () => {
+    assert.deepStrictEqual(folderOrder("docs/packs"), [
+      "docs/packs/dotnet",
+      "docs/packs/svelte",
+      "docs/packs/android",
     ]);
   });
 
-  it("lists the single subfolder of backend and analyzers", () => {
-    assert.deepStrictEqual(folderOrder("docs/backend"), ["docs/backend/dotnet"]);
+  it("lists the analyzer rules folder", () => {
     assert.deepStrictEqual(folderOrder("docs/analyzers"), ["docs/analyzers/rules"]);
   });
 });
@@ -117,10 +134,10 @@ describe("groupHomeUrl", () => {
 
 describe("crumbTrail", () => {
   it("links the group and area overviews of a standards page", () => {
-    const page = pageByFile("docs/backend/domain.md");
+    const page = pageByFile("docs/core/backend-domain.md");
     assert.deepStrictEqual(crumbTrail(page!), [
       { name: "Standard", url: `/${version}/standard/` },
-      { name: "Backend", url: `/${version}/backend/` },
+      { name: "Core", url: `/${version}/core/` },
     ]);
   });
 

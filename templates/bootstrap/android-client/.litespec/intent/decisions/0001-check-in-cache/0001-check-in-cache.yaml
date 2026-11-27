@@ -1,0 +1,15 @@
+type: decision
+id: decision/0001-check-in-cache
+title: Check-in cache
+context: Visitors open the app where the network may be slow or absent.
+options:
+- name: Live list only
+  pros: The list always shows the newest check-ins.
+  cons: The list stays empty without a network.
+- name: Cached list with live refresh
+  pros: The list opens at once and refreshes when the network answers.
+  cons: A fresh check-in waits for the next refresh.
+choice: Cached list with live refresh
+consequences: The app keeps the last loaded check-ins in app-private storage.
+reopenedWhen: Visitors report stale check-ins.
+basedOn: []

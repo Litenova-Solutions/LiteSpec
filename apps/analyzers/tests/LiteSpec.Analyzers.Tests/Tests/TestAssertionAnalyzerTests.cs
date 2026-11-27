@@ -177,35 +177,8 @@ public sealed class TestAssertionAnalyzerTests
                     order.Place();
                 }
             }
-            """, assemblyName: "Shop.Domain");
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS4001 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
-    [Fact(DisplayName = "LS4001 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<TestAssertionAnalyzer>("""
-            using System;
-
-            namespace Shop.Core;
-
-            public sealed class FactAttribute : Attribute;
-
-            public sealed class Order
-            {
-                public void Place() { }
-            }
-
-            public sealed class OrderTests
-            {
-                [Fact]
-                public void {|LS4001:PlaceWhenDraftMarksPlaced|}()
-                {
-                    var order = new Order();
-                    order.Place();
-                }
-            }
-            """, assemblyName: "Shop.Core", layer: "Test");
 
     /// <summary>LS4001 reports a scenario whose steps assert nothing.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>

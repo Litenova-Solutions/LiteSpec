@@ -35,9 +35,5 @@ export default defineConfig(({ command }) => ({
     assetsInlineLimit: 100_000_000,
     lib: { entry: "src/main.ts", name: "LiteSpecBook", formats: ["iife"], fileName: () => "book.js", cssFileName: "book" },
   },
-  // Component tests mount in jsdom, so Svelte resolves its browser build.
-  resolve: { alias: { $lib: fileURLToPath(new URL("./src/lib", import.meta.url)) }, ...(process.env.VITEST ? { conditions: ["browser"] } : {}) },
-  // A test reads the record type list from the model library elsewhere in the repository.
-  server: { fs: { allow: [fileURLToPath(new URL("../../..", import.meta.url))] } },
-  test: { environment: "jsdom", include: ["src/**/*.test.ts"] },
+  resolve: { alias: { $lib: fileURLToPath(new URL("./src/lib", import.meta.url)) } },
 }));

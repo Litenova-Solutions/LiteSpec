@@ -6,7 +6,12 @@ using static LiteSpec.Maintain.Validate.RepositoryWalk;
 namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
-///     The field-naming contract: one concept, one name, and one shape on every record that carries it.
+///     The contextual field-naming contract: a field name reads in its record type,
+///     one concept keeps one name across types, and the catalog registers each name
+///     where it is read. Six mechanical checks hold it: strict camelCase with no
+///     abbreviations and American spelling; no is or has prefix on booleans;
+///     suffix-to-type invariants; the record-type noun guard; the link-verb guard;
+///     and the contextual catalog with the retired-synonym blocklist.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal sealed class FieldValidator
@@ -23,16 +28,11 @@ internal sealed class FieldValidator
     /// <summary>Gets the shared validation context.</summary>
     private ValidationContext Context { get; }
 
-    // One concept keeps one name and one shape everywhere it appears, so an
-    // author who has learned a field on one record has learned it on them all.
-    // The names below are the declared exceptions beside the provision; every
-    // other field follows the rule.
-    // (litespec/core/language#name-each-field-by-its-word-class)
-    /// <summary>Gets the fields excepted from the same-shape rule.</summary>
-    private static readonly HashSet<string> SameShapeExceptions = new(["addresses", "code", "evidence", "subject"], StringComparer.Ordinal);
-
+    // A field name reads in its record type, so the same name may hold
+    // different shapes on different record types. Only three guards stay.
+    // (litespec/core/language#read-each-field-name-in-its-record-type)
     /// <summary>Gets the fields excepted from the ISO date name rule.</summary>
-    private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn"], StringComparer.Ordinal);
+    private static readonly HashSet<string> IsoDateNameExceptions = new(["effectiveFrom", "expiresOn", "today"], StringComparer.Ordinal);
 
     // The word-class names the schemas carry: a link verb holds links, a
     // closed-set noun holds an enum, and a prose noun holds text. A name
@@ -40,14 +40,15 @@ internal sealed class FieldValidator
     // (litespec/core/language#name-each-field-by-its-word-class)
     /// <summary>Gets the field names that read as link verbs.</summary>
     private static readonly HashSet<string> LinkVerbFields = new(
-        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "changes", "covers", "addresses",
-            "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries",
-            "binds", "exercises"],
+        ["serves", "fulfills", "advances", "solves", "governs", "raises", "reads", "writes", "offers",
+            "leadsTo", "calls", "sends", "runs", "translates", "compensates", "waives", "supersedes",
+            "dependsOn", "identifies", "exercises", "affects", "holds", "allows", "requires",
+            "cites", "represents"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name a closed set.</summary>
     private static readonly HashSet<string> ClosedSetNouns = new(
-        ["kind", "mode", "direction", "trust", "reach", "level"],
+        ["kind", "mode", "trust", "reach", "level", "archetype", "status"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the field names that name prose.</summary>
@@ -60,16 +61,20 @@ internal sealed class FieldValidator
     /// <summary>Gets the irregular participle stems.</summary>
     private static readonly HashSet<string> IrregularParticiples = new(["set", "read"], StringComparer.Ordinal);
 
-    // The entry records the records array carries. Nested object defs stay out
-    // of scope: their fields are read inside their parent object, so they
-    // cannot collide with record-level names.
+    // The entry records a typed child list carries. Steps carry their own
+    // citations, so the use-case step joins the entries in scope.
     /// <summary>Gets the entry definition names in field-naming scope.</summary>
     private static readonly HashSet<string> FieldNamingEntries = new(
-        ["permissionEntry", "ruleEntry", "resultEntry", "scenarioEntry", "eventEntry", "entryPointEntry", "settingEntry"],
+        ["permissionEntry", "resultEntry", "scenarioEntry", "refusalEntry", "entryPointEntry", "useCaseStep"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the schemas whose fields face the naming rules.</summary>
     private static readonly string[] FieldNamingSchemas = ["schemas/record.schema.yaml", "schemas/glossary.schema.yaml"];
+
+    /// <summary>Gets the names that read as ISO 8601 durations.</summary>
+    private static readonly HashSet<string> DurationNames = new(
+        ["duration", "within", "every", "after", "lifetime", "timeout", "idleTimeout", "initialDelay", "maxDelay"],
+        StringComparer.Ordinal);
 
     /// <summary>Checks the field names of every field-naming schema.</summary>
     internal void CheckFieldNaming()
@@ -112,6 +117,115 @@ internal sealed class FieldValidator
         }
     }
 
+    /// <summary>Checks every record schema field against the contextual catalog: retired synonyms, scoped names, and registered shapes.</summary>
+    internal void CheckFieldCatalog()
+    {
+        const string relative = "schemas/record.schema.yaml";
+        var file = JoinRoot(Context.Root, relative);
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        JsonNode? schema;
+        try
+        {
+            schema = RecordText.Read(file);
+        }
+        catch (LiteSpec.Model.JsonTextException)
+        {
+            return;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return;
+        }
+        catch (IOException)
+        {
+            return;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        if ((schema as JsonObject)?["$defs"] is not JsonObject defs)
+        {
+            return;
+        }
+
+        var add = Context.Add;
+        foreach (var entry in defs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+        {
+            if (entry.Value is not JsonObject definition)
+            {
+                continue;
+            }
+
+            foreach (var (field, node) in CollectedProperties(definition).OrderBy(pair => pair.Key, StringComparer.Ordinal))
+            {
+                if (FieldCatalog.Retired.Contains(field))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} is a retired v6 name; use {FieldCatalog.ReplacedBy[field]} instead");
+                    continue;
+                }
+
+                if (field == "cites" && !FieldCatalog.CitesHosts.Contains(entry.Key))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `cites` in {entry.Key} reads outside its record type; cites reads only on {string.Join(", ", FieldCatalog.CitesHosts)}");
+                }
+
+                if (field == "carries" && !FieldCatalog.CarriesHosts.Contains(entry.Key))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `carries` in {entry.Key} reads outside its record type; carries reads only on {string.Join(", ", FieldCatalog.CarriesHosts)}");
+                }
+
+                if (field == "action" && !FieldCatalog.ActionHosts.Contains(entry.Key))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `action` in {entry.Key} reads outside its record type; action reads only on {string.Join(", ", FieldCatalog.ActionHosts)}");
+                }
+
+                if (field == "date" && !FieldCatalog.DateHosts.Contains(entry.Key))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `date` in {entry.Key} reads outside its record type; date reads only on {string.Join(", ", FieldCatalog.DateHosts)}");
+                }
+
+                if (!IsCamelCase(field))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} is not strict American camelCase; start lowercase and use no underscores, hyphens, or spaces");
+                    continue;
+                }
+
+                foreach (var token in CamelTokens(field))
+                {
+                    if (FieldCatalog.Abbreviations.Contains(token))
+                    {
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} abbreviates `{token}`; write the word out");
+                        break;
+                    }
+                }
+
+                foreach (var token in CamelTokens(field))
+                {
+                    if (FieldCatalog.BritishSpellings.Contains(token))
+                    {
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} uses a British spelling; the vocabulary is American");
+                        break;
+                    }
+                }
+
+                if (FieldCatalog.ByKey.TryGetValue((entry.Key, field), out var row) && row.Shape != "any")
+                {
+                    var shape = FieldShape(node, defs, []);
+                    if (shape is not null && shape != row.Shape)
+                    {
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {entry.Key} holds {shape} but the catalog declares {row.Shape}; one name holds one shape in its record type");
+                    }
+                }
+            }
+        }
+    }
+
     /// <summary>Checks the field names of one schema file.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="defs">The schema definitions.</param>
@@ -134,58 +248,6 @@ internal sealed class FieldValidator
             .ToHashSet(StringComparer.Ordinal);
         var nouns = idDefs.Select(name => name[..^2]).ToHashSet(StringComparer.Ordinal);
 
-        var shapes = new Dictionary<string, List<(string Def, string? Shape)>>(StringComparer.Ordinal);
-        foreach (var (def, properties) in scope)
-        {
-            foreach (var (field, node) in properties!.OrderBy(entry => entry.Key, StringComparer.Ordinal))
-            {
-                if (!shapes.TryGetValue(field, out var seen))
-                {
-                    seen = [];
-                    shapes[field] = seen;
-                }
-
-                seen.Add((def, FieldShape(node, defs, [])));
-            }
-        }
-
-        foreach (var field in shapes.Keys.OrderBy(name => name, StringComparer.Ordinal))
-        {
-            if (SameShapeExceptions.Contains(field))
-            {
-                continue;
-            }
-
-            string? shapeA = null;
-            string? defA = null;
-            string? shapeB = null;
-            string? defB = null;
-            foreach (var (def, shape) in shapes[field])
-            {
-                if (shape is null)
-                {
-                    continue;
-                }
-
-                if (shapeA is null)
-                {
-                    shapeA = shape;
-                    defA = def;
-                }
-                else if (shape != shapeA)
-                {
-                    shapeB = shape;
-                    defB = def;
-                    break;
-                }
-            }
-
-            if (shapeB is not null)
-            {
-                add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` holds {shapeA} in {defA} and {shapeB} in {defB}; rename one concept or record the exception in litespec/core/language#name-each-field-by-its-word-class");
-            }
-        }
-
         var reported = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (def, properties) in scope)
         {
@@ -206,16 +268,39 @@ internal sealed class FieldValidator
                     add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` reads as a deadline or a recorded date but holds a plain string; make it an ISO date");
                 }
 
+                if (FieldCatalog.ProseFields.Contains((def, field)))
+                {
+                    continue;
+                }
+
                 if (nouns.Contains(field))
                 {
+                    if (FieldCatalog.CollectiveNames.Contains(field))
+                    {
+                        continue;
+                    }
+
                     var shape = FieldShape(node, defs, []);
                     if (shape == "array")
                     {
                         add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds an array under a singular name; use the plural name for a list and another name for prose");
                     }
-                    else if (shape == "string" && !ReachesTypeId(node, TypeIdsFor(field, idDefs), defs, []))
+                    else if (shape == "string" && !HoldsEnum(node, defs, []) && !ReachesTypeId(node, TypeIdsFor(field, idDefs), defs, []))
                     {
                         add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds prose; use the plural name for a list and another name for prose");
+                    }
+                }
+
+                // A plural type noun holds links to that type, like the singular; a list of entries
+                // of that type, such as a cast's occasions, holds the entries themselves.
+                // (litespec/core/language#read-each-field-name-in-its-record-type)
+                if (field.Length > 1 && field.EndsWith('s') && nouns.Contains(field[..^1])
+                    && !FieldCatalog.CollectiveNames.Contains(field))
+                {
+                    var pluralNoun = field[..^1];
+                    if (!ReachesTypeId(node, TypeIdsFor(pluralNoun, idDefs), defs, []) && !HoldsEntriesOf(node, pluralNoun, defs))
+                    {
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds no links to `{pluralNoun}`; use another name for prose");
                     }
                 }
 
@@ -239,7 +324,7 @@ internal sealed class FieldValidator
                     && !ResolvesToIsoDate(node, defs, []))
                 {
                     var stem = field[..^2];
-                    if (!IsParticipleStem(stem))
+                    if (!IsParticipleStem(stem) && !FieldCatalog.NonParticipleByNames.Contains(field))
                     {
                         add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} ends in By but `{stem}` is no participle; name it `<participle>By` or hold a date under a deadline name");
                     }
@@ -264,24 +349,25 @@ internal sealed class FieldValidator
                 }
 
                 // A condition holds one clause completing "when ...": text under
-                // a *When name, or `condition` inside an entry.
+                // a *When name, `condition` inside an entry, or a list of such
+                // clauses where the record states alternatives.
                 if ((field.Length > 4 && field.EndsWith("When", StringComparison.Ordinal)) || field == "condition")
                 {
                     var shape = FieldShape(node, defs, []);
-                    if (shape is not null && shape != "string")
+                    if (shape is not null && shape != "string" && !(shape == "array" && ArrayItemsAreStrings(node, defs)))
                     {
-                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a condition but holds {shape}; a condition holds one clause");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a condition but holds {shape}; a condition holds one clause or a list of clauses");
                     }
                 }
 
                 // A reason holds one clause completing "because ...": text under
-                // a *Because name, or `reason` alone.
-                if ((field.Length > 7 && field.EndsWith("Because", StringComparison.Ordinal)) || field == "reason")
+                // a *Because name, or `reason` alone, or a list of such clauses.
+                if ((field.Length > 7 && field.EndsWith("Because", StringComparison.Ordinal)) || field == "reason" || field == "rationale")
                 {
                     var shape = FieldShape(node, defs, []);
-                    if (shape is not null && shape != "string")
+                    if (shape is not null && shape != "string" && !(shape == "array" && ArrayItemsAreStrings(node, defs)))
                     {
-                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a reason but holds {shape}; a reason holds one clause");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a reason but holds {shape}; a reason holds one clause or a list of clauses");
                     }
                 }
 
@@ -310,6 +396,28 @@ internal sealed class FieldValidator
                 {
                     add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} is a boolean with an `is` or `has` prefix; name it a present-tense predicate");
                 }
+
+                // A duration name holds a duration: an ISO 8601 value, a setting
+                // that resolves to one, or a list of such values. A flag or a
+                // count under a duration name measures the wrong thing.
+                if (IsDurationName(field))
+                {
+                    var shape = FieldShape(node, defs, []);
+                    if (shape is "boolean" or "integer"
+                        || (shape == "array" && !ArrayItemsAreStrings(node, defs)))
+                    {
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a duration but holds {shape}; a duration holds an ISO 8601 value or a setting");
+                    }
+                }
+
+                // An ISO 8601 duration reads under a duration name. A bare date
+                // name or an unrelated noun hides what the value measures.
+                if (ResolvesToIsoDuration(node, defs, [])
+                    && !IsDurationName(field)
+                    && reported.Add("duration:" + field))
+                {
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` holds a duration but its name reads as neither a duration nor a setting; name it after what it measures");
+                }
             }
         }
     }
@@ -322,6 +430,97 @@ internal sealed class FieldValidator
         name.EndsWith("Page", StringComparison.Ordinal)
         || FieldNamingEntries.Contains(name)
         || (relative == "schemas/glossary.schema.yaml" && name == "term");
+
+    /// <summary>Reports whether a field name is strict American camelCase.</summary>
+    /// <param name="field">The field name.</param>
+    /// <returns>True when the name starts lowercase and holds only letters and digits.</returns>
+    private static bool IsCamelCase(string field) =>
+        field.Length > 0
+        && char.IsLower(field[0])
+        && field.All(character => char.IsAsciiLetterOrDigit(character));
+
+    /// <summary>Splits a camelCase field name into its lowercase words.</summary>
+    /// <param name="field">The field name.</param>
+    /// <returns>The lowercase words.</returns>
+    private static List<string> CamelTokens(string field)
+    {
+        var tokens = new List<string>();
+        var current = new System.Text.StringBuilder();
+        foreach (var character in field)
+        {
+            if (char.IsUpper(character) && current.Length > 0)
+            {
+                tokens.Add(current.ToString().ToLowerInvariant());
+                current.Clear();
+            }
+
+            current.Append(char.ToLowerInvariant(character));
+        }
+
+        if (current.Length > 0)
+        {
+            tokens.Add(current.ToString().ToLowerInvariant());
+        }
+
+        return tokens;
+    }
+
+    /// <summary>Lists the properties a definition declares, including those its conditional and combined parts declare.</summary>
+    /// <param name="definition">The definition.</param>
+    /// <returns>Each property name with its schema, the first declaration winning.</returns>
+    private static Dictionary<string, JsonNode?> CollectedProperties(JsonObject definition)
+    {
+        var found = new Dictionary<string, JsonNode?>(StringComparer.Ordinal);
+        CollectProperties(definition, found, 0);
+        return found;
+    }
+
+    /// <summary>Adds the properties of one definition and of its combined and conditional parts.</summary>
+    /// <param name="definition">The definition.</param>
+    /// <param name="found">The properties found so far.</param>
+    /// <param name="depth">The nesting depth.</param>
+    private static void CollectProperties(JsonObject definition, Dictionary<string, JsonNode?> found, int depth)
+    {
+        if (depth > 6)
+        {
+            return;
+        }
+
+        if (definition["properties"] is JsonObject properties)
+        {
+            foreach (var pair in properties)
+            {
+                found.TryAdd(pair.Key, pair.Value);
+            }
+        }
+
+        foreach (var key in new[] { "allOf", "then", "else" })
+        {
+            if (definition[key] is JsonArray parts)
+            {
+                foreach (var part in parts)
+                {
+                    if (part is JsonObject partObject)
+                    {
+                        CollectProperties(partObject, found, depth + 1);
+                    }
+                }
+            }
+            else if (definition[key] is JsonObject single)
+            {
+                CollectProperties(single, found, depth + 1);
+            }
+        }
+    }
+
+    /// <summary>Reports whether a field name reads as an ISO 8601 duration name.</summary>
+    /// <param name="field">The field name.</param>
+    /// <returns>True when the name carries a duration suffix or names a duration.</returns>
+    private static bool IsDurationName(string field) =>
+        DurationNames.Contains(field)
+        || (field.Length > 6 && field.EndsWith("Window", StringComparison.Ordinal))
+        || (field.Length > 7 && field.EndsWith("Timeout", StringComparison.Ordinal))
+        || (field.Length > 5 && field.EndsWith("Delay", StringComparison.Ordinal));
 
     /// <summary>Reports whether a field name ends in By or On.</summary>
     /// <param name="field">The field name.</param>
@@ -469,12 +668,39 @@ internal sealed class FieldValidator
     private static HashSet<string> TypeIdsFor(string noun, HashSet<string> idDefs) =>
         idDefs.Where(name => name.EndsWith(noun + "Id", StringComparison.OrdinalIgnoreCase)).ToHashSet(StringComparer.Ordinal);
 
+    /// <summary>Reports whether a field is a list whose items are entries of one record type: its items schema fixes the type to the noun, or its items reference the noun's entry definition.</summary>
+    /// <param name="node">The field schema.</param>
+    /// <param name="noun">The record type noun the field name plurals, such as occasion.</param>
+    /// <param name="defs">The schema definitions.</param>
+    /// <returns>True when the field is an array whose items state the noun as their type; otherwise false.</returns>
+    private static bool HoldsEntriesOf(JsonNode? node, string noun, JsonObject defs)
+    {
+        if (node is not JsonObject obj || JsonString(obj["type"]) != "array" || obj["items"] is not JsonObject items)
+        {
+            return false;
+        }
+
+        // An entry type is optional and defaults from its parent list, so the
+        // items reference may name the entry definition without a type constant.
+        var target = FieldRefTarget(items);
+        if (target is not null && target.Equals(noun + "Entry", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var entry = target is not null ? defs[target] as JsonObject : items;
+
+        return entry?["properties"]?["type"]?["const"] is JsonValue constant
+            && constant.TryGetValue<string>(out var type)
+            && type == noun;
+    }
+
     /// <summary>Reports whether a field schema reaches one of a record type's identifier definitions.</summary>
     /// <param name="node">The field schema.</param>
     /// <param name="typeIds">The identifier definitions of the record type.</param>
     /// <param name="defs">The schema definitions.</param>
     /// <param name="visited">The definitions already visited.</param>
-    /// <returns>True when every branch reaches an identifier definition.</returns>
+    /// <returns>True when every branch reaches an identifier definition, following an array's items.</returns>
     private static bool ReachesTypeId(JsonNode? node, HashSet<string> typeIds, JsonObject defs, HashSet<string> visited)
     {
         if (node is not JsonObject obj)
@@ -511,6 +737,12 @@ internal sealed class FieldValidator
             {
                 return branches.All(branch => ReachesTypeId(branch, typeIds, defs, visited));
             }
+        }
+
+        // A list of links: the items schema names the type.
+        if (JsonString(obj["type"]) == "array" && obj["items"] is JsonObject items)
+        {
+            return ReachesTypeId(items, typeIds, defs, visited);
         }
 
         return false;
@@ -614,6 +846,52 @@ internal sealed class FieldValidator
         return JsonString(obj["format"]) == "date" || IsInlineDatePattern(JsonString(obj["pattern"]));
     }
 
+    /// <summary>Reports whether a field schema resolves to an ISO 8601 duration.</summary>
+    /// <param name="node">The field schema.</param>
+    /// <param name="defs">The schema definitions.</param>
+    /// <param name="visited">The definitions already visited.</param>
+    /// <returns>True when every branch resolves to an ISO 8601 duration.</returns>
+    private static bool ResolvesToIsoDuration(JsonNode? node, JsonObject defs, HashSet<string> visited)
+    {
+        if (node is not JsonObject obj)
+        {
+            return false;
+        }
+
+        var target = FieldRefTarget(obj);
+        if (target is not null)
+        {
+            if (target == "isoDuration")
+            {
+                return true;
+            }
+
+            if (!visited.Add(target))
+            {
+                return false;
+            }
+
+            try
+            {
+                return defs[target] is JsonObject resolved && ResolvesToIsoDuration(resolved, defs, visited);
+            }
+            finally
+            {
+                visited.Remove(target);
+            }
+        }
+
+        foreach (var key in new[] { "anyOf", "allOf", "oneOf" })
+        {
+            if (obj[key] is JsonArray branches && branches.Count > 0)
+            {
+                return branches.All(branch => ResolvesToIsoDuration(branch, defs, visited));
+            }
+        }
+
+        return JsonString(obj["format"]) == "duration" || IsInlineDurationPattern(JsonString(obj["pattern"]));
+    }
+
     /// <summary>Reports whether a pattern spells a year-month-day date inline.</summary>
     /// <param name="pattern">The pattern text.</param>
     /// <returns>True when the pattern spells a date.</returns>
@@ -621,6 +899,13 @@ internal sealed class FieldValidator
         pattern is not null
         && (pattern.Contains("[0-9]{4}-[0-9]{2}-[0-9]{2}", StringComparison.Ordinal)
             || pattern.Contains(@"\d{4}-\d{2}-\d{2}", StringComparison.Ordinal));
+
+    /// <summary>Reports whether a pattern spells an ISO 8601 duration inline.</summary>
+    /// <param name="pattern">The pattern text.</param>
+    /// <returns>True when the pattern spells a duration.</returns>
+    private static bool IsInlineDurationPattern(string? pattern) =>
+        pattern is not null
+        && (pattern.Contains('P') && pattern.Contains('T'));
 
     /// <summary>Reports whether a field schema holds an enum.</summary>
     /// <param name="node">The field schema.</param>
@@ -669,17 +954,16 @@ internal sealed class FieldValidator
     /// <returns>True when the array items are strings.</returns>
     private static bool ArrayItemsAreStrings(JsonNode? node, JsonObject defs)
     {
-        const string prefix = "#/$defs/";
         var current = node as JsonObject;
         var visited = new HashSet<string>(StringComparer.Ordinal);
-        while (current is not null && FieldRefTarget(current) is string reference)
+        while (current is not null && FieldRefTarget(current) is string target)
         {
-            if (!reference.StartsWith(prefix, StringComparison.Ordinal) || !visited.Add(reference))
+            if (!visited.Add(target))
             {
                 return false;
             }
 
-            current = defs[reference[prefix.Length..]] as JsonObject;
+            current = defs[target] as JsonObject;
         }
 
         return current?["items"] is JsonNode items && FieldShape(items, defs, []) == "string";

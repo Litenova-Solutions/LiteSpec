@@ -6,19 +6,59 @@ kind: query
 access:
   grant: permission/list-expenses
   tenant: own
+  scope: self
+  identityInput: employee
 serves:
-- journey/submit-and-reimburse#s5
+- step/submit-and-reimburse.watch-expenses
 fulfills:
 - requirement/approval.decided-within-five-days
-reachedThrough:
+via:
 - entry-point/claimwick-app
 raises: []
-output:
+http:
+  method: GET
+  route: /api/expenses
+inputs:
+- name: employee
+  meaning: The signed-in employee listing their expenses, read from verified claims.
+  type: id
+  identifies: actor/employee
+  required: false
+  origin: verified-claim
+  verifiedBy: entry-point/claimwick-app
+  classification: personal
+outputs:
   include:
     rows:
       fields:
       - name: expenses
-        meaning: "The set of rows with one row per expense: its identity, amount, currency, state and submission time, newest first."
+        meaning: The set of rows with one row per expense, newest first.
+        type: list
+        items:
+          fields:
+          - name: expenseId
+            meaning: The listed expense.
+            type: id
+            identifies: aggregate/spending.expense
+            required: true
+          - name: amount
+            meaning: The exact amount of the expense.
+            type: decimal
+            required: true
+          - name: currency
+            meaning: The ISO 4217 currency code of the amount.
+            type: text
+            required: true
+          - name: state
+            meaning: The latest lifecycle state of the expense.
+            type: text
+            required: true
+          - name: submittedAt
+            meaning: The time the expense was submitted.
+            type: date-time
+            required: true
+          unique:
+          - expenseId
       classification: internal
       reads:
       - aggregate/spending.expense
@@ -32,19 +72,26 @@ paging:
   maxLimit: 100
 reads:
 - aggregate/spending.expense
-idempotency:
-  mode: none
-  reason: the query reads expenses without changing them
-records:
-- type: result
-  id: result/list-expenses.listed
+audit:
+  exemptBecause: Read-only query whose output contains no sensitive personal data export.
+steps:
+- statement: The employee lists their own expenses.
+  cites:
+  - aggregate/spending.expense
+- statement: Spending returns the expenses newest first.
+  cites:
+  - result/list-expenses.listed
+  - aggregate/spending.expense
+results:
+- id: result/list-expenses.listed
   title: Listed
   outcome: success
   meaning: The expenses are listed.
-- type: scenario
-  id: scenario/list-expenses.listing-own-expenses-succeeds
+scenarios:
+- id: scenario/list-expenses.listing-own-expenses-succeeds
   title: Listing Own Expenses Succeeds
   given: An employee submitted two expenses.
   when: The employee lists their expenses.
   then: Both expenses are listed.
   result: result/list-expenses.listed
+  exercises: []

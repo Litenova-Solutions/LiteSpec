@@ -1,0 +1,20 @@
+type: decision
+id: decision/0088-serve-the-book-live-and-export-it
+title: Serve the Book Live and Export It
+context: "The book command built the model in memory and wrote a static site to a git-ignored folder, so every reader held a stale copy. One consumer product took 16 seconds to build its book for 1193 records. The written site was unsafe to host, with absolute local paths in its manifest and source links working only on the author's machine."
+options:
+  - name: "Live by default from memory; --out writes the static book"
+    pros: "The book is always current, no generated folder sits in a consumer, and the export drops local paths and is safe to host anywhere."
+    cons: "Scripts expecting the written folder add --out, and readers learn the live server."
+  - name: "Keep writing the static book"
+    pros: "Every script keeps working."
+    cons: "Every reader holds a stale copy, authors rebuild after each edit, and the manifest leaks local paths and user names."
+  - name: "Serve live only, with no export"
+    pros: "One mode runs the book."
+    cons: "Teams cannot publish a book for readers without the tool."
+choice: "Live by default from memory; --out writes the static book"
+consequences: "With no `--out`, `litespec book` serves the book from a local server and writes nothing. `litespec book --out <folder>` writes the static book. The server uses the HTTP listener built into .NET, binds to localhost, and serves only the app and the named data shards. Any other name is refused. Live and export share one data format and file names. The server holds shards in memory and adds one change notification. Export drops `roots`, takes source links from a repository template, and records the release and build time. `--editor` becomes `--links <template>` with `{root}`, `{path}`, `{line}`, and `{commit}`. Live defaults to the VS Code template and export to `none`. The command page warns what a hosted book reveals. `litespec book` watches `.litespec/`, the code roots, and the test results, and waits for a pause in edits. It rebuilds in the background, keeps serving the last good model on failure, and shows the build time. `litespec/core/model#organize-the-book-by-the-record-layers` and `litespec/core/model#point-every-book-entry-to-its-source` state the outline and the source links."
+reopenedWhen: "The live server cannot stay reliable, or readers need a book the server cannot serve."
+basedOn:
+  - research/book-outline-evidence
+  - research/native-command-line-evidence

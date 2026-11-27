@@ -1,0 +1,11 @@
+namespace Library.Lending.Application.Loans.BorrowCopy;
+
+/// <implements>use-case/lending.ghost</implements>
+public sealed class BorrowCopyCommandHandler
+    : ICommandHandler<BorrowCopyCommand, BorrowCopyCommandResult>
+{
+    public Task<BorrowCopyCommandResult> HandleAsync(BorrowCopyCommand command, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(new BorrowCopyCommandResult(Guid.Empty));
+    }
+}

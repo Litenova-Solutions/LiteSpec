@@ -374,7 +374,7 @@ internal sealed partial class RecordsValidator
                 continue;
             }
 
-            foreach (var field in new[] { "basedOn", "decides" })
+            foreach (var field in new[] { "basedOn" })
             {
                 if (obj[field] is not JsonArray list)
                 {
@@ -498,7 +498,8 @@ internal sealed partial class RecordsValidator
         }
     }
 
-    // A decision settles at least one provision, so its Rationale cites it.
+    // A decision settles at least one provision, so its Rationale cites it,
+    // unless a later decision supersedes it and carries the citation instead.
     // Research may stand uncited as a basis pool. A record present in git is
     // decided; there is no draft state.
     /// <summary>Checks that each decision is cited by a provision Rationale.</summary>
@@ -508,6 +509,21 @@ internal sealed partial class RecordsValidator
     {
         var add = Context.Add;
         var decided = new List<(string Relative, string Id)>();
+        var superseded = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var record in records.Where(record => record.Kind == "decision"))
+        {
+            if ((record.Node as JsonObject)?["supersedes"] is JsonArray replaced)
+            {
+                foreach (var entry in replaced)
+                {
+                    if (JsonString(entry) is { } replacedId)
+                    {
+                        superseded.Add(replacedId);
+                    }
+                }
+            }
+        }
+
         foreach (var record in records.Where(record => record.Kind == "decision"))
         {
             var obj = record.Node as JsonObject;
@@ -557,7 +573,7 @@ internal sealed partial class RecordsValidator
 
         foreach (var (relative, id) in decided)
         {
-            if (!rationales.Any(text => text.Contains(id, StringComparison.Ordinal)))
+            if (!superseded.Contains(id) && !rationales.Any(text => text.Contains(id, StringComparison.Ordinal)))
             {
                 add(relative, 1, MaintainerDiagnostics.Codes.RecordDecisionUncited, $"decision '{id}' is cited by no provision Rationale");
             }

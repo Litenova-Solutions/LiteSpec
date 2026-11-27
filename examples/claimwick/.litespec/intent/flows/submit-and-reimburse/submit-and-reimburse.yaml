@@ -1,0 +1,54 @@
+type: flow
+id: flow/submit-and-reimburse
+title: Submit and Reimburse
+actor: actor/employee
+summary: An employee who paid a work cost submits the expense and waits for a decision. The flow starts at the paid cost and ends when the reimbursement lands in the employee account. A good flow decides each expense within five business days, because the employee plans around the money.
+serves:
+- goal/decided-in-days
+startedWhen: The employee has paid a work cost and has not yet submitted it.
+finishedWhen: The employee holds the reimbursement.
+steps:
+- id: step/submit-and-reimburse.submit-expense
+  title: Submit Expense
+  statement: The employee submits the expense with its amount and currency.
+  actor: actor/employee
+  carries:
+  - requirement/approval.above-threshold-receipt
+  - requirement/approval-reminders.month-end-submission
+- id: step/submit-and-reimburse.attach-receipt
+  title: Attach Receipt
+  statement: The employee attaches the receipt to the expense.
+  actor: actor/employee
+  carries:
+  - requirement/approval.above-threshold-receipt
+- id: step/submit-and-reimburse.decide-expense
+  title: Decide Expense
+  statement: The manager approves or rejects the expense.
+  actor: actor/manager
+  failure: The expense waits unseen, and the approver gets a reminder.
+  carries:
+  - requirement/approval.decided-within-five-days
+  - requirement/approval.nobody-approves-own-expense
+  - requirement/approval-reminders.remind-approver-after-three-days
+  branches:
+  - when: the manager rejects the expense
+    ends: The expense is rejected and no payout is made.
+- id: step/submit-and-reimburse.reimburse-expense
+  title: Reimburse Expense
+  statement: The payout bank settles the approved expense.
+  actor: actor/payout-bank
+  failure: The expense is not approved, so it waits and no payout is made.
+  carries:
+  - requirement/approval.expense-reimbursed-at-most-once
+- id: step/submit-and-reimburse.watch-expenses
+  title: Watch Expenses
+  statement: The employee watches each expense in their own list.
+  actor: actor/employee
+  carries:
+  - requirement/approval.decided-within-five-days
+- id: step/submit-and-reimburse.set-reminder-preference
+  title: Set Reminder Preference
+  statement: The manager sets whether they get an approval reminder for a waiting expense.
+  actor: actor/manager
+  carries:
+  - requirement/approval-reminders.remind-approver-after-three-days

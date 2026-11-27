@@ -4,5 +4,5 @@ title: Nobody Approves Their Own Expense
 kind: functional
 statement: Nobody approves their own expense.
 rationale: A second person checks each expense before it is paid.
-cites:
+basedOn:
 - feature/approval-reminders

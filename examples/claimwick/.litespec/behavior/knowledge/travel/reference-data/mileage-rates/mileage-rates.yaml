@@ -1,0 +1,47 @@
+type: reference-data
+id: reference-data/travel.mileage-rates
+title: Mileage Rates
+summary: The mileage rate for work travel by vehicle kind in each country.
+unit: EUR per km
+requiredRoles:
+- car
+- motorcycle
+- bicycle
+variesBy: country
+rows:
+- value: 0.3
+  key: de-car-2026
+  role: car
+  variant: germany
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 0.2
+  key: de-motorcycle-2026
+  role: motorcycle
+  variant: germany
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 0.1
+  key: de-bicycle-2026
+  role: bicycle
+  variant: germany
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 0.25
+  key: nl-car-2026
+  role: car
+  variant: netherlands
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 0.15
+  key: nl-motorcycle-2026
+  role: motorcycle
+  variant: netherlands
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates
+- value: 0.1
+  key: nl-bicycle-2026
+  role: bicycle
+  variant: netherlands
+  effectiveFrom: 2026-01-01
+  source: decision/0003-travel-rates

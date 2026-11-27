@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Output;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Book.Details;
 
@@ -7,7 +8,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     The computed What It Requires list of one constraint: the requirements
 ///     citing it, in identifier order.
 /// </summary>
-/// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
+/// <follows>litespec/core/model#show-only-computed-judgments-in-the-book</follows>
 static class BookRequiresDetail
 {
     /// <summary>Adds the citing requirements of one constraint.</summary>
@@ -33,7 +34,7 @@ static class BookRequiresDetail
                     continue;
                 }
 
-                foreach (var cited in BookDetailValues.StringsOf(BookRender.Fields(requirement)?["cites"]))
+                foreach (var cited in BookDetailValues.StringsOf(BookRender.Fields(requirement)?[RecordFields.BasedOn]))
                 {
                     if (string.Equals(cited, id, StringComparison.Ordinal))
                     {

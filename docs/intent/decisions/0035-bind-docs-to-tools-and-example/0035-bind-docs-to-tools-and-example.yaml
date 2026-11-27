@@ -1,6 +1,7 @@
 type: decision
 id: decision/0035-bind-docs-to-tools-and-example
 title: Bind the Docs to the Tools and the Example
+context: "The docs state tool behavior that the tools do not have, such as a validate option and a new decision number form. In a sample, 5 of 6 record IDs in the example did not exist, and nothing checks either kind of statement."
 options:
   - name: "Validate each tool fact the docs cite, and generate the reference tables"
     pros: "Each check is a lookup in data the tools hold, so a citation that drifts fails validate."

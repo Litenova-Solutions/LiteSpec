@@ -4,7 +4,7 @@ using System.Text;
 namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>The text rules every generated source shares: a C# string literal escaped, and a record name turned into a PascalCase identifier.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</follows>
 internal static class GeneratedText
 {
     /// <summary>

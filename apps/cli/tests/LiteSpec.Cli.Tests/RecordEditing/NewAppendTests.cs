@@ -17,24 +17,22 @@ public sealed class NewAppendTests
           "type": "use-case",
           "id": "use-case/lending.borrow-copy",
           "title": "Borrow copy",
-          "records": [
+          "results": [
             {
-              "type": "result",
               "id": "result/borrow-copy.borrowed",
               "title": "Borrowed",
               "outcome": "success",
               "meaning": "The copy is lent."
             },
             {
-              "type": "result",
               "id": "result/borrow-copy.copy-unavailable",
               "title": "Copy unavailable",
               "outcome": "refusal",
-              "code": "lending.copy-not-available",
-              "meaning": "The copy is unavailable."
-            },
+              "refusal": "refusal/lending.copy-not-available"
+            }
+          ],
+          "scenarios": [
             {
-              "type": "scenario",
               "id": "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
               "title": "Borrowing an available copy succeeds",
               "given": "A copy sits available.",
@@ -66,7 +64,7 @@ public sealed class NewAppendTests
         var after = File.ReadAllText(page);
         var inserted = AssertSingleInsertion(before, after, "id: result/borrow-copy.copy-on-loan");
         Assert.Contains("outcome: refusal", inserted);
-        Assert.Contains("code: lending.copy-on-loan", inserted);
+        Assert.Contains("refusal: refusal/lending.copy-on-loan", inserted);
 
         var success = after.IndexOf("result/borrow-copy.borrowed", StringComparison.Ordinal);
         var oldRefusal = after.IndexOf("result/borrow-copy.copy-unavailable", StringComparison.Ordinal);
@@ -205,12 +203,10 @@ public sealed class NewAppendTests
     {
         var entry = new JsonObject
         {
-            ["type"] = "result",
             ["id"] = "result/borrow-copy.copy-on-loan",
             ["title"] = "Copy on loan",
             ["outcome"] = "refusal",
-            ["code"] = "lending.copy-on-loan",
-            ["meaning"] = "The copy is on loan.",
+            ["refusal"] = "refusal/lending.copy-on-loan",
         };
         var before = RecordFile.Write(JsonNode.Parse(OrderedJson)!);
 
@@ -232,7 +228,6 @@ public sealed class NewAppendTests
     {
         var entry = new JsonObject
         {
-            ["type"] = "result",
             ["id"] = "result/borrow-copy.renewed",
             ["title"] = "Renewed",
             ["outcome"] = "success",
@@ -258,7 +253,6 @@ public sealed class NewAppendTests
     {
         var entry = new JsonObject
         {
-            ["type"] = "scenario",
             ["id"] = "scenario/borrow-copy.borrowing-a-loaned-copy-is-refused",
             ["title"] = "Borrowing a loaned copy is refused",
             ["given"] = "The copy sits on loan.",
@@ -279,22 +273,21 @@ public sealed class NewAppendTests
         ]);
     }
 
-    /// <summary>Insert fills an empty records array.</summary>
+    /// <summary>Insert fills an empty results array.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "insert fills an empty records array")]
-    public void InsertFillsEmptyRecords()
+    [Fact(DisplayName = "insert fills an empty results array")]
+    public void InsertFillsEmptyResults()
     {
         const string pageJson = """
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
               "title": "Borrow copy",
-              "records": []
+              "results": []
             }
             """;
         var entry = new JsonObject
         {
-            ["type"] = "result",
             ["id"] = "result/borrow-copy.borrowed",
             ["title"] = "Borrowed",
             ["outcome"] = "success",
@@ -307,10 +300,10 @@ public sealed class NewAppendTests
         AssertInserts(before, updated, error, entry, ["result/borrow-copy.borrowed"]);
     }
 
-    /// <summary>Insert writes a missing records array.</summary>
+    /// <summary>Insert writes a missing results array.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "insert writes a missing records array")]
-    public void InsertWritesMissingRecords()
+    [Fact(DisplayName = "insert writes a missing results array")]
+    public void InsertWritesMissingResults()
     {
         const string pageJson = """
             {
@@ -321,7 +314,6 @@ public sealed class NewAppendTests
             """;
         var entry = new JsonObject
         {
-            ["type"] = "result",
             ["id"] = "result/borrow-copy.borrowed",
             ["title"] = "Borrowed",
             ["outcome"] = "success",
@@ -332,23 +324,23 @@ public sealed class NewAppendTests
         var updated = AppendEntry.Insert(before, AppendEntry.Placement.Success, entry, out var error);
 
         var expectedNode = (JsonObject)JsonNode.Parse(pageJson)!;
-        expectedNode["records"] = new JsonArray((JsonNode)entry.DeepClone());
+        expectedNode["results"] = new JsonArray((JsonNode)entry.DeepClone());
 
         Assert.True(error == "", error);
         Assert.Equal(RecordFile.Write(expectedNode), updated);
     }
 
-    /// <summary>Insert refuses a records field that is not an array.</summary>
+    /// <summary>Insert refuses a results field that is not an array.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "insert refuses a records field that is not an array")]
-    public void InsertRefusesNonArrayRecords()
+    [Fact(DisplayName = "insert refuses a results field that is not an array")]
+    public void InsertRefusesNonArrayResults()
     {
         var page = RecordFile.Write(JsonNode.Parse("""
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
               "title": "Borrow copy",
-              "records": {}
+              "results": {}
             }
             """)!);
 
@@ -551,7 +543,7 @@ public sealed class NewAppendTests
     /// <param name="updated">The record file text after the insertion, or null when the insert failed.</param>
     /// <param name="error">The insert error text, empty when the insert succeeded.</param>
     /// <param name="entry">The entry the insert must add with every field intact.</param>
-    /// <param name="orderedIds">The record identifiers in the order the file must hold them after the insert.</param>
+    /// <param name="orderedIds">The entry identifiers in file order after the insert: the results first, then the scenarios.</param>
     static void AssertInserts(string before, string? updated, string error, JsonObject entry, string[] orderedIds)
     {
         Assert.True(error == "", error);
@@ -559,13 +551,20 @@ public sealed class NewAppendTests
         Assert.Equal(updated, RecordFile.Canonical(updated!));
         Assert.True(RecordFile.TryParse(updated!, out var root, out _, out var parseError), parseError);
 
-        var records = root.GetProperty("records");
+        var entries = root.TryGetProperty("results", out var results)
+            ? results.EnumerateArray().ToList()
+            : [];
+        if (root.TryGetProperty("scenarios", out var scenarios))
+        {
+            entries.AddRange(scenarios.EnumerateArray());
+        }
+
         Assert.Equal(
             orderedIds,
-            records.EnumerateArray().Select(item => item.GetProperty("id").GetString()!).ToArray());
+            entries.Select(item => item.GetProperty("id").GetString()!).ToArray());
 
         var id = entry["id"]!.GetValue<string>();
-        var actual = records.EnumerateArray().First(item => item.GetProperty("id").GetString() == id);
+        var actual = entries.First(item => item.GetProperty("id").GetString() == id);
         Assert.Equal(entry.Count, actual.EnumerateObject().Count());
 
         foreach (var (key, value) in entry)
@@ -574,13 +573,20 @@ public sealed class NewAppendTests
         }
 
         var node = (JsonObject)JsonNode.Parse(root.GetRawText())!;
-        var items = (JsonArray)node["records"]!;
 
-        for (var index = items.Count - 1; index >= 0; index--)
+        foreach (var key in new[] { "results", "scenarios" })
         {
-            if (items[index]?["id"]?.GetValue<string>() == id)
+            if (node[key] is not JsonArray items)
             {
-                items.RemoveAt(index);
+                continue;
+            }
+
+            for (var index = items.Count - 1; index >= 0; index--)
+            {
+                if (items[index]?["id"]?.GetValue<string>() == id)
+                {
+                    items.RemoveAt(index);
+                }
             }
         }
 

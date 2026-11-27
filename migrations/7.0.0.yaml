@@ -1,0 +1,258 @@
+# yaml-language-server: $schema=./schemas/litespec-migration.schema.yaml
+version: 7.0.0
+summary: LiteSpec 7.0.0 reshapes the record model around explicit records held by checks.
+  Field names read in the context of their record type, one concept keeps one name,
+  generated data is written by litespec sync, and the extensions below either move
+  into Core or leave the release.
+fieldRenames:
+- from: records
+  to: results
+  recordTypes: [use-case]
+  note: The success and refusal outcomes of a use case move to their own list.
+- from: records
+  to: scenarios
+  recordTypes: [use-case]
+  note: The scenarios of a use case move to their own list.
+- from: records
+  to: refusals
+  recordTypes: [refusal-set]
+  note: Refusal entries move to their own list and state no type line.
+- from: records
+  to: permissions
+  recordTypes: [permission-set]
+  note: Permission entries move to their own list and state no type line.
+- from: records
+  to: entryPoints
+  recordTypes: [entry-point-set]
+  note: Entry point entries move to their own list and state no type line.
+- from: carries
+  to: fields
+  recordTypes: [domain-event, integration-event]
+  note: One name for every event and read model field list.
+- from: payload
+  to: fields
+  recordTypes: [domain-event, integration-event]
+  note: One name for every event and read model field list.
+- from: input
+  to: inputs
+  recordTypes: [use-case]
+  note: Arrays use plural nouns consistently.
+- from: output
+  to: outputs
+  recordTypes: [use-case]
+  note: Arrays use plural nouns consistently.
+- from: channel
+  to: channels
+  recordTypes: [notification]
+  note: The field holds an array, so the name is plural.
+- from: coverage
+  to: scope
+  recordTypes: [constraint]
+  note: Natural contextual name.
+- from: displayStates
+  to: states
+  recordTypes: [screen]
+  note: Natural contextual name.
+- from: keyScope
+  to: scope
+  recordTypes: [idempotency]
+  note: Natural contextual name.
+- from: valueType
+  to: type
+  recordTypes: [setting]
+  note: Natural contextual name.
+- from: timezone
+  to: timeZone
+  recordTypes: [schedule, cast]
+  note: Fixes the casing mismatch.
+- from: many
+  to: type
+  recordTypes: [field definitions]
+  note: Lists use one uniform syntax with type list and an items list.
+- from: rowShape
+  to: items
+  recordTypes: [field definitions]
+  note: Lists use one uniform syntax with type list and an items list.
+- from: sentence
+  to: message
+  recordTypes: [result]
+  note: Domain term instead of a grammar word.
+- from: sentences
+  to: translations
+  recordTypes: [result]
+  note: Clean localization split beside the message.
+- from: basis
+  to: basedOn
+  recordTypes: [data-class]
+  note: Removes the synonym.
+- from: binds
+  to: governs
+  recordTypes: [rule]
+  note: One verb for the aggregates a rule spans.
+- from: cites
+  to: basedOn
+  recordTypes: [requirement, rule]
+  note: Removes the upward link synonym.
+- from: answers
+  to: solves
+  recordTypes: [flow]
+  note: A flow solves the problems it names.
+- from: answers
+  to: basedOn
+  recordTypes: [flow]
+  note: A flow rests on the constraints it names.
+- from: commands
+  to: runs
+  recordTypes: [reaction, job]
+  note: One verb for the use case a reaction or job runs.
+- from: through
+  to: via
+  recordTypes: [integration-event, use-case, notification]
+  note: One canonical word for the four preposition variants.
+- from: arrivesThrough
+  to: via
+  recordTypes: [integration-event, use-case, notification]
+  note: One canonical word for the four preposition variants.
+- from: reachedThrough
+  to: via
+  recordTypes: [integration-event, use-case, notification]
+  note: One canonical word for the four preposition variants.
+- from: deliveredThrough
+  to: via
+  recordTypes: [integration-event, use-case, notification]
+  note: One canonical word for the four preposition variants.
+- from: action
+  to: direction
+  recordTypes: [external-operation, integration-event]
+  note: Separates travel direction from a dead letter policy procedure.
+- from: settles
+  to: tracksState
+  recordTypes: [reaction, job]
+  note: Avoids the collision with financial settlement terminology.
+- from: recentSignInLimit
+  to: recentSignInWindow
+  recordTypes: [use-case]
+  note: Unambiguous duration name, not a boolean shape.
+- from: recentSignIn
+  to: recentSignInWindow
+  recordTypes: [use-case]
+  note: Unambiguous duration name, not a boolean shape.
+- from: openPoints
+  to: openQuestions
+  recordTypes: [constraint]
+  note: Matches research openQuestions.
+- from: reauthenticationTriggers
+  to: reauthenticateWhen
+  recordTypes: [entry-point]
+  note: Follows the When condition class.
+- from: variation
+  to: variesBy
+  recordTypes: [reference-data]
+  note: Aligns beside variant and variants.
+- from: partyOf
+  to: party
+  recordTypes: [cast]
+  note: Role link matching actor entries.
+- from: failureBehavior
+  to: onFailure
+  recordTypes: [decision]
+  note: Matches onFailure on reactions, jobs and effects.
+- from: timeout
+  to: timeout
+  recordTypes: [external-operation]
+  note: The name stays; values are ISO 8601 durations now.
+- from: date
+  to: observedOn
+  recordTypes: [goal-observation]
+  note: Follows the recorded date rule.
+- from: date
+  to: occursOn
+  recordTypes: [occasion-entry]
+  note: Follows the recorded date rule.
+- from: exposure
+  recordTypes: [use-case]
+  note: Removed; the access, via, summary and scenario given statements carry it.
+- from: background
+  recordTypes: [use-case]
+  note: Removed; the access, via, summary and scenario given statements carry it.
+- from: view
+  to: read-model
+  recordTypes: [read-model]
+  note: The record type gains its domain name.
+- from: changes
+  to: writes
+  recordTypes: [use-case]
+  note: One verb for the aggregates a command writes.
+findingCodes:
+  renamed:
+  - from: generated-drift
+    to: sync-drift
+  - from: atomic-group-*
+    to: atomicity-*
+  - from: constituent-parent-missing
+    to: part-parent-missing
+  - from: notification-sender-missing
+    to: notification-effect-missing
+  - from: permission-orphaned
+    to: permission-unused
+  - from: role-orphaned
+    to: role-unused
+  - from: use-case-journey-missing
+    to: use-case-flow-missing
+  - from: integration-event-field-uncarried
+    to: event-field-uncarried
+  - from: view-*
+    to: read-model-*
+  removed:
+  - decision-decides-duplicate
+  - async-settles-missing
+  - constraint-effect-unlisted
+  - constraint-effect-uncited
+  added:
+  - sync-drift
+  - read-model-erasure-missing
+  - read-model-unused
+  - read-model-key-invalid
+  - domain-event-outcome-missing
+  - domain-event-outcome-drift
+  - outbox-decision-missing
+  - outbox-decision-drift
+  - compensation-target-invalid
+  - compensation-trigger-invalid
+  - event-field-uncarried
+  - audit-missing
+  - tenant-reason-missing
+  - refusal-catalog-drift
+  - policy-undeclared
+  - frontend-refusal-unknown
+  - frontend-permission-unknown
+  - openapi-contract-drift
+  - screen-command-limit
+  - screen-section-limit
+  - route-line-limit
+  - mcp-tool-unmounted
+  - probe-failed
+  - probe-unreachable
+  - access-limit-failed
+  - idempotency-failed
+  - input-handling-failed
+  - input-validation-failed
+  - snapshot-read-failed
+  - snapshot-missing
+  - production-readiness-failed
+  - path-failed
+  - stub-adapter-shown
+  - code-unimplemented
+analyzers:
+  removed: [LS2017]
+  added: [LS2022, LS2025, LS2028, LS2041]
+  changed: [LS2007, LS2014, LS2019, LS2021]
+commandsRetired:
+- from: litespec generate
+  to: litespec sync
+extensionsFolded: [audit, tenancy, concurrency, jobs, outbox, integrations, locale, lifecycle]
+extensionsRetired: [cache, customer-rules, devices, queues]
+stacksRemoved: [blazor, react]
+packChanges:
+- The Blazor and React stacks are removed; select the dotnet, svelte or android stack.
+- Every module holds Domain, Application, Ports, Infrastructure and WebApi at its top; the slice layout and the layer-projects extension are removed.

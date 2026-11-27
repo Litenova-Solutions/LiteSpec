@@ -1,8 +1,14 @@
 type: actor
-id: actor/employee
-title: Employee
-summary: An employee submits expenses and attaches receipts.
-kind: person
-belongsToTeam: false
+id: actor/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <who this actor is and what it does with the product>
+kind: <person|organization|system>
+belongsToTeam: <true|false>
 holds:
-- role/employee
+- role/<name, or remove this line>
+responsibilities:
+- <one task or decision the actor answers for, in one sentence>
+knowledge:
+- <one assumption the product makes about what the actor knows, in one sentence>

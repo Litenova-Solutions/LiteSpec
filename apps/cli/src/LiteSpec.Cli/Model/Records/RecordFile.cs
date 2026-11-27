@@ -18,8 +18,9 @@ static class RecordFile
     public const string ExplanationExtension = ".md";
 
     /// <summary>
-    ///     The record types whose explanation is an article: required beside the
-    ///     record file, because the article carries the record's reasoning.
+    ///     The record types whose explanation carries the record's reasoning. The
+    ///     explanation file stays optional; only a layer the project lists in
+    ///     explanations.layers requires one.
     /// </summary>
     public static readonly IReadOnlySet<string> ArticleTypes =
         new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Research, RecordTypes.Decision };

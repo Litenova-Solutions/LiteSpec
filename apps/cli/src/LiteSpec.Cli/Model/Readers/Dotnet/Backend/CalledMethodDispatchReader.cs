@@ -176,7 +176,7 @@ static class CalledMethodDispatchReader
         return type.Length == 0 || type == declared.Identifier.ValueText ? null : (type, method);
     }
 
-    /// <summary>The type a local holds: what it builds, or its declared type when it names one.</summary>
+    /// <summary>The type a local holds: what it builds, what the container resolves for it, or its declared type when it names one.</summary>
     /// <param name="invocation">The invocation on the local.</param>
     /// <param name="name">The local's name.</param>
     /// <returns>The type a local holds, or null when it holds none the reader names.</returns>
@@ -201,6 +201,11 @@ static class CalledMethodDispatchReader
                 return DotnetNames.SimpleTypeName(creation.Type);
             }
 
+            if (ResolvedService(declarator.Initializer?.Value) is { } service)
+            {
+                return service;
+            }
+
             if (declarator.Parent is VariableDeclarationSyntax declaration
                 && declaration.Type is not IdentifierNameSyntax { Identifier.ValueText: "var" })
             {
@@ -209,5 +214,22 @@ static class CalledMethodDispatchReader
         }
 
         return null;
+    }
+
+    /// <summary>The service the container resolves for a local: the type argument of <c>GetRequiredService</c> or <c>GetService</c>.</summary>
+    /// <param name="value">The local's initializer value.</param>
+    /// <returns>The resolved service type, or null when the value resolves none.</returns>
+    static string? ResolvedService(ExpressionSyntax? value)
+    {
+        if (value is not InvocationExpressionSyntax resolution
+            || resolution.Expression is not MemberAccessExpressionSyntax member
+            || member.Name is not GenericNameSyntax generic
+            || generic.Identifier.ValueText is not ("GetRequiredService" or "GetService")
+            || generic.TypeArgumentList.Arguments.FirstOrDefault() is not { } service)
+        {
+            return null;
+        }
+
+        return DotnetNames.SimpleTypeName(service);
     }
 }

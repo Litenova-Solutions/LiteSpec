@@ -13,7 +13,7 @@ static class BookLexiconParsers
     /// <summary>Gets the model-page sections the book explains from, in display order.</summary>
     static IReadOnlyList<string> SectionHeadings { get; } =
     [
-        "Completion Stages", "Check Levels",
+        "Completion Stages", "Check Levels", "Links",
     ];
 
 
@@ -47,7 +47,7 @@ static class BookLexiconParsers
         return types;
     }
 
-    /// <summary>The four-layer table, with governance and glossary beside it, which state no writers.</summary>
+    /// <summary>The four-layer table, with governance, glossary and the product root beside it, which state no writers.</summary>
     /// <param name="file">The carried page.</param>
     /// <param name="lines">The page lines.</param>
     /// <returns>The record layers by key.</returns>
@@ -80,64 +80,13 @@ static class BookLexiconParsers
             }
         }
 
+        // The product root labels the product, which stands above the record layers.
+        if (!layers.ContainsKey("root"))
+        {
+            layers["root"] = new LexiconLayer("Product", "");
+        }
+
         return layers;
-    }
-
-    /// <summary>The Links-table rows: one entry per row, split per carrier when the row reads two ways.</summary>
-    /// <param name="file">The carried page.</param>
-    /// <param name="lines">The page lines.</param>
-    /// <returns>The link phrases, in table row order.</returns>
-    public static List<LexiconLink> ParseLinks(string file, string[] lines)
-    {
-        var at = BookLexiconTables.HeadingIndex(lines, "Links");
-        if (at < 0)
-        {
-            throw new BookLexiconException(file, $"'{file}' holds no '### Links' section.");
-        }
-
-        var links = new List<LexiconLink>();
-        foreach (var row in BookLexiconTables.TableRows(file, BookLexiconTables.SectionBody(lines, at),
-            ["Field", "Written on", "Points at", "Reads as", "Read back as"], "Links"))
-        {
-            var field = BookLexiconTables.StripCode(row[0]);
-            var carriers = CarriersFor(file, field, row[1]);
-            var forwards = row[3].Split(" / ", StringSplitOptions.None).Select(phrase => phrase.Trim()).ToList();
-            var inverses = row[4].Split(" / ", StringSplitOptions.None).Select(phrase => phrase.Trim()).ToList();
-            if (carriers.Count > 1 && forwards.Count == carriers.Count && inverses.Count == carriers.Count)
-            {
-                for (var i = 0; i < carriers.Count; i++)
-                {
-                    links.Add(new LexiconLink(field, [carriers[i]], forwards[i], inverses[i]));
-                }
-            }
-            else
-            {
-                links.Add(new LexiconLink(field, carriers, row[3], row[4]));
-            }
-        }
-
-        return links;
-    }
-
-    /// <summary>The Written on cell as record-type ids: any record widens to every type, and carriers that name no record type are skipped.</summary>
-    /// <param name="file">The carried page.</param>
-    /// <param name="field">The link field.</param>
-    /// <param name="writtenOn">The Written on cell.</param>
-    /// <returns>The carrier record types.</returns>
-    public static IReadOnlyList<string> CarriersFor(string file, string field, string writtenOn)
-    {
-        if (writtenOn.Trim().Equals("any record", StringComparison.OrdinalIgnoreCase))
-        {
-            return RecordTypes.All.OrderBy(type => type, StringComparer.Ordinal).ToList();
-        }
-
-        // A row may also name nested carriers, such as a data class, which the
-        // book never phrases from a record, so only record types are kept.
-        return writtenOn
-            .Split(',', StringSplitOptions.TrimEntries)
-            .Select(carrier => carrier.ToLowerInvariant().Replace(' ', '-'))
-            .Where(carrier => RecordTypes.All.Contains(carrier))
-            .ToList();
     }
 
     /// <summary>The model-page sections the mockup explains from: first paragraph and source each.</summary>
@@ -166,6 +115,29 @@ static class BookLexiconParsers
         }
 
         return sections;
+    }
+
+    /// <summary>The reach-states paragraph: what claimed and verified mean for a link, from the Book section's own paragraph.</summary>
+    /// <param name="file">The carried page.</param>
+    /// <param name="lines">The page lines.</param>
+    /// <returns>The reach-states section.</returns>
+    /// <follows>litespec/core/model#explain-the-book-from-litespec-definitions</follows>
+    public static LexiconSection ParseReachStates(string file, string[] lines)
+    {
+        var at = BookLexiconTables.HeadingIndex(lines, "The Book");
+        if (at < 0)
+        {
+            throw new BookLexiconException(file, $"'{file}' holds no '### The Book' section.");
+        }
+
+        var paragraph = BookLexiconTables.Paragraphs(BookLexiconTables.SectionBody(lines, at))
+            .FirstOrDefault(p => p.Contains("`claimed`", StringComparison.Ordinal));
+        if (paragraph is null)
+        {
+            throw new BookLexiconException(file, $"'{file}' section '### The Book' holds no claimed paragraph.");
+        }
+
+        return new LexiconSection(paragraph, "model.md, The Book");
     }
 
     /// <summary>The finding-code table: check level and meaning per code, read by column name.</summary>
@@ -218,7 +190,8 @@ static class BookLexiconParsers
                     source = BookLexiconTables.EmptyToNull(BookLexiconTables.Unfield(paragraph, "Source:"));
                 }
                 else if (!paragraph.StartsWith("Aliases:", StringComparison.Ordinal)
-                    && !paragraph.StartsWith("Rejected:", StringComparison.Ordinal))
+                    && !paragraph.StartsWith("Rejected:", StringComparison.Ordinal)
+                    && !paragraph.StartsWith("Home:", StringComparison.Ordinal))
                 {
                     definition.Add(paragraph);
                 }

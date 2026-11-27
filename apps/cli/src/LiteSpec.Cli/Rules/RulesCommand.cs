@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The <c>litespec rules</c> command: lists the provisions that govern a path or
-///     record identifier, grouped by strength, with project conventions and departures
+///     record identifier, grouped by strength, with project conventions and waivers
 ///     merged in.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -17,7 +17,7 @@ static class RulesCommand
     /// <summary>The usage text for the rules command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage:
-          litespec rules [--root <consumer>] <path or record id> [--full]
+          litespec rules [--root <consumer>] <path or record id> [--full] [--all]
           litespec rules [--root <consumer>] --since <ref>
           litespec rules [--root <consumer>] <provision id or page id>
           litespec rules --help
@@ -36,7 +36,7 @@ static class RulesCommand
             return args.Length == 0 ? 2 : 0;
         }
 
-        var parsed = CliArgs.Parse(args, ["--full"], ["--root", "--since"], maxPositionals: 1);
+        var parsed = CliArgs.Parse(args, ["--full", "--all"], ["--root", "--since"], maxPositionals: 1);
 
         if (parsed.Help)
         {
@@ -97,18 +97,19 @@ static class RulesCommand
         {
             var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
             var conventions = ConventionFiles.Load(config);
-            var departures = DepartureFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
-            var results = ProvisionRetriever.Retrieve(catalog, conventions, departures, config, context);
+            var waivers = WaiverFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+            var index = ProvisionRecordIndex.Load(config);
+            var results = ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context, index);
             IReadOnlyList<RulesDecided.DecidedDecision> decided = context.IsCodePath ? RulesDecided.LoadDecisions(config, context) : [];
 
-            Print(context, results, parsed.Has("--full"), config.Layers, decided);
+            Print(config, context, results, parsed.Has("--full"), parsed.Has("--all"), config.Layers, decided);
             return 0;
         }
 
         return RunLookup(home, target);
     }
 
-    /// <summary>Runs the change-set mode: the union of judgment provisions over the files changed since the revision.</summary>
+    /// <summary>Runs the change-set mode: the union of judgment provisions over the files changed since the revision, ordered by how many changed files each provision governs.</summary>
     /// <param name="config">The consumer configuration.</param>
     /// <param name="home">The carried LiteSpec release root.</param>
     /// <param name="manifest">The release manifest object.</param>
@@ -119,7 +120,8 @@ static class RulesCommand
     {
         var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
         var conventions = ConventionFiles.Load(config);
-        var departures = DepartureFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var waivers = WaiverFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var index = ProvisionRecordIndex.Load(config);
         var (files, error) = RulesSince.ChangedFiles(config.Root, sinceRef);
 
         if (files is null)
@@ -128,6 +130,7 @@ static class RulesCommand
         }
 
         var union = new Dictionary<string, ProvisionMatch>(StringComparer.Ordinal);
+        var governing = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var queried = 0;
 
         foreach (var file in files.OrderBy(path => path, StringComparer.Ordinal))
@@ -146,12 +149,22 @@ static class RulesCommand
 
             queried++;
 
-            foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, departures, config, context))
+            foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context, index))
             {
-                if (!match.IsChecked && !union.ContainsKey(match.Entry.Id))
+                if (match.IsChecked)
                 {
-                    union[match.Entry.Id] = match;
+                    continue;
                 }
+
+                union.TryAdd(match.Entry.Id, match);
+
+                if (!governing.TryGetValue(match.Entry.Id, out var governed))
+                {
+                    governed = new HashSet<string>(StringComparer.Ordinal);
+                    governing[match.Entry.Id] = governed;
+                }
+
+                governed.Add(file);
             }
         }
 
@@ -160,11 +173,20 @@ static class RulesCommand
 
         ordered.Sort((left, right) =>
         {
+            // The provisions governing most of the change print first, so the report skeleton
+            // answers the widest judgments before the narrow ones.
+            var governed = governing[right.Entry.Id].Count.CompareTo(governing[left.Entry.Id].Count);
+
+            if (governed != 0)
+            {
+                return governed;
+            }
+
             var rank = groups.IndexOf(left.Entry.Group).CompareTo(groups.IndexOf(right.Entry.Group));
             return rank != 0 ? rank : string.CompareOrdinal(left.Entry.Id, right.Entry.Id);
         });
 
-        PrintSince(sinceRef, queried, ordered);
+        PrintSince(sinceRef, queried, ordered, governing.ToDictionary(pair => pair.Key, pair => pair.Value.Count, StringComparer.Ordinal));
         return 0;
     }
 
@@ -240,21 +262,25 @@ static class RulesCommand
     }
 
     /// <summary>
-    ///     Prints the retrieved provisions. On a code path the followed decisions and
-    ///     covering departures print first under Decided. Without full, the provisions
-    ///     that need judgment and match the file kind print as statements grouped by
-    ///     strength, the provisions matched only through a marked record collapse into
-    ///     one line per record, the checked provisions print as one line each with their
-    ///     finding codes and analyzer IDs, and the layer-wide provisions print by
-    ///     identifier under their own heading. With full, every provision prints as
-    ///     a statement with its rationale and example, with collapsed records after.
+    ///     Prints the retrieved provisions. The contract card of each use case, reaction
+    ///     or job the target names prints first. On a code path the followed decisions and
+    ///     covering waivers print next under Decided. Without full, the provisions that need judgment and match the
+    ///     file kind print as statements grouped by strength, the provisions matched
+    ///     only through a marked record collapse into one line per record, the checked
+    ///     provisions collapse into one summary line unless all asks for one line each
+    ///     with their finding codes and analyzer IDs, and the concern-wide provisions
+    ///     print by identifier under their own heading only with all. With full, every
+    ///     provision prints as a statement with its rationale and example, with
+    ///     collapsed records after.
     /// </summary>
+    /// <param name="config">The consumer configuration holding the record roots and frontends.</param>
     /// <param name="context">The rules target.</param>
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
+    /// <param name="showAll">Whether to print the full list: each checked provision on its own line and the concern-wide provisions by identifier.</param>
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="decided">The decisions the target marks, in marked order; empty for a record target.</param>
-    static void Print(PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
+    static void Print(ConsumerConfig config, PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, bool showAll, LayerClaims claims, IReadOnlyList<RulesDecided.DecidedDecision> decided)
     {
         var parts = new List<string>();
 
@@ -276,6 +302,8 @@ static class RulesCommand
         CliHost.Out.WriteLine(parts.Count > 0
             ? $"Rules for {context.Display} ({string.Join(", ", parts)})"
             : $"Rules for {context.Display}");
+
+        RulesContractCard.Print(config, context);
 
         if (context.IsCodePath)
         {
@@ -332,26 +360,36 @@ static class RulesCommand
 
         if (checkedItems.Count > 0)
         {
-            CliHost.Out.WriteLine("Checked by a tool:");
-
-            foreach (var item in checkedItems)
+            if (showAll)
             {
-                CliHost.Out.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine("Checked by a tool:");
+
+                foreach (var item in checkedItems)
+                {
+                    CliHost.Out.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
+                }
+            }
+            else
+            {
+                CliHost.Out.WriteLine($"{checkedItems.Count} checked provisions apply; model check and the analyzers enforce them (litespec rules {context.Display} --all lists them).");
             }
         }
 
-        var layerItems = rest
-            .Where(result => result.IsConcernWide)
-            .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
-            .ToList();
-
-        if (layerItems.Count > 0)
+        if (showAll)
         {
-            CliHost.Out.WriteLine("Concern-wide:");
+            var layerItems = rest
+                .Where(result => result.IsConcernWide)
+                .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
+                .ToList();
 
-            foreach (var item in layerItems)
+            if (layerItems.Count > 0)
             {
-                CliHost.Out.WriteLine($"- {item.Entry.Id}");
+                CliHost.Out.WriteLine("Concern-wide:");
+
+                foreach (var item in layerItems)
+                {
+                    CliHost.Out.WriteLine($"- {item.Entry.Id}");
+                }
             }
         }
     }
@@ -375,11 +413,12 @@ static class RulesCommand
         }
     }
 
-    /// <summary>Prints the change-set report skeleton: one judgment provision per entry with its Reviewed for question, or its Default sentence when it states no verification line, and an empty How judged line.</summary>
+    /// <summary>Prints the change-set report skeleton: one judgment provision per entry with its file count, its Reviewed for question, or its Default sentence when it states no verification line, and an empty How judged line.</summary>
     /// <param name="sinceRef">The git revision the change set was read from.</param>
     /// <param name="files">How many changed files were queried.</param>
     /// <param name="union">The judgment provisions in print order.</param>
-    static void PrintSince(string sinceRef, int files, List<ProvisionMatch> union)
+    /// <param name="counts">How many changed files each provision governs, by provision id.</param>
+    static void PrintSince(string sinceRef, int files, List<ProvisionMatch> union, Dictionary<string, int> counts)
     {
         CliHost.Out.WriteLine($"Rules since {sinceRef} ({files} files, {union.Count} judgment provisions):");
 
@@ -392,7 +431,8 @@ static class RulesCommand
         foreach (var match in union)
         {
             var question = match.Entry.ReviewedFor.Length > 0 ? match.Entry.ReviewedFor : match.Entry.Statement;
-            CliHost.Out.WriteLine($"- {match.Entry.Id}: {question}");
+            var governed = counts[match.Entry.Id];
+            CliHost.Out.WriteLine($"- {match.Entry.Id} ({governed} {(governed == 1 ? "file" : "files")}): {question}");
             CliHost.Out.WriteLine("  How judged:");
         }
     }
@@ -416,7 +456,7 @@ static class RulesCommand
             {
                 CliHost.Out.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
 
-                if (item.Departure is not null)
+                if (item.Waiver is not null)
                 {
                     if (item.Rationale.Length > 0)
                     {

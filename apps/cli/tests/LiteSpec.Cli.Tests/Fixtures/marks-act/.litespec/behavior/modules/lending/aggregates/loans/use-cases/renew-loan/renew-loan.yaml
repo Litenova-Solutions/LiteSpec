@@ -3,12 +3,16 @@ id: use-case/lending.renew-loan
 title: Renew loan
 kind: command
 raises:
-  - event/loan.loan-renewed
-changes:
-  - aggregate/lending.loan
-records:
-  - type: result
-    id: result/renew-loan.renewed
-    title: Renewed
-    outcome: success
-    meaning: The loan is renewed.
+- domain-event/loan.loan-renewed
+writes:
+- aggregate/lending.loan
+audit:
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader sends the loan to renew.
+- statement: Lending renews the loan.
+results:
+- id: result/renew-loan.renewed
+  title: Renewed
+  outcome: success
+  meaning: The loan is renewed.

@@ -1,10 +1,21 @@
 type: research
-id: research/approval-time-benchmarks
-title: Approval Time Benchmarks
-summary: Small companies decide expenses within one week. The study behind this answer is small but recent.
+id: research/<name>
+title: <Title in Title Case>
+summary: <the fact this research states, or remove this line>
+terms:
+- <term id, or remove this line>
+# A source carries url or path, never both.
 sources:
-- url: https://example.com/expense-study
-  readOn: 2026-02-10
-  key: example-expense-study
-question: How fast do small companies decide expenses?
-conclusion: According to one small recent industry study, small companies decide expenses within one week.
+- name: <source name>
+  url: <source page>
+  readOn: <date read, such as 2026-02-10>
+  publishedOn: <date published, such as 2026-01-15, or remove this line>
+  note: <what the source covers and who it addresses, in one sentence, or remove this line>
+question: <the question this research answers>
+conclusion: <the answer, with what the sources state and what the writer infers>
+findings:
+- statement: <one finding, in one sentence>
+  sources:
+  - <source name>
+openQuestions:
+- <one question the sources do not answer, in one sentence, or remove this line>

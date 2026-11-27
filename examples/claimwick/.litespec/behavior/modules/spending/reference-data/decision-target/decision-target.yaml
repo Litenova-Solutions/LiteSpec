@@ -1,0 +1,19 @@
+type: reference-data
+id: reference-data/spending.decision-target
+title: Decision Target
+summary: How fast Claimwick decides an expense, in business days.
+unit: business days
+requiredRoles:
+- standard
+rows:
+- value: 5
+  key: target-2026
+  role: standard
+  effectiveFrom: 2026-01-01
+  effectiveTo: 2026-12-31
+  source: research/approval-time-benchmarks
+- value: 3
+  key: target-2027
+  role: standard
+  effectiveFrom: 2027-01-01
+  source: research/approval-time-benchmarks

@@ -2,3 +2,7 @@ type: module
 id: module/finance
 title: Finance
 dependsOn: []
+responsibilities:
+  - Finance tracks fines.
+excludes:
+  - Finance lends no copies.

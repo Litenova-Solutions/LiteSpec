@@ -4,66 +4,416 @@ title: Established Traceability Practice
 sources:
   - url: https://technav.ieee.org/topic/requirements-management/
     readOn: 2026-10-30
-    key: technav-ieee-topic-requirements-management
+    name: technav-ieee-topic-requirements-management
+    note: The IEEE navigator topic page on requirements management. It states the traceability rule without the 3-level StRS, SyRS, and SRS wording, so the record follows the live page.
   - url: https://technav.ieee.org/topic/technical-requirements/
     readOn: 2026-10-30
-    key: technav-ieee-topic-technical-requirements
+    name: technav-ieee-topic-technical-requirements
+    note: The IEEE navigator topic page on technical requirements. It states the traceability rule without the 3-level StRS, SyRS, and SRS wording, so the record follows the live page.
   - url: https://www.betterask.erni/the-need-for-requirements-traceability-within-development-projects/
     readOn: 2026-10-30
-    key: betterask-the-need-for-requirements
+    name: betterask-the-need-for-requirements
+    note: An ERNI practitioner article on IREB traceability, published on 12 October 2022 and updated on 3 June 2024. Its IREB glossary wording is second-hand through Glinz 2022, so the wording needs checking against the IREB glossary PDF.
   - url: https://www.jamasoftware.com/requirements-management-guide/aerospace-and-defense/do-178c
     readOn: 2026-10-30
-    key: jamasoftware-requirements-management-guide
+    name: jamasoftware-requirements-management-guide
+    note: Jama Software guidance on DO-178C. It is a vendor restatement, not the paywalled standard.
   - url: https://www.jamasoftware.com/legacy/requirements-management-guide/requirements-traceability/bidirectional-traceability/
     readOn: 2026-10-30
-    key: jamasoftware-legacy-requirements-management
+    name: jamasoftware-legacy-requirements-management
+    note: Jama Software guidance on bidirectional traceability.
   - url: https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/relationships/relationship-status-indicator.html
     readOn: 2026-10-30
-    key: help-jamasoftware-ah-manage-content-coverage
+    name: help-jamasoftware-ah-manage-content-coverage
+    note: Jama help on the relationship status indicator. The record drops the claim that coverage dashboards go stale, which stays unconfirmed.
   - url: https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/relationships/clear-suspect-links.html
     readOn: 2026-10-30
-    key: help-jamasoftware-ah-manage-content-coverage-2
+    name: help-jamasoftware-ah-manage-content-coverage-2
+    note: Jama help on clearing suspect links. The record drops the claim that coverage dashboards go stale, which stays unconfirmed.
   - url: https://help.jamasoftware.com/ah/en/manage-content/coverage-and-traceability/live-trace-explorer/modify-a-tile-in-the-diagram.html
     readOn: 2026-10-30
-    key: help-jamasoftware-ah-manage-content-coverage-3
+    name: help-jamasoftware-ah-manage-content-coverage-3
+    note: Jama help on modifying a tile in the live trace diagram. The record drops the claim that coverage dashboards go stale, which stays unconfirmed.
   - url: https://www.vector.com/en/business-unit/code-testing-and-verification/standards-and-compliance/functional-safety-industry-standards/
     readOn: 2026-10-30
-    key: vector-business-unit-code-testing-and
+    name: vector-business-unit-code-testing-and
+    note: A Vector page on functional safety standards. It is a vendor restatement, not the paywalled standard.
   - url: https://link.springer.com/article/10.1007/s10664-014-9314-z
     readOn: 2026-10-30
-    key: link-springer-article-s10664-014-9314-z
+    name: link-springer-article-s10664-014-9314-z
+    note: The Mader and Egyed experiment abstract in Springer's software quality journal. Its numbers come from the abstract, because the full text is paywalled, and they replace the task counts the source investigation reported.
   - url: http://wer.inf.puc-rio.br/WERpapers/artigos/artigos_WER09/werneck.pdf
     readOn: 2026-10-30
-    key: wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+    name: wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+    note: A comparison paper on i* and KAOS from PUC-Rio.
   - url: https://learn.microsoft.com/en-us/azure/devops/boards/queries/link-type-reference?view=azure-devops
     readOn: 2026-10-30
-    key: learn-microsoft-en-us-azure-devops
+    name: learn-microsoft-en-us-azure-devops
+    note: Microsoft's Azure DevOps link type reference.
   - url: https://blogs.sw.siemens.com/polarion/links-between-work-items-and-their-intended-meaning/
     readOn: 2026-10-30
-    key: blogs-sw-siemens-polarion-links-between-work
+    name: blogs-sw-siemens-polarion-links-between-work
+    note: A Siemens Polarion blog post on links between work items and their meaning.
   - url: https://blogs.sw.siemens.com/polarion/interconnecting-your-engineering-elements/
     readOn: 2026-10-30
-    key: blogs-sw-siemens-polarion-interconnecting-your
+    name: blogs-sw-siemens-polarion-interconnecting-your
+    note: A Siemens Polarion blog post on interconnecting engineering elements.
   - url: https://linear.app/docs/parent-and-sub-issues
     readOn: 2026-10-30
-    key: linear-docs-parent-and-sub-issues
+    name: linear-docs-parent-and-sub-issues
+    note: The Linear documentation on parent and sub-issues. It states no nesting depth limit and no completion counting, so the record follows that page.
   - url: https://www.modernanalyst.com/Careers/InterviewQuestions/tabid/128/ID/6793/What-is-Impact-Mapping.aspx
     readOn: 2026-10-30
-    key: modernanalyst-careers-interviewquestions-tabid
+    name: modernanalyst-careers-interviewquestions-tabid
+    note: A Modern Analyst page on impact mapping. It is a practitioner page, not the originator's book.
   - url: https://www.prodpad.com/glossary/opportunity-solution-tree/
     readOn: 2026-10-30
-    key: prodpad-glossary-opportunity-solution-tree
+    name: prodpad-glossary-opportunity-solution-tree
+    note: A ProdPad glossary entry on opportunity solution trees. It is a practitioner page, not the originator's book.
   - url: https://visual-paradigm.com/cn/guide/agile-software-development/what-is-user-story/
     readOn: 2026-10-30
-    key: visual-paradigm-cn-guide-agile-software
+    name: visual-paradigm-cn-guide-agile-software
+    note: A Visual Paradigm guide on user stories. It is a practitioner page, not the originator's book.
   - url: https://qa.whatmatters.com/faqs/okrs-objectives-key-results-explanation-examples
     readOn: 2026-10-30
-    key: qa-whatmatters-faqs-okrs-objectives-key-results
+    name: qa-whatmatters-faqs-okrs-objectives-key-results
+    note: A What Matters page on OKRs. It is a practitioner page, not the originator's book.
   - url: https://www.adammhoward.com/solavirtusinvicta/2013/10/27/traceability-matrix-myth-tricks
     readOn: 2026-10-30
-    key: adammhoward-solavirtusinvicta-traceability
+    name: adammhoward-solavirtusinvicta-traceability
+    note: A blog post on the traceability matrix.
   - url: https://nkdagility.com/resources/blog/rethinking-product-backlog-navigating-through-the-weeds-of-complexity/
     readOn: 2026-10-30
-    key: nkdagility-resources-blog-rethinking-product
+    name: nkdagility-resources-blog-rethinking-product
+    note: An nKdAgility post on the product backlog.
 question: What do established requirements and traceability practices require of hierarchy, and where do they warn against requiring it?
-conclusion: Established practice requires every requirement to name an origin and computes every inverse link, and it warns that links without training, named tolerances, and a promotion rule become theatre rather than traceability.
+conclusion: Established practice requires every requirement to name an origin and computes every inverse link, and it warns that links without training, named tolerances, and a promotion rule give no traceability.
+findings:
+- statement: Established practice requires every requirement to name an origin.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+  - betterask-the-need-for-requirements
+- statement: It computes every inverse link.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: It warns that links alone do not give traceability.
+  sources:
+  - adammhoward-solavirtusinvicta-traceability
+  - nkdagility-resources-blog-rethinking-product
+- statement: The links need named tolerances, a rule for when a check turns enforced, and reasons behind them.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+  - adammhoward-solavirtusinvicta-traceability
+- statement: ISO/IEC/IEEE 29148:2018 is the standard the IEEE navigator names for requirements work.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+- statement: Each requirement links back to its origins in stakeholder need.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+- statement: Each requirement links forward to the design elements, test cases, and delivered components that implement and verify it.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+- statement: A change's downstream impact is then visible before it ships.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+- statement: For LiteSpec, every element needs a parent above and a child below, or the gap stays visible.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+- statement: IREB CPRE uses the same shape.
+  sources:
+  - betterask-the-need-for-requirements
+- statement: Traceability traces a requirement back to its origins, forward to its implementation and tests, and to the requirements it depends on.
+  sources:
+  - betterask-the-need-for-requirements
+- statement: It claims impact analysis, avoidance of unnecessary requirements, coverage, and progress measurement.
+  sources:
+  - betterask-the-need-for-requirements
+- statement: LiteSpec matches that shape in its forward links, and it is stricter on quality-requirement scenarios.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+  - betterask-the-need-for-requirements
+- statement: Its origin link is the gap.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+  - betterask-the-need-for-requirements
+- statement: basedOn exists, but LiteSpec defines feature narrowly.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+  - betterask-the-need-for-requirements
+- statement: So an ordinary shipped-feature requirement has no named origin, and both sources call it orphaned.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+  - betterask-the-need-for-requirements
+- statement: The regulated regimes require the chain rather than advise it.
+  sources:
+  - jamasoftware-requirements-management-guide
+  - vector-business-unit-code-testing-and
+- statement: DO-178C traces requirements to code and to tests.
+  sources:
+  - jamasoftware-requirements-management-guide
+- statement: It requires a requirement to justify every line of code and every test, and it treats untraceable code as extraneous.
+  sources:
+  - jamasoftware-requirements-management-guide
+- statement: It scales rigor through Design Assurance Levels A to E, and it treats a suspect link as a state of its own.
+  sources:
+  - jamasoftware-requirements-management-guide
+- statement: A suspect link is a changed item whose neighbors have not been reviewed again.
+  sources:
+  - help-jamasoftware-ah-manage-content-coverage
+  - help-jamasoftware-ah-manage-content-coverage-2
+- statement: ISO 26262 and IEC 62304 require bidirectional traceability with the same discipline.
+  sources:
+  - vector-business-unit-code-testing-and
+  - jamasoftware-legacy-requirements-management
+- statement: A team analyzes the full impact before it accepts a change, then propagates the update to every traced artifact.
+  sources:
+  - vector-business-unit-code-testing-and
+  - jamasoftware-legacy-requirements-management
+- statement: LiteSpec implements the regulated shape below the requirement line.
+  sources:
+  - jamasoftware-requirements-management-guide
+  - vector-business-unit-code-testing-and
+- statement: Its computed staleness matches suspect-link semantics, done automatically.
+  sources:
+  - help-jamasoftware-ah-manage-content-coverage
+  - help-jamasoftware-ah-manage-content-coverage-2
+- statement: The regimes require the top of the chain as well, and LiteSpec leaves it optional.
+  sources:
+  - jamasoftware-requirements-management-guide
+  - vector-business-unit-code-testing-and
+- statement: 719 of 928 consumer requirements name no origin and fail a DO-178C audit.
+  sources:
+  - jamasoftware-requirements-management-guide
+- statement: Implementation with no linked requirement stays out of a certified build.
+  sources:
+  - jamasoftware-requirements-management-guide
+- statement: LiteSpec needs no Design Assurance Level grading.
+  sources:
+  - jamasoftware-requirements-management-guide
+- statement: The goal methods confirm the shape and name one missing middle.
+  sources:
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+- statement: KAOS refines strategic goals into requirements assigned to responsible agents.
+  sources:
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+- statement: i* captures why actors depend on each other.
+  sources:
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+- statement: Neither method leaves a goal unlinked.
+  sources:
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+- statement: LiteSpec except and fallback cover obstacles in product words, so LiteSpec leaves refinement logic out.
+  sources:
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+- statement: "Impact mapping has 4 levels: goal, actor, impact, and deliverable."
+  sources:
+  - modernanalyst-careers-interviewquestions-tabid
+- statement: It exposes LiteSpec's missing middle.
+  sources:
+  - modernanalyst-careers-interviewquestions-tabid
+- statement: No impact record states the behavior change that a feature aims to cause, although a flow finishedWhen nearly states it.
+  sources:
+  - modernanalyst-careers-interviewquestions-tabid
+- statement: Opportunity solution trees match LiteSpec closely, with outcome, opportunity, solution, and experiment.
+  sources:
+  - prodpad-glossary-opportunity-solution-tree
+- statement: LiteSpec is stronger at the experiment level, because its scenarios are executable proofs.
+  sources:
+  - prodpad-glossary-opportunity-solution-tree
+- statement: User story mapping backbone exists in LiteSpec, and the check step-use-case-missing covers it.
+  sources:
+  - visual-paradigm-cn-guide-agile-software
+- statement: OKRs match the goal shape almost exactly.
+  sources:
+  - qa-whatmatters-faqs-okrs-objectives-key-results
+- statement: Goals carry no authority in LiteSpec, so scoring them gives numbers with no authority there.
+  sources:
+  - qa-whatmatters-faqs-okrs-objectives-key-results
+- statement: The tools agree on 4 mechanics.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: They store each link on one side and compute the inverse.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: They allow at most one parent in the tree and many non-tree links.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: They compute orphan status from rules for each type.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: They provide a tolerance, such as excluding items from coverage, marking them suspect, or recording an exception.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: So a missing parent shows as a visible judgment rather than always an error.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: Jama computes orphan and missing-downstream status from relationship rules that an administrator sets.
+  sources:
+  - help-jamasoftware-ah-manage-content-coverage
+- statement: It marks downstream items suspect when an upstream item changes.
+  sources:
+  - help-jamasoftware-ah-manage-content-coverage-2
+- statement: Polarion derives semantic link pairs from one written link.
+  sources:
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+- statement: Azure DevOps allows one parent link per work item on a tree that prevents circular references.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+- statement: Linear splits a parent issue into sub-issues that inherit the team, priority, and project, with an optional auto-close.
+  sources:
+  - linear-docs-parent-and-sub-issues
+- statement: LiteSpec does the first mechanic, because links stand on the record that points.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: It does the fourth, because its exceptions carry end dates.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: It does the second through identifier containment, which never drifts.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: Its gap is the third mechanic above the requirement line, where the checker computes no orphan at all.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: Evidence shows the benefit of traceability; it is not automatic.
+  sources:
+  - link-springer-article-s10664-014-9314-z
+- statement: In the one controlled experiment the record found, subjects with traceability perform on average 24 percent faster.
+  sources:
+  - link-springer-article-s10664-014-9314-z
+- statement: They also produce on average 50 percent more correct solutions.
+  sources:
+  - link-springer-article-s10664-014-9314-z
+- statement: The tasks are real maintenance tasks on 2 third-party projects, with 71 subjects.
+  sources:
+  - link-springer-article-s10664-014-9314-z
+- statement: Maintenance is the known failure mode, because teams neglect links as a nuisance.
+  sources:
+  - adammhoward-solavirtusinvicta-traceability
+  - nkdagility-resources-blog-rethinking-product
+- statement: So any LiteSpec link rule stays checkable by the builder on every run.
+  sources:
+  - adammhoward-solavirtusinvicta-traceability
+  - nkdagility-resources-blog-rethinking-product
+- statement: A matrix that pairs tests with requirements, but states no reasoning, looks complete and gives no useful information.
+  sources:
+  - adammhoward-solavirtusinvicta-traceability
+- statement: LiteSpec limits that risk with required rationales and typed links.
+  sources:
+  - adammhoward-solavirtusinvicta-traceability
+- statement: The matrix fails most where a field is optional and empty.
+  sources:
+  - adammhoward-solavirtusinvicta-traceability
+- statement: Deep trees reduce agility.
+  sources:
+  - nkdagility-resources-blog-rethinking-product
+- statement: A 5-level backlog hierarchy reduces transparency and adaptability.
+  sources:
+  - nkdagility-resources-blog-rethinking-product
+- statement: So requirements stay usable without feature gardening, and the origin rule accepts basedOn or a deciding decision beside feature.
+  sources:
+  - nkdagility-resources-blog-rethinking-product
+- statement: The record names 3 genuine limits.
+  sources:
+  - nkdagility-resources-blog-rethinking-product
+- statement: Cross-cutting constraints legitimately parent many requirements.
+  sources:
+  - nkdagility-resources-blog-rethinking-product
+- statement: Background work needs an exemption.
+  sources:
+  - nkdagility-resources-blog-rethinking-product
+- statement: Small projects face none of the new gates.
+  sources:
+  - nkdagility-resources-blog-rethinking-product
+- statement: The investigation ranks 6 rules for LiteSpec.
+  sources:
+  - technav-ieee-topic-requirements-management
+  - betterask-the-need-for-requirements
+  - jamasoftware-requirements-management-guide
+  - learn-microsoft-en-us-azure-devops
+- statement: "Every requirement names one origin: a feature, a basedOn entry, or a deciding decision."
+  sources:
+  - technav-ieee-topic-requirements-management
+  - technav-ieee-topic-technical-requirements
+  - betterask-the-need-for-requirements
+- statement: The flow gains a goal link.
+  sources:
+  - modernanalyst-careers-interviewquestions-tabid
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+- statement: Every feature names solves and serves.
+  sources:
+  - prodpad-glossary-opportunity-solution-tree
+- statement: The checker computes Intent orphans as advisory only, with named tolerances.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+  - help-jamasoftware-ah-manage-content-coverage
+- statement: Each child has one written parent, and the checker computes every inverse.
+  sources:
+  - learn-microsoft-en-us-azure-devops
+  - blogs-sw-siemens-polarion-links-between-work
+  - blogs-sw-siemens-polarion-interconnecting-your
+  - linear-docs-parent-and-sub-issues
+- statement: Changed records mark their downstream proofs suspect in the book.
+  sources:
+  - help-jamasoftware-ah-manage-content-coverage-2
+- statement: The record rejects 4 approaches with evidence.
+  sources:
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+  - qa-whatmatters-faqs-okrs-objectives-key-results
+  - learn-microsoft-en-us-azure-devops
+  - linear-docs-parent-and-sub-issues
+- statement: They are AND/OR refinement, OKR scoring, mandatory leaf-to-leaf links, and a rule that only features are parents.
+  sources:
+  - wer-inf-puc-rio-werpapers-artigos-artigos-wer09
+  - qa-whatmatters-faqs-okrs-objectives-key-results
+  - learn-microsoft-en-us-azure-devops
+  - linear-docs-parent-and-sub-issues

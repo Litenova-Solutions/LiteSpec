@@ -4,7 +4,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The dependency boundary checks of the UI validator: no second
 ///     general-purpose visual system anywhere in the workspace.
 /// </summary>
-/// <follows>litespec/frontend/ui#select-one-visual-authority</follows>
+/// <follows>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</follows>
 sealed class DependencyBoundaryChecks
 {
     /// <summary>The state of the run.</summary>
@@ -102,7 +102,7 @@ sealed class DependencyBoundaryChecks
             {
                 if (dependencies.TryGetValue(name, out var dependency) && JsonRead.Truthy(dependency))
                 {
-                    session.Add("ui-dependency-invalid", $"[litespec/frontend/ui#select-one-visual-authority] second general-purpose visual dependency '{name}' requires an exception", file);
+                    session.Add("ui-dependency-invalid", $"[litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives] second general-purpose visual dependency '{name}' requires an exception", file);
                 }
             }
 

@@ -7,25 +7,37 @@ access:
   tenant: own
 fulfills:
 - requirement/borrowing.loan-period-days
-reachedThrough:
+via:
 - entry-point/library-app
 raises:
-- event/loan.loan-extended
+- domain-event/loan.loan-extended
+inputs:
+- name: loanId
+  meaning: The loan the reader extends.
+  type: id
+  identifies: aggregate/lending.loan
+  required: true
+  origin: caller
+  classification: internal
+- name: days
+  meaning: The number of days the loan is extended.
+  type: integer
+  required: true
+  origin: caller
+  classification: internal
 idempotency:
   mode: none
   reason: Each call extends its own loan, and extending past the due date is refused.
 audit:
-  level: none
-  target: No audit trail; the loan record shows each extension.
-records:
-- type: result
-  id: result/extend-loan.extended
+  exemptBecause: Internal state transition covered by its aggregate lifecycle.
+steps:
+- statement: The reader extends the loan before its due date.
+results:
+- id: result/extend-loan.extended
   title: Extended
   outcome: success
   meaning: The loan is extended.
-- type: result
-  id: result/extend-loan.extension-refused
+- id: result/extend-loan.extension-refused
   title: Extension refused
   outcome: refusal
-  code: lending.extension-refused
-  meaning: The extension is refused.
+  refusal: refusal/lending.extension-refused

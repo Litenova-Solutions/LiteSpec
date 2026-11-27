@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Screens;
 public sealed class ScreenRenameAndRecordsTests
 {
     /// <summary>Records Unions Hold Only The Frontends Own Entry Points.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void RecordsUnionsHoldOnlyTheFrontendsOwnEntryPoints()
     {
@@ -28,7 +28,7 @@ public sealed class ScreenRenameAndRecordsTests
     }
 
     /// <summary>A Frontend Naming Its Entry Point Is Read Through It Before Any Screen Exists.</summary>
-    /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
+    /// <proves>litespec/packs/svelte/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
     public void AFrontendNamingItsEntryPointIsReadThroughItBeforeAnyScreenExists()
     {
@@ -115,8 +115,8 @@ public sealed class ScreenRenameAndRecordsTests
 
         model.Records.Add(Rec("entry-point", "entry-point/app", """{"kind":"browser"}""", root));
         model.Records.Add(Rec("entry-point", "entry-point/admin", """{"kind":"browser"}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","reachedThrough":["entry-point/app"]}""", root));
-        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/admin"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.list-loans", """{"kind":"query","via":["entry-point/app"]}""", root));
+        model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","via":["entry-point/admin"]}""", root));
         model.Records.Add(ScreenRec("screen/app.loans", "entry-point/app", root));
         model.Records.Add(ScreenRec("screen/admin.loans", "entry-point/admin", root));
         model.Screens.Add(new CodeScreen("web", "/loans", "apps/web/src/routes/loans/+page.ts", [], ["use-case/lending.list-loans"], "screen/app.loans"));

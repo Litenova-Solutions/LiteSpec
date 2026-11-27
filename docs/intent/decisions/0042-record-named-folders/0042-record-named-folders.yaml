@@ -1,6 +1,7 @@
 type: decision
 id: decision/0042-record-named-folders
 title: Keep Each Named Record in Its Own Folder
+context: "Each named record sits in a flat file beside every other record of its type, with its explanation file beside it under the same name. Pairing a record with its explanation means matching two names in one shared folder, and a record needing a second file has no folder to join."
 options:
   - name: "Keep one flat file per named record, with its explanation file beside it in the type's folder"
     pros: "Every type's records sit in one list, and a new record needs no folder."
@@ -12,5 +13,5 @@ options:
     pros: "One folder per type holds every record of the type, and no record adds a folder."
     cons: "The pair shares its folder with every other record of the type, so the scheme alone ties the two files together, and a second file for a record has no folder to join."
 choice: "Keep one folder per named record, with the record file and its explanation file inside it"
-consequences: "A named record lives at `<container>/<name>/<name>.yaml`, and its explanation file `<name>.md` sits in the same folder. The folder name equals the file stem, and a mismatch is a `record-folder-drift` finding. A named record placed flat is a `record-placement-invalid` finding, and fixed-name files, list files and child records keep their places. `litespec new` writes the folder layout and `litespec rename` moves a record with its folder. No migration tool and no compatibility path ship, so each consumer moves its own records. `litespec/core/model#explain-each-record-beside-its-record-file` and the placement table state the layout."
+consequences: "A named record lives at `<container>/<name>/<name>.yaml`, and its explanation file `<name>.md` sits in the same folder. The folder name equals the file stem, and a mismatch is a `record-placement-invalid` finding. A named record placed flat is a `record-placement-invalid` finding, and fixed-name files, list files and child records keep their places. `litespec new` writes the folder layout and `litespec rename` moves a record with its folder. No migration tool and no compatibility path ship, so each consumer moves its own records. `litespec/core/model#explain-each-record-beside-its-record-file` and the placement table state the layout."
 reopenedWhen: "A named record needs more than the record file and one explanation file, such as a second explanation beside the same record or a record split across files."

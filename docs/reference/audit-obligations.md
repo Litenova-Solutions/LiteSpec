@@ -1,18 +1,18 @@
 # Audit Obligations
 
-## Intent
+The audit extension is the LiteSpec bundle a project selects to record who tried what against which target, and what each try produced. It answers obligations from four guidance bodies (NIST, ISO, PCI DSS, and OWASP) plus the General Data Protection Regulation (GDPR). This page gathers those obligations in one place: the frameworks, the GDPR articles, and the map from each obligation to the provision covering it. A team writing its audit adoption decision starts here, and cites this page instead of reading each framework from scratch.
 
-The audit extension is the LiteSpec bundle a project selects to record who attempted what against which target and what it produced; it satisfies obligations from 4 guidance bodies (NIST, ISO, PCI DSS, and OWASP) and from the General Data Protection Regulation (GDPR). This page states those obligations in one place: the frameworks, the GDPR articles, and the map from each obligation to the provision (one identified rule) that satisfies it. A team writing its audit adoption decision reads it to state that reasoning without surveying the frameworks from scratch; the [Audit Trail](../ext/audit.md) owns every provision, and this page explains and states no rules.
+The [Audit Trail](../core/audit.md) page owns every provision behind these obligations. This page adds no rules; it lists the outside sources with the map.
 
 ## Reference
 
-### The Frameworks
+### Audit Frameworks
 
-Four bodies of guidance apply to a business application that holds personal data or touches payments. They agree far more than they differ, so an implementation built to their union satisfies each one without a separate program per framework.
+Four guidance bodies cover auditing for a business application holding personal data or touching payments. Their requirements overlap, so one trail covering all four satisfies each one.
 
 #### NIST SP 800-53, AU Family
 
-The AU controls split auditing into six questions. They are the most complete public statement of the problem.
+The AU family splits auditing into six questions. The table below lists each control with its obligation.
 
 | Control | Obligation |
 |:---|:---|
@@ -23,29 +23,29 @@ The AU controls split auditing into six questions. They are the most complete pu
 | AU-11 | Retain records for a defined period. |
 | AU-12 | Generate records across every component in scope. |
 
-AU-3 is the field list that the other frameworks restate. AU-2 is the control most projects skip, because a selection nobody writes down produces no document to check.
+AU-3 carries the field list the other frameworks repeat. AU-2 is the control teams miss most often: a selection written nowhere leaves nothing to check.
 
 #### ISO/IEC 27001:2022, Annex A 8.15
 
-Control A.8.15 requires logs of user activities, exceptions, faults, and security events. It requires protection from tampering and unauthorized access. It also requires analysis, which makes an unread trail a finding rather than a control.
+Control A.8.15 covers logs of user activities, exceptions, faults, and security events, with protection against tampering and unauthorized access. It also covers analysis, so a trail nobody reads counts as a gap instead of a control.
 
 #### PCI DSS 4.0, Requirement 10
 
-Requirement 10.2.2 names the fields for each event: user identification, event type, date and time, success or failure indication, origination, and affected resource identity.
+Requirement 10.2.2 lists the fields each event carries: user identification, event type, date and time, a success or failure indication, origination, and the affected resource identity. The table below quotes that list exactly as the check reads it.
 
-Requirement 10.2.1 names the events: individual access to cardholder data, actions by administrative accounts, access to the audit records, invalid logical access attempts, and changes to authentication credentials.
+Requirement 10.2.1 lists which events go on the record: individual access to cardholder data, actions by administrative accounts, access to the audit records, invalid logical access attempts, and changes to authentication credentials. Those five rows drive the adoption decision.
 
-A trail that records successes only fails exactly two obligations: the success-or-failure field and the invalid-attempt event.
+A trail holding successes only misses exactly two obligations: the success-or-failure field and the invalid-attempt event. Both rows stay visible in the map below.
 
 #### OWASP Logging Cheat Sheet
 
-The OWASP guidance adds the developer-facing half. Record authentication successes and failures, authorization failures, higher-risk actions, sensitive data access, and data import or export.
+The OWASP guidance adds the developer-facing half: authentication successes and failures, authorization failures, higher-risk actions, sensitive data access, and data import or export. Those rows mirror the PCI event list from the application side.
 
-It also states the exclusions. Never record passwords, session identifiers, access tokens, encryption keys, database connection strings, payment card data, or sensitive personal data.
+It also lists what stays out of the trail: passwords, session identifiers, access tokens, encryption keys, database connection strings, payment card data, and sensitive personal data. The map below points each exclusion at its provision.
 
 ### GDPR
 
-The General Data Protection Regulation both requires the trail and constrains what it holds. Reading it as only a constraint produces a thin trail, and reading it as only a mandate produces an erasure problem.
+The General Data Protection Regulation both calls for the trail and limits what it holds. Reading it as only a limit yields a trail too thin to show accountability, and reading it as only a mandate yields an erasure problem.
 
 | Article | Effect on the trail |
 |:---|:---|
@@ -55,15 +55,15 @@ The General Data Protection Regulation both requires the trail and constrains wh
 | Article 17 | Erasure applies to the personal data a record holds. |
 | Article 15 | Subject access can reach audit records naming that person. |
 
-The resolution is the record shape. A trail retained on a legal-obligation or legitimate-interest basis stays lawful, and a supervisory authority accepts it. A trail that copies names, addresses, message bodies, or state snapshots into an append-only store conflicts with Article 17, and no retention policy resolves that conflict.
+The record shape resolves that tension. A trail kept on a legal-obligation or legitimate-interest basis stays lawful, and a supervisory authority accepts it. But a trail that copies names, addresses, message bodies, or state snapshots into an append-only store conflicts with Article 17, and no retention policy repairs that conflict.
 
-`litespec/ext/audit#exclude-personal-data-beyond-actor-identity` and `litespec/ext/audit#exclude-state-snapshots` prevent that conflict at design time. `litespec/ext/audit#remove-the-identity-mapping-on-erasure` then satisfies an erasure request by removing the mapping from actor identifier to person. The record keeps its evidential value and the person stops being identifiable from it.
+Two provisions draw that boundary: `litespec/core/audit#keep-secrets-and-payment-data-from-the-trail` keeps secrets and payment values off the trail, and `litespec/core/audit#delete-expired-records-through-a-separate-operator-account` runs retention deletion and tenant data erasure through the audited operator process. The [Audit Trail](../core/audit.md) page lists the full field set with the personal-data limits beside it.
 
-Two consequences follow for a project. Record the lawful basis and the retention period of each audited category in the adoption decision. Include the trail in the records of processing activities, because the trail is itself a processing activity.
+Two practical points follow for a project. Record the lawful basis and the retention period of each audited category in the adoption decision, and list the trail itself in the records of processing activities, since keeping the trail counts as processing activity.
 
-### Schema Alignment
+### Shared Record Shape
 
-The record shape follows a model that three sources describe in the same terms: an initiator performs an action on a target and produces an outcome at a time and from a place.
+The record shape follows a model three sources describe in matching terms: an initiator performs an action on a target and produces an outcome, at a time and from a place.
 
 | Source | Contribution |
 |:---|:---|
@@ -71,33 +71,33 @@ The record shape follows a model that three sources describe in the same terms: 
 | NIST AU-3 | The required content of one record. |
 | OCSF | Vendor-neutral schema for shipping records to a security platform. |
 
-Following that model at design time needs no extra work. It lets a project map the trail onto a security platform later without remodeling the store.
+Following that model at design time adds no extra work, and it lets a project map the trail onto a security platform later with no store remodeling.
 
 ### Obligation to Provision Map
 
 | Obligation | Source | Provision |
 |:---|:---|:---|
-| Select audited events and record the rationale | AU-2 | `litespec/ext/audit#record-the-audit-adoption-decision`, `litespec/ext/audit#declare-audit-selection-on-every-command` |
-| Cover the required event categories | AU-2, PCI 10.2.1, ISO 8.15 | `litespec/ext/audit#cover-the-required-audit-categories` |
-| Generate records across every component | AU-12 | `litespec/ext/audit#emit-audit-records-at-the-mediation-boundary` |
-| State the required record content | AU-3, PCI 10.2.2 | `litespec/ext/audit#record-the-required-audit-fields` |
-| Identify the affected resource | AU-3, PCI 10.2.2 | `litespec/ext/audit#record-the-required-audit-fields` |
-| Indicate success or failure | AU-3, PCI 10.2.2 | `litespec/ext/audit#record-every-attempt-outcome` |
-| Record invalid access attempts | PCI 10.2.1.4, OWASP | `litespec/ext/audit#record-refused-authorization` |
-| Record the origination of the event | AU-3, PCI 10.2.2, ISO 8.15 | `litespec/ext/audit#record-the-request-origin` |
-| Record credential and privilege change | PCI 10.2.1.5, ISO 8.15 | `litespec/ext/audit#cover-the-required-audit-categories` |
-| Record access to the audit records | PCI 10.2.1.3 | `litespec/ext/audit#audit-reads-of-the-trail` |
-| Record sensitive data access and export | OWASP, GDPR Art. 30 | `litespec/ext/audit#record-personal-data-reads`, `litespec/ext/audit#record-bulk-export` |
-| Exclude secrets and payment data | OWASP, PCI | `litespec/ext/audit#exclude-secrets-and-payment-data` |
-| Exclude sensitive personal data | OWASP, GDPR Art. 17 | `litespec/ext/audit#exclude-personal-data-beyond-actor-identity` |
-| Protect records from change and deletion | AU-9, ISO 8.15, GDPR Art. 32 | `litespec/ext/audit#enforce-append-only-through-storage-privilege`, `litespec/ext/audit#provide-tamper-evidence` |
-| Retain for a defined period | AU-11 | `litespec/ext/audit#retain-each-category-for-its-declared-period` |
-| Satisfy erasure without destroying evidence | GDPR Art. 17 | `litespec/ext/audit#remove-the-identity-mapping-on-erasure` |
-| Review and analyze the records | AU-6, ISO 8.15 | `litespec/ext/audit#give-the-trail-a-read-path` |
+| Select audited events and record the rationale | AU-2 | `litespec/core/audit#record-the-audit-adoption-decision`, `litespec/core/audit#declare-which-commands-are-audited` |
+| Cover the required event categories | AU-2, PCI 10.2.1, ISO 8.15 | `litespec/core/audit#record-the-audit-adoption-decision` |
+| Generate records across every component | AU-12 | `litespec/core/audit#commit-a-success-record-with-its-business-change`, `litespec/core/audit#write-an-unsuccessful-record-outside-the-failed-transaction` |
+| State the required record content | AU-3, PCI 10.2.2 | `litespec/core/audit#record-every-attempt-outcome`, `litespec/core/audit#scope-every-record-to-its-tenant` |
+| Identify the affected resource | AU-3, PCI 10.2.2 | `litespec/core/audit#declare-which-commands-are-audited` |
+| Indicate success or failure | AU-3, PCI 10.2.2 | `litespec/core/audit#record-every-attempt-outcome` |
+| Record invalid access attempts | PCI 10.2.1.4, OWASP | `litespec/core/audit#record-refused-authorization` |
+| Record the origination of the event | AU-3, PCI 10.2.2, ISO 8.15 | [Audit Trail](../core/audit.md) |
+| Record credential and privilege change | PCI 10.2.1.5, ISO 8.15 | `litespec/core/audit#record-the-audit-adoption-decision` |
+| Record access to the audit records | PCI 10.2.1.3 | `litespec/core/audit#declare-which-commands-are-audited` |
+| Record sensitive data access and export | OWASP, GDPR Art. 30 | `litespec/core/audit#record-the-audit-adoption-decision` |
+| Exclude secrets and payment data | OWASP, PCI | `litespec/core/audit#keep-secrets-and-payment-data-from-the-trail` |
+| Exclude sensitive personal data | OWASP, GDPR Art. 17 | [Audit Trail](../core/audit.md) |
+| Protect records from change and deletion | AU-9, ISO 8.15, GDPR Art. 32 | `litespec/core/audit#enforce-append-only-through-storage-privilege`, `litespec/core/audit#correct-mistakes-with-a-new-record` |
+| Retain for a defined period | AU-11 | `litespec/core/audit#delete-expired-records-through-a-separate-operator-account` |
+| Satisfy erasure without destroying evidence | GDPR Art. 17 | `litespec/core/audit#delete-expired-records-through-a-separate-operator-account` |
+| Review and analyze the records | AU-6, ISO 8.15 | [Audit Trail](../core/audit.md) |
 
 ## Notes
 
-The sources behind every table above:
+The tables on this page draw on these sources. Each link below points at the edition the map was checked against.
 
 - [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)
 - [ISO/IEC 27001:2022](https://www.iso.org/standard/27001)

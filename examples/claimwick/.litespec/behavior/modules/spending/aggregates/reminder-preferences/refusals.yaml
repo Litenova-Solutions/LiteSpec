@@ -1,0 +1,7 @@
+type: refusal-set
+summary: The refusals the reminder-preference aggregate raises.
+refusals:
+- id: refusal/spending.not-preference-owner
+  title: Not Preference Owner
+  meaning: The changer is neither the manager the preference belongs to nor finance.
+  status: 422

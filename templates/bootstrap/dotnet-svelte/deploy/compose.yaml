@@ -1,0 +1,61 @@
+# __PROJECT__ production stack: PostgreSQL, the API and the web app.
+#
+# From the repository root, with Docker running:
+#
+#   docker compose -f deploy/compose.yaml up --build
+#
+# Web: http://localhost:3000. API: http://localhost:5005 (OpenAPI at
+# /openapi/v1.json, health at /health/ready). Either host port can move
+# through deploy/.env (see deploy/.env.example); the API default matches
+# the records verify block and the local AppHost run.
+
+name: __SCOPE__
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: __SCOPE__
+      POSTGRES_USER: __SCOPE__
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-__SCOPE__-dev}
+    volumes:
+      - __SCOPE__-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U __SCOPE__ -d __SCOPE__"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+      target: api
+    ports:
+      - "${API_PORT:-5005}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings____SCOPE__: Host=postgres;Port=5432;Database=__SCOPE__;Username=__SCOPE__;Password=${POSTGRES_PASSWORD:-__SCOPE__-dev}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      ORIGIN: http://localhost:${WEB_PORT:-3000}
+      PORT: 3000
+      __NAMESPACE___BACKEND_URL: http://api:8080
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  __SCOPE__-postgres:

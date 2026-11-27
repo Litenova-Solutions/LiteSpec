@@ -74,6 +74,13 @@ internal sealed partial class RepositoryValidator
             foreach (var file in Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories))
             {
                 var relative = Path.GetRelativePath(Context.Root, file).Replace('\\', '/');
+
+                // A runnable starter ships as one archive, templates/bootstrap/<preset>.zip, so its own paths never reach the package.
+                if (relative.StartsWith("templates/bootstrap/", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 if (relative.Length > MaxPackagedPathLength)
                 {
                     Context.Add(relative, 1, MaintainerDiagnostics.Codes.PackagedPathLong, $"path is {relative.Length} characters, longer than the {MaxPackagedPathLength} the tool package can carry");

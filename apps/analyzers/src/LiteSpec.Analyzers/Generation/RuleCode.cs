@@ -3,7 +3,7 @@ using System;
 namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>One rule with the refusal code its exception carries.</summary>
-/// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
+/// <follows>litespec/packs/dotnet/stack#generate-runtime-values-from-the-records</follows>
 internal sealed class RuleCode : IEquatable<RuleCode>
 {
     /// <summary>Initializes a new instance of the <see cref="RuleCode"/> class.Creates a rule code.</summary>

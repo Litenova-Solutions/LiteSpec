@@ -1,37 +1,78 @@
 <script lang="ts">
-  import { book, cn, formatCount } from "$lib/frame";
+  import { book, cn, formatCount, stripStep } from "$lib/frame";
   import { RecordIcon } from "$lib/record";
   import { outlineState } from "./outline-state.svelte";
-  import { securityItems } from "./outline-rows";
+  import { cachedSecurityItems, totalRecords } from "./outline-rows";
 
-  // The filter panel, the active filter chips and the shown line with the
-  // row-mark legend beneath the navigation tools.
+  // The filter panel, the active filter tags and the summary line with the
+  // expand, collapse and reveal buttons beneath the navigation tools. One pass
+  // over the records caches each record's facet values, and every facet count
+  // reads the cache instead of walking the store again. The summary line shows
+  // no counts; hovering it shows the full sentence.
+  type Props = { onRevealRequest: () => void };
+  let { onRevealRequest }: Props = $props();
+
   interface FacetVal { value: string; name: string; count: number; on: boolean }
   interface FacetModel { key: string; label: string; vals: FacetVal[] }
-  const facets = $derived.by((): FacetModel[] => {
-    if (!outlineState.facetsOpen) return [];
+  interface FilterModel { facets: FacetModel[]; shown: number; total: number }
+  interface CachedRow { real: boolean; values: Record<string, string[]>; queryOk: boolean }
+
+  const model = $derived.by((): FilterModel => {
+    const facetsOpen = outlineState.facetsOpen;
+    const view = book.view;
     void book.rev;
-    const out: FacetModel[] = [];
-    for (const f of book.facets) {
-      if (f.key === "layer" && book.view === "outline") continue;
-      const counts: Record<string, number> = {};
-      for (const id of book.order) {
-        if (!book.passesFilters(id, f.key)) continue;
-        for (const v of f.get(id)) counts[v] = (counts[v] ?? 0) + 1;
+    const total = totalRecords(book);
+    const active = book.active;
+    const query = book.query;
+    const hits = book.hits;
+    const rows: CachedRow[] = [];
+    for (const id of book.orderWithProduct()) {
+      const values: Record<string, string[]> = {};
+      for (const f of book.facets) values[f.key] = f.get(id);
+      let queryOk = true;
+      if (query) {
+        const hit = hits?.has(stripStep(id));
+        queryOk = hit ?? book.title(id).toLowerCase().includes(query.toLowerCase());
       }
-      const sel = book.active[f.key] ?? [];
-      const vals = Object.keys(counts);
-      for (const v of sel) if (!vals.includes(v)) vals.push(v);
-      if (!vals.length) continue;
-      if (f.key === "type") {
-        const order = Object.keys(book.lex.types ?? {});
-        vals.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-      } else {
-        vals.sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0));
-      }
-      out.push({ key: f.key, label: f.label, vals: vals.map((v) => ({ value: v, name: f.name(v), count: counts[v] ?? 0, on: sel.includes(v) })) });
+      rows.push({ real: book.isReal(id), values, queryOk });
     }
-    return out;
+    // Whether a cached row passes the active facets, skipping one facet for
+    // its own counts, and the search query. This matches the store's filter
+    // reading facet for facet.
+    const passes = (row: CachedRow, skip?: string): boolean => {
+      for (const f of book.facets) {
+        if (f.key === skip) continue;
+        const selected = active[f.key];
+        if (!selected?.length) continue;
+        const values = row.values[f.key] ?? [];
+        if (values.length && !selected.some((v) => values.includes(v))) return false;
+      }
+      return row.queryOk;
+    };
+    const out: FacetModel[] = [];
+    if (facetsOpen) {
+      for (const f of book.facets) {
+        if (f.key === "layer" && view === "outline") continue;
+        const counts: Record<string, number> = {};
+        for (const row of rows) {
+          if (!passes(row, f.key)) continue;
+          for (const v of row.values[f.key] ?? []) counts[v] = (counts[v] ?? 0) + 1;
+        }
+        const sel = active[f.key] ?? [];
+        const vals = Object.keys(counts);
+        for (const v of sel) if (!vals.includes(v)) vals.push(v);
+        if (!vals.length) continue;
+        if (f.key === "type") {
+          const order = Object.keys(book.lex.types ?? {});
+          vals.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+        } else {
+          vals.sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0));
+        }
+        out.push({ key: f.key, label: f.label, vals: vals.map((v) => ({ value: v, name: f.name(v), count: counts[v] ?? 0, on: sel.includes(v) })) });
+      }
+    }
+    const shown = rows.filter((row) => row.real && passes(row)).length;
+    return { facets: out, shown, total };
   });
   const chips = $derived.by(() => {
     void book.rev;
@@ -39,40 +80,76 @@
     for (const f of book.facets) for (const v of book.active[f.key] ?? []) out.push({ key: f.key, value: v, label: f.label, name: f.name(v) });
     return out;
   });
-  const securityCount = $derived.by(() => {
-    if (book.view !== "security") return 0;
+  const security = $derived.by(() => {
+    if (book.view !== "security") return { shown: 0, total: 0, loaded: true };
     void book.rev;
-    return securityItems(book).filter((x) => book.passesFilters(x.id)).length;
+    const items = cachedSecurityItems(book);
+    return {
+      shown: items.filter((x) => book.passesFilters(x.id)).length,
+      total: items.length,
+      loaded: book.security !== null,
+    };
   });
-  const outlineCounts = $derived.by(() => {
-    void book.rev;
-    const n = book.order.filter((id) => book.isReal(id) && book.passesFilters(id)).length;
-    let total = Object.values(book.man?.totals ?? {}).reduce((a, b) => a + b, 0);
-    if (!total) total = book.order.filter((id) => book.isReal(id)).length;
-    return { n, total };
+  const nActive = $derived(chips.length + (book.query ? 1 : 0));
+  const summaryTitle = $derived.by(() => {
+    if (book.view === "security") {
+      if (!security.loaded) return undefined;
+      return book.anyFilter()
+        ? `${formatCount(security.shown)} of ${formatCount(security.total)} security items match`
+        : `${formatCount(security.total)} security items in this book.`;
+    }
+    return book.anyFilter()
+      ? `${formatCount(model.shown)} of ${formatCount(model.total)} records match`
+      : `${formatCount(model.total)} records in this book.`;
   });
+
+  function expandAndReveal(): void {
+    book.expandAll();
+    onRevealRequest();
+  }
+
+  function revealSelected(): void {
+    if (book.selected) outlineState.expandChain(book.selected);
+    onRevealRequest();
+  }
 </script>
 
 {#if outlineState.facetsOpen}
-  <div id="facetPanel" role="group" aria-label="Filters" class="mt-2 max-h-[52vh] overflow-auto rounded-md border bg-background p-2.5">
-    {#each facets as f (f.key)}
-      <div class="mb-2.5 last:mb-0">
-        <h4 class="mb-1.5 text-[0.6875rem] font-medium tracking-[0.08em] text-muted-foreground uppercase">{f.label}</h4>
-        <div class="flex flex-wrap gap-1">
+  <div id="facetPanel" role="group" aria-label="Filters" class="mt-2 grid max-h-[52vh] gap-4 overflow-auto">
+    <div class="flex items-center justify-between">
+      <span class="font-semibold text-foreground">Filters</span>
+      <span class="text-sm text-text-secondary">{nActive} active</span>
+    </div>
+    {#each model.facets as f (f.key)}
+      <div class="grid gap-2">
+        <h4 class="text-xs text-text-secondary">{f.label}</h4>
+        <div class="grid gap-2">
           {#each f.vals as v (v.value)}
-            <button
-              type="button"
-              aria-pressed={v.on}
-              disabled={!v.count && !v.on}
-              onclick={() => book.toggleFacet(f.key, v.value)}
-              class={cn(
-                "inline-flex h-[26px] cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-xs disabled:cursor-default disabled:opacity-40",
-                v.on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-subtle-foreground hover:bg-muted",
-              )}
-            >
-              {v.name}
-              <span class={cn("font-mono text-[0.65625rem]", v.on ? "text-primary-foreground opacity-75" : "text-muted-foreground")}>{v.count}</span>
-            </button>
+            {@const off = !v.count && !v.on}
+            <label class={cn("flex min-h-6 cursor-pointer items-center gap-3 text-sm text-foreground", off && "cursor-default opacity-40")}>
+              <input
+                type="checkbox"
+                class="peer sr-only"
+                checked={v.on}
+                disabled={off}
+                onchange={() => book.toggleFacet(f.key, v.value)}
+              />
+              <span
+                aria-hidden="true"
+                class={cn(
+                  "grid size-4 flex-none place-items-center border border-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus",
+                  v.on && "bg-foreground text-background",
+                )}
+              >
+                {#if v.on}
+                  <svg viewBox="0 0 16 16" class="size-3" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M3.5 8.5l3.5 3.5 6-8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                {/if}
+              </span>
+              <span class="min-w-0 flex-1 truncate">{v.name}</span>
+              <span class="flex-none text-xs tracking-[0.32px] text-text-helper tabular-nums">{v.count}</span>
+            </label>
           {/each}
         </div>
       </div>
@@ -80,38 +157,47 @@
   </div>
 {/if}
 {#if chips.length || book.query}
-  <div class="mt-2 flex flex-wrap gap-1">
+  <div class="mt-2 flex flex-wrap items-center gap-1">
     {#each chips as c (c.key + "|" + c.value)}
-      <span class="inline-flex h-6 items-center gap-1 rounded-full border border-rule-border bg-rule pr-1 pl-2.5 text-xs text-foreground">
+      <span class="inline-flex h-6 items-center gap-1 rounded-full bg-tag-blue py-0 pr-0 pl-3 text-xs tracking-[0.32px] text-tag-blue-foreground">
         {c.label}: {c.name}
-        <button type="button" aria-label="Remove {c.name}" onclick={() => book.toggleFacet(c.key, c.value)} class="grid size-6 cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-highlight-soft hover:text-foreground">
-          <RecordIcon name="x" class="size-3.5" />
+        <button type="button" aria-label="Remove {c.name}" onclick={() => book.toggleFacet(c.key, c.value)} class="grid size-6 flex-none cursor-pointer place-items-center rounded-full hover:bg-hover-wash">
+          <RecordIcon name="x" class="size-3" />
         </button>
       </span>
     {/each}
     {#if book.query}
-      <span class="inline-flex h-6 items-center gap-1 rounded-full border border-rule-border bg-rule pr-1 pl-2.5 text-xs text-foreground">
+      <span class="inline-flex h-6 items-center gap-1 rounded-full bg-tag-blue py-0 pr-0 pl-3 text-xs tracking-[0.32px] text-tag-blue-foreground">
         Text: {book.query}
-        <button type="button" aria-label="Clear the text filter" onclick={() => book.setQuery("")} class="grid size-6 cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-highlight-soft hover:text-foreground">
-          <RecordIcon name="x" class="size-3.5" />
+        <button type="button" aria-label="Clear the text filter" onclick={() => book.setQuery("")} class="grid size-6 flex-none cursor-pointer place-items-center rounded-full hover:bg-hover-wash">
+          <RecordIcon name="x" class="size-3" />
         </button>
       </span>
     {/if}
-    <button type="button" onclick={() => book.clearFilters()} class="inline-flex h-6 cursor-pointer items-center px-1.5 text-xs text-highlight-foreground">Clear all</button>
+    <button type="button" onclick={() => book.clearFilters()} class="inline-flex h-6 cursor-pointer items-center px-2 text-sm text-link hover:underline">Clear all</button>
   </div>
 {/if}
-<div class="mt-2 text-xs text-muted-foreground">
-  {#if book.view === "security"}
-    <b class="font-medium text-foreground tabular-nums">{securityCount}</b> security items
-  {:else if book.anyFilter()}
-    <b class="font-medium text-foreground tabular-nums">{formatCount(outlineCounts.n)}</b> of {formatCount(outlineCounts.total)} records match
-  {:else}
-    <b class="font-medium text-foreground tabular-nums">{formatCount(outlineCounts.total)}</b> records in this book.
+<div class="mt-2 flex items-center gap-2">
+  <p class="min-w-0 flex-1 text-xs tracking-[0.32px] text-text-helper" title={summaryTitle}>
+    {#if book.view === "security"}
+      {#if !security.loaded}
+        Loading the security items.
+      {:else if book.anyFilter()}
+        Security items match the filters.
+      {/if}
+    {:else if book.anyFilter()}
+      Records match the filters.
+    {/if}
+  </p>
+  {#if book.view === "outline"}
+    <button type="button" aria-label="Expand all" onclick={expandAndReveal} class="grid size-8 flex-none cursor-pointer place-items-center text-foreground hover:bg-hover-wash">
+      <RecordIcon name="expand" class="size-4" />
+    </button>
+    <button type="button" aria-label="Collapse all" onclick={() => book.collapseAll()} class="grid size-8 flex-none cursor-pointer place-items-center text-foreground hover:bg-hover-wash">
+      <RecordIcon name="collapse" class="size-4" />
+    </button>
   {/if}
+  <button type="button" aria-label="Show the selected record" onclick={revealSelected} class="grid size-8 flex-none cursor-pointer place-items-center text-foreground hover:bg-hover-wash">
+    <RecordIcon name="locate" class="size-4" />
+  </button>
 </div>
-{#if book.view === "outline"}
-  <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 border-t pt-3 text-xs text-muted-foreground">
-    <span class="inline-flex items-center gap-[5px]"><span class="grid text-warn-foreground"><RecordIcon name="missing" class="size-3.5" /></span>Not implemented or not tested</span>
-    <span class="inline-flex items-center gap-[5px]"><span class="grid text-warn-foreground"><RecordIcon name="flask" class="size-3.5" /></span>A test fails</span>
-  </div>
-{/if}

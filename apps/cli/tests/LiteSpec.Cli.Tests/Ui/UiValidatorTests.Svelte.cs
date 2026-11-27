@@ -7,10 +7,10 @@ namespace LiteSpec.Cli.Tests.Ui;
 /// </summary>
 public sealed partial class UiValidatorTests
 {
-    // Svelte sources (litespec/frontend/web/ui#restrict-css-decisions).
+    // Svelte sources (litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes).
 
     /// <summary>A Svelte File Is Scanned For Utility Violations.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteFileIsScannedForUtilityViolations()
     {
@@ -23,7 +23,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Visual File Keeps Its Own Layout.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteVisualFileKeepsItsOwnLayout()
     {
@@ -34,7 +34,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Visual File Is Still Held To The Token Rule.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteVisualFileIsStillHeldToTheTokenRule()
     {
@@ -47,7 +47,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Class Directive Is Read As One Token.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteClassDirectiveIsReadAsOneToken()
     {
@@ -58,7 +58,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Style Attribute Is An Inline Style.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteStyleAttributeIsAnInlineStyle()
     {
@@ -71,7 +71,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Style Directive Is An Inline Style.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteStyleDirectiveIsAnInlineStyle()
     {
@@ -84,7 +84,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Style Block Is Not An Inline Style.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteStyleBlockIsNotAnInlineStyle()
     {
@@ -95,7 +95,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Second Svelte Visual System In The Workspace Root.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void SecondSvelteVisualSystemInTheWorkspaceRoot()
     {
@@ -106,13 +106,13 @@ public sealed partial class UiValidatorTests
             "second general-purpose visual dependency 'flowbite-svelte' requires an exception");
     }
 
-    // Svelte baseline (litespec/frontend/ui#pin-the-baseline-in-the-shared-package,
-    // litespec/frontend/web/ui#track-source-changes,
-    // litespec/frontend/ui#select-one-visual-authority,
-    // litespec/frontend/components#compose-composites-in-page-code).
+    // Svelte baseline (litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream,
+    // litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream,
+    // litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives,
+    // litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives).
 
     /// <summary>A Svelte Package Validates Against The Svelte Baseline.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ASveltePackageValidatesAgainstTheSvelteBaseline()
     {
@@ -122,7 +122,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Application Importing The Primitive Library.</summary>
-    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void ASvelteApplicationImportingThePrimitiveLibrary()
     {
@@ -132,11 +132,11 @@ public sealed partial class UiValidatorTests
             fixture.PathCase(
                 "apps/web/src/routes/bits.svelte",
                 "<script>\nimport { Dialog } from \"bits-ui\";\n</script>\n<Dialog />\n"),
-            "[litespec/frontend/components#compose-composites-in-page-code] imports the primitive library directly");
+            "[litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives] imports the primitive library directly");
     }
 
     /// <summary>A Svelte Application Importing The React Primitive Library Is Outside Its Boundary.</summary>
-    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void ASvelteApplicationImportingTheReactPrimitiveLibraryIsOutsideItsBoundary()
     {
@@ -148,7 +148,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Application Importing A Table Library.</summary>
-    /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void ASvelteApplicationImportingATableLibrary()
     {
@@ -162,7 +162,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Utility Violation Cites The Svelte Provision.</summary>
-    /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes</proves>
     [Fact]
     public void ASvelteUtilityViolationCitesTheSvelteProvision()
     {
@@ -172,11 +172,11 @@ public sealed partial class UiValidatorTests
             fixture.PathCase(
                 "packages/ui/src/floorplans/card.svelte",
                 "<div class=\"text-red-500\">Overdue</div>\n"),
-            "[litespec/frontend/web/ui#restrict-css-decisions] raw Tailwind palette value requires a semantic token 'text-red-500'");
+            "[litespec/packs/svelte/ui-primitives#refuse-raw-layout-utilities-in-routes] raw Tailwind palette value requires a semantic token 'text-red-500'");
     }
 
     /// <summary>A Svelte Source Lock Describing A Preset The Manifest Does Not Pin.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ASvelteSourceLockDescribingAPresetTheManifestDoesNotPin()
     {
@@ -185,11 +185,11 @@ public sealed partial class UiValidatorTests
         fixture.MutateLock(sourceLock => ((JsonObject)sourceLock["preset"]!)["baseColor"] = "slate");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] preset.baseColor does not match the manifest baseline");
+            "[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] preset.baseColor does not match the manifest baseline");
     }
 
     /// <summary>A Svelte Source Lock Naming The React CLI Pin.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ASvelteSourceLockNamingTheReactCLIPin()
     {
@@ -202,7 +202,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Source Lock Naming Another Registry.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ASvelteSourceLockNamingAnotherRegistry()
     {
@@ -218,7 +218,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>Svelte Components Json Naming A Base Colour The Baseline Does Not Pin.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void SvelteComponentsJsonNamingABaseColourTheBaselineDoesNotPin()
     {
@@ -229,11 +229,11 @@ public sealed partial class UiValidatorTests
         UiFixture.WriteJson(fixture.ComponentsFile, components);
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#pin-the-baseline-in-the-shared-package] tailwind.baseColor must be 'neutral'");
+            "[litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream] tailwind.baseColor must be 'neutral'");
     }
 
     /// <summary>Svelte Components Json Naming Another Registry.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void SvelteComponentsJsonNamingAnotherRegistry()
     {
@@ -248,7 +248,7 @@ public sealed partial class UiValidatorTests
     }
 
     /// <summary>A Svelte Registry Exception Carries The Frontend Provision.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream</proves>
     [Fact]
     public void ASvelteRegistryExceptionCarriesTheFrontendProvision()
     {
@@ -257,29 +257,21 @@ public sealed partial class UiValidatorTests
         var components = (JsonObject)UiFixture.ReadJson(fixture.ComponentsFile)!;
         components["registry"] = "https://blocks.fixture.test";
         UiFixture.WriteJson(fixture.ComponentsFile, components);
-        fixture.WriteDeparture("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteWaiver("extra-registry", "litespec/packs/svelte/ui-primitives#keep-shadcn-svelte-close-to-upstream", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>A Svelte UI Exception With An Expired Date.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
+    /// <proves>litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives</proves>
     [Fact]
     public void ASvelteUIExceptionWithAnExpiredDate()
     {
         using var fixture = UiFixture.Create();
         fixture.AsSvelte();
-        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteWaiver("ui-authority", "litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the departure or close the gap");
+            "[litespec/packs/svelte/ui-primitives#build-pages-from-locked-primitives] expiresOn 2020-01-01 has passed; renew the waiver or close the gap");
     }
 
-    /// <summary>The Fixture Is React Again After The Svelte Block.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
-    [Fact]
-    public void TheFixtureIsReactAgainAfterTheSvelteBlock()
-    {
-        using var fixture = UiFixture.Create();
-        UiFixture.AssertClean(fixture.Run());
-    }
 }

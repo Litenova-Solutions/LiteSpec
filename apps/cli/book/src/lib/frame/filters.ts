@@ -124,6 +124,14 @@ export function visibleMapFor(
   return map;
 }
 
+/** The first direct match in outline order, for the search box ArrowDown; null when nothing matches. */
+export function firstMatchFor(order: string[], visible: Map<string, 1 | 2>): string | null {
+  for (const id of order) {
+    if (visible.get(id) === 2) return id;
+  }
+  return null;
+}
+
 /** The record Enter opens from the search box: the best title hit, else the best hit. */
 export function bestSearchHitFor(
   order: string[],

@@ -1,0 +1,21 @@
+type: rule
+id: rule/<home>.<name>
+title: <Title in Title Case>
+kind: <invariant|precondition|calculation|atomicity|reservation|frozen-value>
+statement: <what holds, in one sentence>
+terms:
+  - <term id, or remove this line>
+governs:
+  - <aggregate/<module>.<name> or use-case/<module>.<name>, or remove this line>
+  - aggregate/<module>.<name, or remove this line>
+refusal: refusal/<module>.<name, or remove this line>
+basedOn:
+  - <constraint or research id, or remove this line>
+  - <constraint or research id restated by a law rule, or remove this line>
+source: <law|product-choice|contract, or remove this line>
+fulfills:
+  - requirement/<feature>.<name, or remove this line>
+releasedBy: <use-case/<module>.<name>, or remove this line>
+frozenWhen: <when the value freezes, or remove this line>
+retainedIn: <where the frozen value is kept, or remove this line>
+rationale: <why the rule exists, in one to three sentences completing because without the word, or remove this line>

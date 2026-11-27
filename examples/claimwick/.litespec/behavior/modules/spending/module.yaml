@@ -3,3 +3,11 @@ id: module/spending
 title: Spending
 summary: Spending submits, decides, reimburses and exports work expenses.
 dependsOn: []
+covers:
+- Spending submits, decides, reimburses and exports work expenses.
+- Spending tracks receipts and the receipt threshold policy.
+- Spending holds the receipt threshold for submission checks.
+- Spending answers the public read-expense query for the reporting module.
+excludes:
+- Spending depends on no other module.
+- Spending calls no other module.

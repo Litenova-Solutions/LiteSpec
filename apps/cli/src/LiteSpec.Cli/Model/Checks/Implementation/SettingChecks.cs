@@ -5,10 +5,11 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.Implementation;
 
-/// <summary>The setting-key and template-store checks: every operator setting names its key, every keyed setting is bound by a marked options class spelling it, and the notification templates and the template store stay one set with every parameter used.</summary>
+/// <summary>The setting-key and template-store checks: every operator setting names its configuration path, every pathed setting is bound by a marked options class spelling it, and the notification templates and the template store stay one set with every parameter used.</summary>
 /// <follows>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</follows>
-/// <follows>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</follows>
-/// <follows>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</follows>
+/// <follows>litespec/core/use-cases#give-every-tenant-setting-a-change-use-case</follows>
+/// <follows>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-element</follows>
+/// <follows>litespec/core/edges#match-notification-templates-to-the-template-store</follows>
 /// <follows>litespec/core/edges#use-every-declared-template-parameter</follows>
 internal static class SettingChecks
 {
@@ -18,22 +19,32 @@ internal static class SettingChecks
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckSettingKeyMissing(model, findings);
+        CheckTenantSettingChange(model, findings);
         CheckSettingBound(model, findings);
         CheckTemplates(model, findings);
     }
 
-    /// <summary>Reports an operator setting naming no configuration key.</summary>
-    /// <param name="model">The loaded project model that holds every setting record.</param>
+    /// <summary>Reports a tenant setting that no change use case changes.</summary>
+    /// <param name="model">The loaded project model that holds every setting and use case record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckSettingKeyMissing(ProjectModel model, List<Finding> findings)
+    private static void CheckTenantSettingChange(ProjectModel model, List<Finding> findings)
     {
-        foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
+        var changed = model.Records
+            .Where(record => !record.Derived
+                && record.Type == RecordTypes.UseCase
+                && Identifiers.TrySplit(record.Id, out _, out _, out var name)
+                && name.StartsWith("change-", StringComparison.Ordinal))
+            .SelectMany(record => record.Ids(RecordFields.Reads))
+            .Select(Identifiers.BaseId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var setting in model.Records.Where(record => !record.Derived && record.Type == RecordTypes.Setting && record.Field(RecordFields.SetBy) == "tenant"))
         {
-            if (setting.Field(RecordFields.SetBy) == "operator" && setting.Field(RecordFields.Key) is not { Length: > 0 })
+            if (!changed.Contains(setting.Id))
             {
                 findings.Add(new Finding(
-                    "setting-key-missing",
-                    $"Setting '{setting.Id}' is set by the operator and names no key.",
+                    "tenant-setting-change-missing",
+                    $"Setting '{setting.Id}' is set by the tenant and changed by no change use case.",
                     setting.File,
                     setting.Line,
                     SubjectOf(setting)));
@@ -41,7 +52,26 @@ internal static class SettingChecks
         }
     }
 
-    /// <summary>Reports a keyed setting no options class marks, and a marked options class not spelling its setting's key.</summary>
+    /// <summary>Reports an operator setting naming no configuration path.</summary>
+    /// <param name="model">The loaded project model that holds every setting record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckSettingKeyMissing(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
+        {
+            if (setting.Field(RecordFields.SetBy) == "operator" && setting.Field(RecordFields.ConfigurationPath) is not { Length: > 0 })
+            {
+                findings.Add(new Finding(
+                    "setting-key-missing",
+                    $"Setting '{setting.Id}' is set by the operator and names no configuration path.",
+                    setting.File,
+                    setting.Line,
+                    SubjectOf(setting)));
+            }
+        }
+    }
+
+    /// <summary>Reports a pathed setting no options class marks, and a marked options class not spelling its setting's configuration path.</summary>
     /// <param name="model">The loaded project model that holds every setting record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckSettingBound(ProjectModel model, List<Finding> findings)
@@ -59,7 +89,7 @@ internal static class SettingChecks
 
         foreach (var setting in model.Records.Where(record => record.Type == RecordTypes.Setting))
         {
-            if (setting.Field(RecordFields.Key) is not { Length: > 0 } key)
+            if (setting.Field(RecordFields.ConfigurationPath) is not { Length: > 0 } path)
             {
                 continue;
             }
@@ -68,7 +98,7 @@ internal static class SettingChecks
             {
                 findings.Add(new Finding(
                     "setting-unimplemented",
-                    $"Setting '{setting.Id}' names key '{key}', which no options class marks.",
+                    $"Setting '{setting.Id}' names configuration path '{path}', which no options class marks.",
                     setting.File,
                     setting.Line,
                     SubjectOf(setting)));
@@ -84,16 +114,16 @@ internal static class SettingChecks
                     continue;
                 }
 
-                if (setting.Field(RecordFields.Key) is not { Length: > 0 } key)
+                if (setting.Field(RecordFields.ConfigurationPath) is not { Length: > 0 } path)
                 {
                     continue;
                 }
 
-                if (!SpellsKey(bound, key))
+                if (!SpellsKey(bound, path))
                 {
                     findings.Add(new Finding(
                         "setting-key-drift",
-                        $"Setting '{id}' names key '{key}', which options class '{bound.Class}' does not spell with its SectionName and properties.",
+                        $"Setting '{id}' names configuration path '{path}', which options class '{bound.Class}' does not spell with its SectionName and properties.",
                         bound.File,
                         bound.Line,
                         id));
@@ -102,11 +132,11 @@ internal static class SettingChecks
         }
     }
 
-    /// <summary>Whether the section value joined by <c>:</c> with one of the properties spells the key.</summary>
+    /// <summary>Whether the section value joined by <c>:</c> with one of the properties spells the configuration path.</summary>
     /// <param name="bound">The marked options class whose section name and properties are tested.</param>
-    /// <param name="key">The configuration key the setting declares.</param>
-    /// <returns>True when the section name joined with a property name spells the key exactly; otherwise false.</returns>
-    private static bool SpellsKey(Readers.Settings.OptionsClass bound, string key)
+    /// <param name="path">The configuration path the setting declares.</param>
+    /// <returns>True when the section name joined with a property name spells the path exactly; otherwise false.</returns>
+    private static bool SpellsKey(Readers.Settings.OptionsClass bound, string path)
     {
         if (bound.SectionName is not { Length: > 0 })
         {
@@ -115,7 +145,7 @@ internal static class SettingChecks
 
         foreach (var property in bound.Properties)
         {
-            if (string.Concat(bound.SectionName, ":", property).Equals(key, StringComparison.Ordinal))
+            if (string.Concat(bound.SectionName, ":", property).Equals(path, StringComparison.Ordinal))
             {
                 return true;
             }
@@ -238,7 +268,7 @@ internal static class SettingChecks
 
         var where = keys.Count == 1 ? $"template '{keys[0]}'" : "its templates";
 
-        foreach (var param in notification.Strings(RecordFields.Params))
+        foreach (var param in notification.Strings(RecordFields.Parameters))
         {
             var pascal = Naming.Pascal(param);
 

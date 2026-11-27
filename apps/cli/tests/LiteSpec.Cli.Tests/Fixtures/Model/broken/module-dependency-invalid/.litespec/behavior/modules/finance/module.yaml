@@ -3,3 +3,7 @@ id: module/finance
 title: Finance
 dependsOn:
   - module/lending
+responsibilities:
+  - Finance tracks fines.
+excludes:
+  - Finance lends no copies.

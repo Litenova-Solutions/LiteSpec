@@ -25,9 +25,11 @@ static class ProcessRunner
     /// <param name="workdir">The folder the program runs in.</param>
     /// <param name="timeout">The longest time the program may run.</param>
     /// <param name="stdin">The text written to the program's standard input, or null for none.</param>
+    /// <param name="environment">The variables set in the program's environment on top of this process's, or null for none.</param>
     /// <returns>The exit status with the captured output bytes and error text. A timeout and a missing program report status 1.</returns>
     public static Result Capture(
-        string file, IReadOnlyList<string> args, string workdir, TimeSpan timeout, string? stdin = null)
+        string file, IReadOnlyList<string> args, string workdir, TimeSpan timeout, string? stdin = null,
+        IReadOnlyDictionary<string, string>? environment = null)
     {
         var start = new ProcessStartInfo(file)
         {
@@ -37,6 +39,11 @@ static class ProcessRunner
             UseShellExecute = false,
             WorkingDirectory = workdir,
         };
+
+        foreach (var (name, value) in environment ?? new Dictionary<string, string>())
+        {
+            start.Environment[name] = value;
+        }
 
         foreach (var arg in args)
         {

@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Model.Ui;
 ///     The route coverage checks of the UI validator: every route a frontend
 ///     discovers is visited by its route suite.
 /// </summary>
-/// <follows>litespec/frontend/ui#check-every-route</follows>
+/// <follows>litespec/core/ui-verification#run-geometry-sensors-on-every-route</follows>
 sealed class RouteCoverageChecks
 {
     /// <summary>The state of the run.</summary>
@@ -93,7 +93,7 @@ sealed class RouteCoverageChecks
     // its file, so the file is the fixed contract. A route without
     // tests/routes/every-route.spec.ts under its frontend root is a route
     // the browser checks never visit, and each one is reported by name.
-    // (litespec/frontend/ui#check-every-route)
+    // (litespec/core/ui-verification#run-geometry-sensors-on-every-route)
     /// <summary>
     ///     Requires the route suite that visits every route of one frontend.
     /// </summary>
@@ -118,7 +118,7 @@ sealed class RouteCoverageChecks
         var expected = PathText.Relative(session.Root, suite);
         foreach (var file in files)
         {
-            session.Add("ui-route-suite-missing", $"[litespec/frontend/ui#check-every-route] {label}: route '{PathText.Relative(session.Root, file)}' has no route suite at '{expected}'", file);
+            session.Add("ui-route-suite-missing", $"[litespec/core/ui-verification#run-geometry-sensors-on-every-route] {label}: route '{PathText.Relative(session.Root, file)}' has no route suite at '{expected}'", file);
         }
     }
 }

@@ -1,0 +1,23 @@
+schemaVersion: 2
+terms:
+- id: term/check-in
+  term: Check-in
+  meaning: A recorded health entry the backend sample holds.
+  layer: behavior
+- id: term/health-check
+  term: Health check
+  meaning: A single recorded visit the Health module shows.
+  layer: behavior
+- id: term/self-scope
+  term: Self Scope
+  meaning: The reach of a grant over the records the caller recorded themselves.
+  layer: intent
+mannered:
+- term: load-bearing
+  instead: required
+- term: one-way door
+  instead: irreversible
+- term: earns its keep
+  instead: still matters
+- term: a dial worth turning
+  instead: a parameter worth varying

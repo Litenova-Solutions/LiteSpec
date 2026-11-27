@@ -41,8 +41,7 @@ internal sealed partial class TemplateValidator
         ["tutorial.md"] = "docs/tutorial/template.md",
         ["command.md"] = "docs/tools/template.md",
         ["reference.md"] = "docs/reference/template.md",
-        ["stack.md"] = "docs/backend/template/stack.md",
-        ["pattern.md"] = "docs/frontend/patterns/template.md",
+        ["stack.md"] = "docs/packs/template/stack.md",
         ["explanation.md"] = "docs/learn/template.md",
         ["index.md"] = "docs/template/README.md",
     };
@@ -54,7 +53,7 @@ internal sealed partial class TemplateValidator
     // hold entries, not documents.
     /// <summary>Gets the container page styles held in record files.</summary>
     private static readonly HashSet<string> ContainerPageStyles = new(
-        ["permission-list", "entry-point-list", "setting-set", "rule-set", "retention-schedule"],
+        ["permission-set", "entry-point-set", "refusal-set"],
         StringComparer.Ordinal);
 
     /// <summary>Replaces the placeholder identifiers of an authoring template with valid ones.</summary>
@@ -73,11 +72,9 @@ internal sealed partial class TemplateValidator
         .Replace("{Command Title}", "Command Title", StringComparison.Ordinal)
         .Replace("{Reference Title}", "Reference Title", StringComparison.Ordinal)
         .Replace("{Stack Title}", "Stack Title", StringComparison.Ordinal)
-        .Replace("{Pattern Title}", "Pattern Title", StringComparison.Ordinal)
         .Replace("{Explanation Title}", "Explanation Title", StringComparison.Ordinal)
-        .Replace("{litespec/page#apply-one-stack-obligation}", "litespec/backend/template/stack#apply-one-stack-obligation", StringComparison.Ordinal)
-        .Replace("{litespec/page#use-one-stack-default}", "litespec/backend/template/stack#use-one-stack-default", StringComparison.Ordinal)
-        .Replace("{litespec/page#record-header}", "litespec/frontend/patterns/template#record-header", StringComparison.Ordinal);
+        .Replace("{litespec/page#apply-one-stack-obligation}", "litespec/packs/template/stack#apply-one-stack-obligation", StringComparison.Ordinal)
+        .Replace("{litespec/page#use-one-stack-default}", "litespec/packs/template/stack#use-one-stack-default", StringComparison.Ordinal);
 
     /// <summary>Checks every authoring template against the page contract it seeds.</summary>
     internal void CheckAuthoringTemplates()
@@ -148,53 +145,6 @@ internal sealed partial class TemplateValidator
         }
 
         return new string(chars);
-    }
-
-    // A record template is a copy of one Claimwick record, and its identifier names
-    // that record. A template without an identifier is not a record (the glossary, the
-    // project file and the UI catalogs), so the copy check does not apply to it.
-    // (litespec/core/authoring#copy-each-template-from-the-example)
-    /// <summary>Checks that each record template equals the Claimwick example record its identifier names.</summary>
-    internal void CheckTemplateSources()
-    {
-        var root = Context.Root;
-        var add = Context.Add;
-        var directory = Path.Combine(root, "templates", "consumer");
-        if (!Directory.Exists(directory))
-        {
-            return;
-        }
-
-        var examples = new Dictionary<string, JsonNode>(StringComparer.Ordinal);
-        foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", ".litespec"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
-        {
-            if (RecordsValidator.TryParseRecordFile(FileText.ReadText(file), out var node, out _)
-                && node is JsonObject
-                && JsonString(node["id"]) is { } id)
-            {
-                examples.TryAdd(id, node);
-            }
-        }
-
-        foreach (var file in Directory.GetFiles(directory, "*.yaml").OrderBy(name => name, StringComparer.Ordinal))
-        {
-            var relative = PathText.Relative(root, file);
-            if (!RecordsValidator.TryParseRecordFile(FileText.ReadText(file), out var template, out _)
-                || template is not JsonObject
-                || JsonString(template["id"]) is not { } id)
-            {
-                continue;
-            }
-
-            if (!examples.TryGetValue(id, out var source))
-            {
-                add(relative, 1, MaintainerDiagnostics.Codes.TemplateSourceMissing, $"template names record '{id}', which the Claimwick example lacks");
-            }
-            else if (!JsonNode.DeepEquals(template, source))
-            {
-                add(relative, 1, MaintainerDiagnostics.Codes.TemplateSourceDiffers, $"template differs from example record '{id}'; copy the record again");
-            }
-        }
     }
 
     /// <summary>Checks that the consumer template index names every tracked template.</summary>

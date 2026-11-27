@@ -14,7 +14,7 @@ internal static class MaintainerDiagnostics
         Codes.ConventionDefaultSentence,
         Codes.ConventionMissingDefault,
         Codes.ConventionMissingReplacement,
-        Codes.ConventionReplacementDeviation,
+        Codes.ConventionReplacementWaiver,
         Codes.ConventionReplacementSentence,
         Codes.ExtensionActivation,
         Codes.ExtensionBaseline,
@@ -41,8 +41,9 @@ internal static class MaintainerDiagnostics
         Codes.IdPageFilename,
         Codes.IdUnknownReference,
         Codes.IndexContainsProcedure,
-        Codes.IndexIntent,
+        Codes.PageLeadMissing,
         Codes.LinkBroken,
+        Codes.LinkAnnotationMissing,
         Codes.ManifestAnalyzerPin,
         Codes.ManifestAnalyzerRule,
         Codes.ManifestAnchor,
@@ -59,10 +60,12 @@ internal static class MaintainerDiagnostics
         Codes.PageTitleCase,
         Codes.PageTitleCount,
         Codes.PageUnknownSection,
-        Codes.PatternInvalid,
         Codes.ProseNonAscii,
+        Codes.ProseBannedPhrase,
+        Codes.ProseParagraphLength,
         Codes.ProseNormativeLocation,
         Codes.ProvisionsStale,
+        Codes.ProvisionCheckScope,
         Codes.ProvisionRestatesHeading,
         Codes.RecordDecisionUncited,
         Codes.RecordExplanationMissing,
@@ -102,8 +105,6 @@ internal static class MaintainerDiagnostics
         Codes.ValueStyle,
         Codes.TemplateIndexPath,
         Codes.TemplateSchema,
-        Codes.TemplateSourceMissing,
-        Codes.TemplateSourceDiffers,
         Codes.IndexMissingRouting,
         Codes.LayerUnlisted,
         Codes.GeneratedStale,
@@ -117,12 +118,40 @@ internal static class MaintainerDiagnostics
         Codes.ExampleRecordUnknown,
         Codes.FindingCodeUnknown,
         Codes.IndexPageMissing,
-        Codes.PatternOptionCount,
         Codes.PackagedPathLong,
         Codes.TemplateCitedUnknown,
         Codes.TemplateCitationUnknown,
         Codes.StandardStrengthModal,
     ];
+
+    /// <summary>Gets the diagnostic codes reported as warnings, in declaration order: the sentence, modal, casing, and wording findings that print but do not fail validation.</summary>
+    public static IReadOnlyList<string> Warnings { get; } =
+    [
+        Codes.ConventionDefaultSentence,
+        Codes.ConventionReplacementWaiver,
+        Codes.ConventionReplacementSentence,
+        Codes.GlossaryDefinition,
+        Codes.HeadingAction,
+        Codes.PageHeadingCase,
+        Codes.PageTitleCase,
+        Codes.ProseNormativeLocation,
+        Codes.ProvisionRestatesHeading,
+        Codes.StandardDeviationNormative,
+        Codes.StandardDeviationSentence,
+        Codes.StandardInformativeNormative,
+        Codes.StandardModalCount,
+        Codes.StandardModalVocabulary,
+        Codes.StandardSentenceCount,
+        Codes.VerifyDuplicateEvidence,
+        Codes.VerifyGenericEvidence,
+        Codes.VerifyTemplatedEvidence,
+        Codes.ValueStyle,
+    ];
+
+    /// <summary>Reports whether a diagnostic code is a warning rather than an error.</summary>
+    /// <param name="code">The diagnostic code.</param>
+    /// <returns>True when the code is a warning.</returns>
+    public static bool IsWarning(string code) => Warnings.Contains(code);
 
     /// <summary>The diagnostic code constants.</summary>
     internal static class Codes
@@ -142,8 +171,8 @@ internal static class MaintainerDiagnostics
         /// <summary>A convention missing a Replacement.</summary>
         public const string ConventionMissingReplacement = "CONVENTION_MISSING_REPLACEMENT";
 
-        /// <summary>A convention Replacement that names a deviation.</summary>
-        public const string ConventionReplacementDeviation = "CONVENTION_REPLACEMENT_DEVIATION";
+        /// <summary>A convention Replacement that names a waiver.</summary>
+        public const string ConventionReplacementWaiver = "CONVENTION_REPLACEMENT_WAIVER";
 
         /// <summary>A convention Replacement with more than one sentence.</summary>
         public const string ConventionReplacementSentence = "CONVENTION_REPLACEMENT_SENTENCE";
@@ -181,7 +210,7 @@ internal static class MaintainerDiagnostics
         /// <summary>A layer page reached by no stack selection.</summary>
         public const string LayerUnreachable = "LAYER_UNREACHABLE";
 
-        /// <summary>A shape backend page outside docs/backend.</summary>
+        /// <summary>A shape backend page outside docs/core.</summary>
         public const string ShapePage = "SHAPE_PAGE";
 
         /// <summary>A stack folder that holds no stack.md.</summary>
@@ -223,11 +252,14 @@ internal static class MaintainerDiagnostics
         /// <summary>An index that contains a procedure.</summary>
         public const string IndexContainsProcedure = "INDEX_CONTAINS_PROCEDURE";
 
-        /// <summary>An index intent problem.</summary>
-        public const string IndexIntent = "INDEX_INTENT";
+        /// <summary>A page with no lead paragraph under its title.</summary>
+        public const string PageLeadMissing = "PAGE_LEAD_MISSING";
 
         /// <summary>A broken link.</summary>
         public const string LinkBroken = "LINK_BROKEN";
+
+        /// <summary>A link property of the record schema that lacks its reads-as or read-back-as annotation.</summary>
+        public const string LinkAnnotationMissing = "LINK_ANNOTATION_MISSING";
 
         /// <summary>An analyzer pin that differs from the project version.</summary>
         public const string ManifestAnalyzerPin = "MANIFEST_ANALYZER_PIN";
@@ -277,17 +309,23 @@ internal static class MaintainerDiagnostics
         /// <summary>A page with an unknown section.</summary>
         public const string PageUnknownSection = "PAGE_UNKNOWN_SECTION";
 
-        /// <summary>An invalid pattern page.</summary>
-        public const string PatternInvalid = "PATTERN_INVALID";
-
         /// <summary>A non-ASCII character in prose.</summary>
         public const string ProseNonAscii = "PROSE_NON_ASCII";
+
+        /// <summary>A banned phrase in prose.</summary>
+        public const string ProseBannedPhrase = "PROSE_BANNED_PHRASE";
+
+        /// <summary>A prose paragraph over the word limit.</summary>
+        public const string ProseParagraphLength = "PROSE_PARAGRAPH_LENGTH";
 
         /// <summary>Normative vocabulary outside a provision assertion.</summary>
         public const string ProseNormativeLocation = "PROSE_NORMATIVE_LOCATION";
 
         /// <summary>A generated provision artifact that differs from the active standards.</summary>
         public const string ProvisionsStale = "PROVISIONS_STALE";
+
+        /// <summary>A provision that does not state the conditions of the checks it cites.</summary>
+        public const string ProvisionCheckScope = "PROVISION_CHECK_SCOPE";
 
         /// <summary>A provision assertion that only restates its heading.</summary>
         public const string ProvisionRestatesHeading = "PROVISION_RESTATES_HEADING";
@@ -367,7 +405,7 @@ internal static class MaintainerDiagnostics
         /// <summary>A Statement with more than one sentence.</summary>
         public const string StandardSentenceCount = "STANDARD_SENTENCE_COUNT";
 
-        /// <summary>A non-recommendation with a Deviation statement.</summary>
+        /// <summary>A required Standard with a Deviation statement, which only a recommendation carries.</summary>
         public const string StandardUnexpectedDeviation = "STANDARD_UNEXPECTED_DEVIATION";
 
         /// <summary>Content outside a Rationale or Example label.</summary>
@@ -405,12 +443,6 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A template that does not satisfy its schema.</summary>
         public const string TemplateSchema = "TEMPLATE_SCHEMA";
-
-        /// <summary>A record template whose identifier names no record in the Claimwick example.</summary>
-        public const string TemplateSourceMissing = "TEMPLATE_SOURCE_MISSING";
-
-        /// <summary>A record template that is not a copy of the Claimwick example record it names.</summary>
-        public const string TemplateSourceDiffers = "TEMPLATE_SOURCE_DIFFERS";
 
         /// <summary>An index missing a routing block.</summary>
         public const string IndexMissingRouting = "INDEX_MISSING_ROUTING";
@@ -450,9 +482,6 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A docs page that the index page does not link, directly or through a section index.</summary>
         public const string IndexPageMissing = "INDEX_PAGE_MISSING";
-
-        /// <summary>A pattern that offers more than three options.</summary>
-        public const string PatternOptionCount = "PATTERN_OPTION_COUNT";
 
         /// <summary>A file the tool package carries whose path is too long for NuGet to pack.</summary>
         public const string PackagedPathLong = "PACKAGED_PATH_LONG";

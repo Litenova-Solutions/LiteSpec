@@ -1,0 +1,19 @@
+type: decision
+id: decision/0074-declare-access-settings-and-deadlines
+title: Declare Access Settings and Deadlines
+context: "Each sensitive use case wrote its own sign-in window, so one consumer held four copies of the same window. Settings named no readers and left records open to silent change, while deadlines stayed in job prose with no link to the state they moved."
+options:
+  - name: "A recent-sign-in setting, readable dated settings, and timed transitions"
+    pros: "One window covers sensitive acts with a derived refusal. Settings state readers, dates, and typed defaults. Deadlines move states with no prose jobs."
+    cons: "The product names its window. Each dated setting and timed transition is written by hand."
+  - name: "Keep guards, prose windows, and scheduled prose"
+    pros: "No record moves and no setting is added."
+    cons: "The same window is written in every use case and drifts. Settings change posted records silently. Deadlines stay hidden in job prose."
+  - name: "A central policy record for access, settings, and time"
+    pros: "One place holds every bound."
+    cons: "The policy duplicates each record's own fields. It drifts from them."
+choice: "A recent-sign-in setting, readable dated settings, and timed transitions"
+consequences: "`access` takes `recentSignIn` naming the `setting/` holding the window. The refusal derives like `forbidden`. `litespec/core/access#limit-the-age-of-a-sign-in` states the rule. `reads` on a use case, reaction, or job names `setting/` identifiers. A setting no record reads is reported. `dated: true` states that each value applies from a date and never changes a posted record. `default` takes the setting's `valueType`. A transition carries `after` from entering its source state with `movedBy` naming a `job/`. `litespec/core/automation#move-a-state-by-time-with-a-timed-transition` states the timed move. Long-running processes stay a pattern of states, reactions, and timed transitions."
+reopenedWhen: "A sensitive act needs a window the product setting cannot state. Or a deadline needs more than a duration and a job."
+basedOn:
+  - research/lower-layers-practice

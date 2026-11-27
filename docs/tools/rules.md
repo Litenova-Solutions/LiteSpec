@@ -7,34 +7,58 @@
 ## Synopsis
 
 ```bash
-litespec rules [--root <consumer>] <path or record id> [--full]
+litespec rules [--root <consumer>] <path or record id> [--full] [--all]
 litespec rules [--root <consumer>] --since <ref>
 litespec rules [--root <consumer>] <provision id or page id>
 ```
 
 ## Description
 
-An agent runs `rules <path>` before editing a file, and before reporting done answers each judgment provision `rules --since <base>` lists, following `litespec/core/agent#load-applicable-provisions-before-editing`. The command derives the target's stack, concern, and artifact, reads the claimed layers from `layers` in `.litespec/project.yaml`, and returns only the provisions whose layer is `any` or claimed, and, for Implementation and Proof, whose trace is `yes` or whose layer the project claims with `litespec`. Each provision carries its layer and trace in the provision index. `rules <...> --full` prints every returned provision as a statement with the rationale and the example under each item.
+An agent runs `rules <path>` before editing a file, following `litespec/core/agent#load-applicable-provisions-before-editing`, and answers each judgment provision `rules --since <base>` lists before reporting done.
 
-The target is a file or folder path under the consumer root, or a record identifier such as `use-case/spending.submit-expense`. A provision identifier or a page identifier such as `litespec/backend/application` looks up the standard itself. A path query reads the file's marks: `implements`, `follows`, and `proves` in XML, attribute, typed-constant, and `proves()` call form.
+The command works out the target's stack, concern, and artifact, reads the claimed layers from `layers` in `.litespec/project.yaml`, and returns only the provisions that fit: a layer of `any` or a claimed layer, and, for Implementation and Proof, a trace of `yes` or a layer the project claims with `litespec`. The provision index carries each provision's layer and trace.
 
-A provision applies when its scope meets the target. An artifact-scoped provision matches the target artifact and each marked record of its artifact. A page-scope provision, one without an artifact, matches the target layer. A provision with a `when` condition needs its condition met by the marked record on a code path: `query` for a use case with kind `query`, `command` for kind `command`, `upload` for a use case taking a file from the caller, `document-number` for a use case issuing a legal document number, `erasure` for a use case or job erasing personal data, and `audit-adoption` for the decision the audit extension selection names in its `decision` field. `project` meets no record, so a project provision never returns on a code path. A marked provision identifier is always returned. Project conventions print beside the LiteSpec provisions when their scope glob matches the path or their scope vocabulary matches the target's stack, concern, and artifact. A live departure replaces the provision its `covers` names in place, so the replacement shows where the original stood; an expired departure changes nothing.
+With `rules <...> --all`, the full list prints: each checked provision on its own line with its finding codes, and the concern-wide provisions by identifier. With `rules <...> --full`, every returned provision prints as a statement with its rationale and example underneath.
 
-When the target is code, provisions matched only through a marked record print as one line per record: `use-case/spending.approve-expense: <n> provisions about the record; model check checks <m>; run rules use-case/spending.approve-expense for the rest`. A record path or record ID still prints them in full. A record path or record ID prints a conditional provision with its condition shown. A path that marks no record leaves conditional provisions out.
+The target is a file or folder path under the consumer root, or a record identifier such as `use-case/spending.submit-expense`. To look up the standard itself, pass a provision identifier or a page identifier such as `litespec/backend/application`. For a path, the command reads the file's marks, `implements`, `follows`, and `proves`, in XML, attribute, typed-constant, and `proves()` call form.
 
-`rules --since <ref>` takes every file changed since the git revision, returns the union with duplicates removed, leaves out the tool-checked provisions, and prints a report skeleton: one line per judgment provision with its Reviewed for question and an empty `How judged:` line.
+When the target is a use case, reaction or job record id, or a code file implementing one, a contract card prints first, one card per record in file order. The card names the record, then states one line per contract item: the kind and access, each input field with its type and whether it is required, each output field with its group, each result with its outcome and, for a refusal, its code and sentence, the raised events, the read and written records, each effect with its timing, the rules it computes by, and each scenario title. A reaction prints its trigger and outcomes where a use case prints results and raised events.
 
-`rules <provision-id>` prints that provision in full: strength, statement, rationale, example, Reviewed for or Checked by, and page. `rules <page-id>` prints the page's provision list. Both read the carried provisions file, so they work offline.
+A provision applies when its scope meets the target. An artifact-scoped provision matches the target artifact and each marked record of its artifact. A page-scope provision, one without an artifact, matches the target layer. A provision with a `when` condition needs its condition met by the marked record on a code path:
 
-In a project that claims only `intent` and `behavior`, a code path returns no provisions and prints why: `No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records.` A record identifier, and a record file, return the provisions about records. When the project claims Implementation with `own`, the provisions about code marks return, and with `litespec` every provision about code returns.
+- `query` for a use case with kind `query`, and `command` for kind `command`.
+- `upload` for a use case taking a file from the caller.
+- `document-number` for a use case issuing a legal document number.
+- `erasure` for a use case or job erasing personal data.
+- `cross-module` for a use case, reaction or job declaring a `queries` edge to another module's public query or a `commands` edge to another module's public command.
+- `audit-adoption` for the decision the audit extension selection names in its `decision` field.
+- `project` meets no record, so a project provision never returns on a code path.
 
-When the target is code, a `Decided:` group prints first: each decision the file follows with its `choice` and `reopenedWhen`, then each departure covering a provision in the result with its `reason` and, for a gap, its `expiresOn`.
+A marked provision identifier always comes back. Project conventions print beside the LiteSpec provisions when their scope glob matches the path, or their scope vocabulary matches the target's stack, concern, and artifact. A live waiver takes the place of the provision its `waives` names, so the replacement shows where the original stood; an expired waiver changes nothing.
 
-Without `--full`, the provisions print in three parts. The provisions that need judgment and match the file kind or its record print as statements grouped in strength order: Required, Defaults, Advisory, then Patterns. Each such item shows its identifier, its statement, and its reasons, such as `[path match (artifact endpoint); record use-case/spending.submit-expense]`. The provisions a tool checks print under `Checked by a tool:`, one line per provision with its finding codes and analyzer IDs backticked, such as the line for `litespec/backend/application#implement-one-outcome-path-per-command` naming LS2014; a checked provision that names no code prints its checking command. The concern-wide provisions, which govern only through the target's concern, print by identifier only under `Concern-wide:`. With `--full`, every returned provision prints as a statement grouped by strength, with the rationale and the example under each item, and no checked or concern-wide shortening applies.
+For a code target, provisions matched only through a marked record collapse to one line per record: `use-case/spending.approve-expense: <n> provisions about the record; model check checks <m>; run rules use-case/spending.approve-expense for the rest`. A record path or record ID still prints them in full, each conditional provision with its condition shown. A path that marks no record leaves conditional provisions out.
 
-The layer comes from the layout: the `Domain`, `Application`, `Infrastructure`, and `WebApi` folders, the `Contracts`, `UseCases`, and `Jobs` folders, the role suffix of a use-case file, or the project name under `layer-projects`. A frontend route, module, or frame maps to its frontend layer, a test file to tests, a record file to records, and an operations file to operations. The artifact comes from the file's role suffix, its folder, and the records it marks. A record identifier resolves to the records layer with its type's artifact.
+`rules --since <ref>` gathers every file changed since the git revision and returns the union with duplicates removed, ordered by how many changed files each provision governs, most first. Tool-checked provisions are left out, and what prints is a report skeleton: one line per judgment provision with its file count, its Reviewed for question, and an empty `How judged:` line.
 
-Only provisions on pages the consumer's stacks, shape, and selected extensions apply are returned, minus the provisions a selected extension replaces.
+`rules <provision-id>` prints one provision in full: strength, statement, rationale, example, Reviewed for or Checked by, and page. `rules <page-id>` prints the page's provision list. Both read the carried provisions file, so both work offline.
+
+A project that claims only `intent` and `behavior` gets no provisions for a code path, and the command prints why: `No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records.` A record identifier, and a record file, still return the provisions about records. When the project claims Implementation with `own`, the provisions about code marks return; with `litespec`, every provision about code returns.
+
+For a code target, a `Decided:` group prints first. It lists each decision the file follows with its `choice` and `reopenedWhen`, then each waiver covering a provision in the result with its `reason` and, for a gap, its `expiresOn`.
+
+On a route file, a `Page frame:` block prints after the Decided group. It names the screen record serving the file's route address, prints the page-frame pattern that screen names in full, then the screen's task, primary action and offers. The pattern prints with its Question, its Default with the screen's chosen option, and the wireframe of the chosen option, or of the Default when the screen names none. When no screen record serves the route, one line says so instead.
+
+Without `--full`, the provisions print in two parts after the card. First come the provisions that need judgment and match the file kind or its record, as statements grouped in strength order: Required, Defaults, Advisory, then Patterns. Each item shows its identifier, its statement, and its reasons, such as `[path match (artifact endpoint); record use-case/spending.submit-expense]`.
+
+Then the checked provisions collapse into one line of the form `<n> checked provisions apply; model check and the analyzers enforce them (litespec rules <path> --all lists them).` The tools already enforce them, so the default output spends no line on each. With `--all`, they print under `Checked by a tool:` instead, one line per provision with its finding codes and analyzer IDs backticked, such as the line for `litespec/core/backend-application#implement-one-outcome-path-per-command` with LS2014. A checked provision that lists no code prints its checking command instead.
+
+The concern-wide provisions, which govern only through the target's concern, stay out of the default output; with `--all` they print by identifier only under `Concern-wide:`. With `--full`, every returned provision prints as a statement grouped by strength, rationale and example under each item, with no checked or concern-wide shortening.
+
+The layer is read from the layout: the top folder of the module, one of `Domain`, `Application`, `Ports`, `Infrastructure`, or `WebApi`, with `Contracts`, `Notifications`, `ExternalSystems`, and `ReadModels` read under their parent layer. A file in a `{Product}.{Module}.Contracts` project reads as application. A frontend route, module, or frame maps to its frontend layer, a test file to tests, a record file to records, and an operations file to operations.
+
+The artifact is read from the file's role suffix, its folder, and the records it marks. A record identifier resolves to the records layer with its type's artifact.
+
+The result holds only provisions on pages the consumer's stacks, shape, and selected extensions apply, minus the provisions a selected extension replaces.
 
 ## Arguments
 
@@ -48,29 +72,36 @@ Only provisions on pages the consumer's stacks, shape, and selected extensions a
 |:---|:---|:---|
 | `--root <consumer>` | the working directory | The folder to start from. The command uses the first folder at or above it that holds `.litespec/project.yaml`. |
 | `--full` | off | Prints every returned provision as a statement, with the rationale and the example under each item, instead of the checked and concern-wide shortening. |
-| `--since <ref>` | off | Prints the report skeleton over the files changed since the git revision, instead of one target. `--full` has no effect with it. |
+| `--all` | off | Prints the full list: each checked provision on its own line with its finding codes and analyzer IDs, and the concern-wide provisions by identifier. |
+| `--since <ref>` | off | Prints the report skeleton over the files changed since the git revision, instead of one target. `--full` and `--all` have no effect with it. |
 | `--help` | off | Prints the usage text and exits 0. |
 
 ## Exit Codes
 
 | Code | Meaning |
-|:---|:---|
+|:--|:--|
 | `0` | The provisions are listed. |
-| `1` | The target names no file, record, provision or page, or the records cannot be read. |
-| `2` | The arguments are wrong, the root or the project file is missing or invalid, the revision names no commit, or the carried release cannot be read. |
+| `1` | The target matches no file, record, provision or page, or the records cannot be read. |
+| `2` | The arguments are wrong, the root or the project file is missing or invalid, the revision matches no commit, or the carried release cannot be read. |
 
 ## Examples
 
 List the provisions that govern a handler before editing it:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs
 ```
 
 Read the rationale and example behind each returned statement:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs --full
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs --full
+```
+
+List each checked provision the default output summarizes:
+
+```bash
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Application/Expenses/SubmitExpense/SubmitExpenseCommandHandler.cs --all
 ```
 
 List the provisions that govern a use case record:
@@ -88,7 +119,7 @@ litespec rules --root ../consumer --since main
 Read one provision in full:
 
 ```bash
-litespec rules --root ../consumer litespec/backend/application#keep-command-handlers-to-load-call-and-stage
+litespec rules --root ../consumer litespec/core/backend-application#keep-command-handlers-to-load-call-and-stage
 ```
 
 List one page's provisions:
@@ -100,9 +131,21 @@ litespec rules --root ../consumer litespec/backend/application
 Show the decisions behind a renderer:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Application/ReceiptPdfRenderer.cs
+litespec rules --root ../consumer apps/api/src/Modules/Claimwick.Spending/Infrastructure/ReceiptPdf/ReceiptPdfRenderer.cs
 ```
 
 ## Underneath
 
-The command reads the provisions, with each provision's layer, trace and verification mark, from the generated `docs/reference/provisions.json` in the carried release when it exists, and parses the standards pages themselves otherwise, so it works with or without the generated file. It reads the claimed layers from `.litespec/project.yaml` through the consumer configuration the model builder reads. It resolves the applied pages and provisions through the manifest's stack folders, shape pages, and selected extensions, the same selection `litespec model check` enforces. It reads project conventions from `.litespec/governance/conventions/` and departure records from the departures folders under `.litespec/governance/`. It evaluates `when` against each marked record file. It reads the use-case kind for `query` and `command`. Upload holds when a caller input names a file: file, upload, photo, image, picture, attachment, receipt, scan, pdf or document, without naming a number. Document-number holds when the record names an invoice, payout, reimbursement, voucher, document number or legal number. Erasure holds when the record names erasure, pseudonymizing or anonymizing. Project holds for no record. Audit-adoption holds when the marked record is a decision the audit selection in `.litespec/project.yaml` names in its `decision` field. The Decided group reads each followed decision's `choice` and `reopenedWhen` from its record file. Change-set mode runs the git reading `model check --since` uses. Identifier lookup reads every provision from the carried provisions file without selection filtering, so it works offline. Nothing beneath this command is separately runnable.
+The command reads the provisions, with each provision's layer, trace and verification mark, from the generated `docs/reference/provisions.json` in the carried release when it exists, and parses the standards pages themselves otherwise, so it works with or without the generated file.
+
+The claimed layers come from `.litespec/project.yaml` through the consumer configuration the model builder reads. The applied pages and provisions resolve through the manifest's stack folders, shape pages, and selected extensions, the same selection `litespec model check` enforces.
+
+Project conventions come from `.litespec/governance/conventions/` and waiver records from the waivers folders under `.litespec/governance/`.
+
+Each `when` condition is evaluated against the marked record file: the use-case kind for `query` and `command`, a caller input carrying a file for upload, an invoice, payout, reimbursement, voucher, document number or legal number for document-number, erasure, pseudonymizing or anonymizing for erasure, a `queries` edge or a `commands` edge for cross-module, and the decision the audit selection states in its `decision` field for audit-adoption. Project holds for no record.
+
+The contract card reads the use case, reaction or job record file the target states from the consumer's record roots and restates its contract one item per line. The Decided group reads each followed decision's `choice` and `reopenedWhen` from its record file.
+
+The Page frame block derives the file's route address the way the frontend readers do and matches it against each screen record's `route`. It reads the pattern's Question, Default and wireframes from the page-frame pattern page in the carried release.
+
+Change-set mode runs the git reading `model check --since` uses. Identifier lookup reads every provision from the carried provisions file without selection filtering, so it works offline. Nothing beneath this command is separately runnable.

@@ -1,0 +1,7 @@
+type: direction
+id: direction/<name>
+title: <Title in Title Case>
+terms:
+- <term id, or remove this line>
+summary: <why the owner wants it, or remove this line>
+statement: <the product once it has grown this way, in one sentence>

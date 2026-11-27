@@ -1,0 +1,33 @@
+{
+  "protocol": 1,
+  "reader": "1.2.0",
+  "typescript": "6.0.3",
+  "svelte": "5.57.2",
+  "frontends": [
+    {
+      "name": "web",
+      "modules": [],
+      "routes": [
+        {
+          "file": "src/routes/expenses/+page.svelte",
+          "line": 2,
+          "address": "/expenses",
+          "marks": [
+            "screen/web.expense-list"
+          ],
+          "calls": [
+            {
+              "operation": "listExpenses",
+              "file": "src/routes/expenses/+page.svelte",
+              "line": 12,
+              "fromLayout": false
+            }
+          ],
+          "navigations": []
+        }
+      ],
+      "tests": [],
+      "diagnostics": []
+    }
+  ]
+}

@@ -8,7 +8,7 @@ public sealed class CommandPipelineAnalyzerTests
 {
     /// <summary>LS2004 accepts a handler calling a repository.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a handler calling a repository")]
     public Task AcceptsAHandlerCallingARepository() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -25,12 +25,15 @@ public sealed class CommandPipelineAnalyzerTests
             {
                 public void Handle(PlaceOrderCommand command) => orders.Store(command);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
-    /// <summary>No rule reports a command handler dispatching through the mediator.</summary>
+    /// <summary>
+    ///     LS2004 reports no session write for a command handler holding the command mediator. The mediator
+    ///     itself is LS2021's finding, which MessageSentOutsideEntryPointAnalyzerTests covers.
+    /// </summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
-    [Fact(DisplayName = "No rule reports a command handler dispatching through the mediator")]
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    [Fact(DisplayName = "LS2004 stays quiet for a command handler holding the command mediator")]
     public Task AcceptsADispatchThroughTheMediator() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
             using System.Threading;
@@ -50,11 +53,11 @@ public sealed class CommandPipelineAnalyzerTests
                 public Task HandleAsync(PlaceOrderCommand command, CancellationToken cancellationToken) =>
                     mediator.SendAsync(command, cancellationToken);
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2004 reports an IDocumentSession field.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an IDocumentSession field")]
     public Task ReportsASessionField() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -72,11 +75,11 @@ public sealed class CommandPipelineAnalyzerTests
                     private readonly {|LS2004:IDocumentSession|} _session = null!;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2004 reports a DbContext subclass parameter.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a DbContext subclass parameter")]
     public Task ReportsADbContextSubclassParameter() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -94,11 +97,11 @@ public sealed class CommandPipelineAnalyzerTests
                     public PlaceOrderCommandHandler({|LS2004:ShopDb|} db) { }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2004 reports a session property.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session property")]
     public Task ReportsASessionProperty() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -116,11 +119,11 @@ public sealed class CommandPipelineAnalyzerTests
                     public {|LS2004:IDocumentSession|} Session { get; } = null!;
                 }
             }
-            """, assemblyName: "Shop.Infrastructure");
+            """, path: "Shop.Spending/Infrastructure/Source.cs");
 
     /// <summary>LS2004 reports a session local.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports a session local")]
     public Task ReportsASessionLocal() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -143,11 +146,11 @@ public sealed class CommandPipelineAnalyzerTests
                     }
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2004 reports an invocation through a session receiver.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 reports an invocation through a session receiver")]
     public Task ReportsASessionReceiverInvocation() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -172,11 +175,11 @@ public sealed class CommandPipelineAnalyzerTests
                     public void Handle(PlaceOrderCommand command) => GetSession().{|LS2004:Store|}(command);
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2004 accepts a query handler using IDocumentSession.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 accepts a query handler using IDocumentSession")]
     public Task AcceptsAQueryHandlerUsingTheSession() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -194,11 +197,11 @@ public sealed class CommandPipelineAnalyzerTests
                     private readonly IDocumentSession _session = null!;
                 }
             }
-            """, assemblyName: "Shop.Application");
+            """, path: "Shop.Spending/Application/Source.cs");
 
     /// <summary>LS2004 stays silent in WebApi.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in WebApi")]
     public Task StaysSilentInWebApi() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -220,7 +223,7 @@ public sealed class CommandPipelineAnalyzerTests
 
     /// <summary>LS2004 stays silent in Domain.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
+    /// <proves>litespec/packs/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
     [Fact(DisplayName = "LS2004 stays silent in Domain")]
     public Task StaysSilentInDomain() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
@@ -238,27 +241,6 @@ public sealed class CommandPipelineAnalyzerTests
                     private readonly IDocumentSession _session = null!;
                 }
             }
-            """);
+            """, path: "Shop.Spending/Domain/Source.cs");
 
-    /// <summary>LS2004 follows the LiteSpecLayer property over the assembly name.</summary>
-    /// <returns>A task that completes when the assertion finishes.</returns>
-    /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
-    [Fact(DisplayName = "LS2004 follows the LiteSpecLayer property over the assembly name")]
-    public Task FollowsTheDeclaredLayer() =>
-        Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
-            using Marten;
-
-            namespace Marten
-            {
-                public interface IDocumentSession { }
-            }
-
-            namespace Shop.Core
-            {
-                internal sealed class PlaceOrderCommandHandler
-                {
-                    private readonly {|LS2004:IDocumentSession|} _session = null!;
-                }
-            }
-            """, assemblyName: "Shop.Core", layer: "Infrastructure");
 }
