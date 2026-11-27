@@ -135,14 +135,30 @@ sealed partial class ProjectModel
     public List<UnmatchedCall> UnmatchedCalls { get; } = [];
 
     /// <summary>Gets records by id.</summary>
-    public IReadOnlyDictionary<string, Record> ById =>
-        _byId ??= Records
-            .Where(record => record.Id.Length > 0)
-            .GroupBy(record => record.Id, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, Record> ById
+    {
+        get
+        {
+            // The builder adds records after a reader may already have asked for the index, so the index
+            // is rebuilt whenever the record count it was built from no longer matches.
+            if (_byId is null || _byIdCount != Records.Count)
+            {
+                _byId = Records
+                    .Where(record => record.Id.Length > 0)
+                    .GroupBy(record => record.Id, StringComparer.Ordinal)
+                    .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+                _byIdCount = Records.Count;
+            }
+
+            return _byId;
+        }
+    }
 
     /// <summary>The cached records-by-id index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _byId;
+
+    /// <summary>The record count the cached index was built from.</summary>
+    private int _byIdCount = -1;
 
 
     /// <summary>Gets use-case records by the name their identifier ends in, the first one when names repeat.</summary>

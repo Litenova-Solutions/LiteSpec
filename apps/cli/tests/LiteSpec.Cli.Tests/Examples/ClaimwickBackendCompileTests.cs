@@ -341,7 +341,7 @@ public sealed class ClaimwickBackendCompileTests
     static readonly ImmutableArray<MetadataReference> References = LoadReferences();
 
     /// <summary>The whole Claimwick backend compiles with no errors.</summary>
-    /// <proves>litespec/core/model#generate-record-determined-code-from-the-records</proves>
+    /// <proves>litespec/core/model#sync-record-determined-code-from-the-records</proves>
     [Fact]
     public void ClaimwickBackendCompilesWithNoErrors()
     {

@@ -4800,6 +4800,24 @@
       ]
     },
     {
+      "file": "docs/tools/agent-sync.md",
+      "path": "tools/agent-sync",
+      "style": "command",
+      "area": "tools",
+      "title": "Agent Sync",
+      "intent": "\u0060litespec agent sync\u0060 writes the thin root agent context, the path-scoped rule files, and the hook settings from the project\u0027s stacks and selected extensions only.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
       "file": "docs/tools/api-explore.md",
       "path": "tools/api-explore",
       "style": "command",
@@ -4854,12 +4872,30 @@
       ]
     },
     {
-      "file": "docs/tools/generate.md",
-      "path": "tools/generate",
+      "file": "docs/tools/docs.md",
+      "path": "tools/docs",
       "style": "command",
       "area": "tools",
-      "title": "Generate",
-      "intent": "\u0060litespec generate\u0060 writes the code the records fully determine, from the \u0060generate\u0060 targets of the consumer declaration.",
+      "title": "Docs Review and Render",
+      "intent": "\u0060litespec docs review\u0060 runs the prose lints on the Markdown and record files changed since a revision and writes a review packet an independent reviewer answers. \u0060litespec docs render --changed\u0060 re-renders the book pages of only the records whose content hash changed since the last render.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/hook.md",
+      "path": "tools/hook",
+      "style": "command",
+      "area": "tools",
+      "title": "Hook",
+      "intent": "\u0060litespec hook\u0060 runs the agent harness hooks: it reminds each file edit with the provisions that govern the file, and it gates the stop on the blocking findings of the change set.",
       "sections": [
         "Name",
         "Synopsis",
@@ -4926,6 +4962,24 @@
       ]
     },
     {
+      "file": "docs/tools/plan-waves.md",
+      "path": "tools/plan-waves",
+      "style": "command",
+      "area": "tools",
+      "title": "Plan Waves",
+      "intent": "\u0060litespec plan-waves\u0060 prints the conflict-free parallel slices of the consumer, one per aggregate use-case set, with the waves in dependency order.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
       "file": "docs/tools/rename.md",
       "path": "tools/rename",
       "style": "command",
@@ -4962,6 +5016,42 @@
       ]
     },
     {
+      "file": "docs/tools/scaffold.md",
+      "path": "tools/scaffold",
+      "style": "command",
+      "area": "tools",
+      "title": "Scaffold",
+      "intent": "\u0060litespec scaffold\u0060 writes the code files of one use case from its record, into the folders the .NET pack states.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/serve.md",
+      "path": "tools/serve",
+      "style": "command",
+      "area": "tools",
+      "title": "Serve",
+      "intent": "\u0060litespec serve\u0060 runs a stdio MCP server over the warm project model: it loads the model once, keeps it warm, and answers the four MCP tools agents use instead of shelling out to \u0060model check\u0060 and \u0060rules\u0060 on every question.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
       "file": "docs/tools/skill.md",
       "path": "tools/skill",
       "style": "command",
@@ -4980,12 +5070,66 @@
       ]
     },
     {
+      "file": "docs/tools/sync.md",
+      "path": "tools/sync",
+      "style": "command",
+      "area": "tools",
+      "title": "Sync",
+      "intent": "\u0060litespec sync\u0060 writes the pure data the records determine, from the \u0060sync\u0060 targets and the frontend clients of the consumer declaration.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
       "file": "docs/tools/ui-audit.md",
       "path": "tools/ui-audit",
       "style": "command",
       "area": "tools",
       "title": "UI Audit",
       "intent": "\u0060litespec ui audit\u0060 visits each route of a running application in a browser and reports what the rendered pages show wrong.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/ui-review.md",
+      "path": "tools/ui-review",
+      "style": "command",
+      "area": "tools",
+      "title": "UI Review",
+      "intent": "\u0060litespec ui review\u0060 lists the screen routes whose files changed since a revision, pairs each with its golden baseline PNGs when present, and writes a review packet an independent reviewer answers.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/upgrade.md",
+      "path": "tools/upgrade",
+      "style": "command",
+      "area": "tools",
+      "title": "Upgrade Check",
+      "intent": "\u0060litespec upgrade --check\u0060 reports the release changes between the reviewed LiteSpec version of the consumer and the carried release.",
       "sections": [
         "Name",
         "Synopsis",

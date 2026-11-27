@@ -102,7 +102,7 @@ static class Checker
         MarkChecks.Run,
         ReactionSubscriptionChecks.Run,
         OutboxDecisionChecks.Run,
-        GeneratedFileChecks.Run,
+        SyncFileChecks.Run,
         ScreenChecks.Run,
         UiBlueprintChecks.Run,
         ScreenShowsChecks.Run,

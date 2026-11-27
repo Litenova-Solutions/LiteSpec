@@ -1,6 +1,6 @@
 # Overview
 
-The `litespec` command line checks a consumer project, generates its files, and answers lookups about its records. Each command below does one of those jobs: find the one that produces the check or file the task needs.
+The `litespec` command line checks a consumer project, writes its scaffolded and synced files, keeps its agent files current, serves the warm model to agents, and answers lookups about its records. Each command below does one of those jobs: find the one that produces the check or file the task needs.
 
 On a command page, Name and Synopsis give the quick form, and Description and Examples give the detail. The commands that maintain the standard itself live in the [Maintain overview](../maintain/README.md).
 
@@ -24,7 +24,15 @@ Every command accepts `--help`. `model check` also accepts `--format json`, whic
 - [Scaffold Record](new.md): creates a record file and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning file.
 - [Rename Record](rename.md): renames a record identifier and rewrites every link to it.
 - [Model Builder](model.md): checks the project model with the consumer pass, reviews its prose, formats record files, renders generated outputs, answers record queries, and reports module edges.
-- [Generate](generate.md): writes the code the records fully determine, from the `generate` targets of the consumer declaration.
+- [Scaffold](scaffold.md): writes the normal per-use-case code files for one use case record, and never overwrites an existing file.
+- [Sync](sync.md): writes the pure data the records determine, from the `sync` targets and the frontend clients of the consumer declaration.
+- [Serve](serve.md): keeps the project model warm and answers the four MCP tools an agent calls: task packet, check, impact and slice verification.
+- [Agent Sync](agent-sync.md): writes the thin root agent context, the path-scoped rule files and the hook settings.
+- [Hook](hook.md): runs the agent harness hooks for one edit or the stop.
+- [Plan Waves](plan-waves.md): lists conflict-free parallel slices with their exclusive paths from the module graph.
+- [Upgrade](upgrade.md): reports the release changes the project has not applied yet.
+- [Docs Review and Render](docs.md): lints changed docs and records and writes a review packet, or re-renders the book pages of changed records.
+- [UI Review](ui-review.md): lists the changed routes with their golden baselines and writes a review packet.
 - [Book](book.md): serves the project book live on localhost, or writes the static book with `--out`.
 - [Rules Query](rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
 - [Skill](skill.md): installs or removes the litespec skill.

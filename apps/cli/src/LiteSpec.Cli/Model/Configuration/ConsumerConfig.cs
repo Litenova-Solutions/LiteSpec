@@ -105,8 +105,8 @@ sealed class ConsumerConfig
     /// <summary>Gets the declared frontends.</summary>
     public IReadOnlyList<FrontendConfig> Frontends { get; private set; } = [];
 
-    /// <summary>Gets the file sets <c>litespec generate</c> writes from the records, from <c>generate</c>.</summary>
-    public IReadOnlyList<GenerateTarget> Generate { get; private set; } = [];
+    /// <summary>Gets the file sets <c>litespec sync</c> writes from the records, from <c>sync</c>.</summary>
+    public IReadOnlyList<SyncTarget> Sync { get; private set; } = [];
 
     /// <summary>Gets the generated client's sources.</summary>
     public string ApiClientSrc { get; private set; } = "";
@@ -141,7 +141,7 @@ sealed class ConsumerConfig
     /// <summary>Gets the extension ids the project selects in <c>selectedExtensions</c>.</summary>
     public IReadOnlyList<string> Extensions { get; private set; } = [];
 
-    /// <summary>Gets the tenant glossary term id the tenancy extension selection names in <c>tenant</c>; empty when the selection names none.</summary>
+    /// <summary>Gets the tenant glossary term id the top-level <c>tenancy</c> block names in <c>tenant</c>; empty when the project declares no tenancy.</summary>
     public string TenancyTenantTerm { get; private set; } = "";
 
     /// <summary>Gets the mark style the project declares.</summary>
@@ -334,7 +334,7 @@ sealed class ConsumerConfig
 
         config.TestRoots = ReadRoots(config.Root, paths, "testRoots", []);
         config.Frontends = ReadFrontends(config.Root, document);
-        config.Generate = ReadGenerateTargets(document);
+        config.Sync = ReadSyncTargets(document);
         config.ApiClientSrc = Path.Combine(
             Combine(config.Root, ReadString(paths, "apiClient", "packages/api")), "src");
 
@@ -377,15 +377,16 @@ sealed class ConsumerConfig
                 else if (entry is JsonObject container && JsonValues.PropString(container, "id") is { Length: > 0 } objectId)
                 {
                     ids.Add(objectId);
-
-                    if (objectId == "tenancy" && JsonValues.PropString(container, "tenant") is { Length: > 0 } tenant)
-                    {
-                        config.TenancyTenantTerm = tenant;
-                    }
                 }
             }
 
             config.Extensions = ids;
+        }
+
+        // Tenancy is part of Core: the top-level tenancy block names the glossary term of one tenant.
+        if (ObjectAt(document, "tenancy") is { } tenancy && JsonValues.PropString(tenancy, "tenant") is { Length: > 0 } tenantTerm)
+        {
+            config.TenancyTenantTerm = tenantTerm;
         }
 
         if (ObjectAt(document, "proof") is { } proof)
@@ -602,17 +603,17 @@ sealed class ConsumerConfig
         return found;
     }
 
-    /// <summary>Reads the file sets <c>litespec generate</c> writes, the top-level generate array.</summary>
+    /// <summary>Reads the file sets <c>litespec sync</c> writes, the top-level sync array.</summary>
     /// <param name="document">The project file object.</param>
     /// <returns>The declared targets in declaration order, or an empty list when none are declared.</returns>
-    private static List<GenerateTarget> ReadGenerateTargets(JsonObject document)
+    private static List<SyncTarget> ReadSyncTargets(JsonObject document)
     {
-        if (document["generate"] is not JsonArray targets)
+        if (document["sync"] is not JsonArray targets)
         {
             return [];
         }
 
-        var found = new List<GenerateTarget>();
+        var found = new List<SyncTarget>();
 
         foreach (var target in targets.OfType<JsonObject>())
         {
@@ -620,7 +621,7 @@ sealed class ConsumerConfig
                 && JsonValues.PropString(target, "stack") is { Length: > 0 } stack
                 && JsonValues.PropString(target, "path") is { Length: > 0 } path)
             {
-                found.Add(new GenerateTarget(
+                found.Add(new SyncTarget(
                     kind, stack, path,
                     JsonValues.PropString(target, "namespace") ?? ""));
             }

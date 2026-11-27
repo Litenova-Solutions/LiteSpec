@@ -151,8 +151,8 @@ properties:
       - android
     additionalProperties:
       type: object
-  generate:
-    description: 'The files `litespec generate` writes from the records: one target per kind and stack, each naming the folder the files go in. A file the records render that is missing or differs is a `generated-drift` finding.'
+  sync:
+    description: 'The files `litespec sync` writes from the records: one target per kind and stack, each naming the folder the files go in. A file the records render that is missing or differs is a `sync-drift` finding.'
     type: array
     uniqueItems: true
     items:
@@ -438,6 +438,22 @@ properties:
       apiClient:
         description: The generated API client the frontends import, so route calls resolve to the use cases they reach.
         $ref: '#/$defs/projectPath'
+  tenancy:
+    description: 'How the product keeps customers apart when one deployment serves many: the reason it does, and the glossary term naming one tenant. Commands and queries carry that tenant identity without declaring it as an input. A product serving one customer omits the block.'
+    type: object
+    additionalProperties: false
+    required:
+    - criterion
+    - tenant
+    properties:
+      criterion:
+        description: Why one deployment serves many separate customers.
+        type: string
+        minLength: 1
+      tenant:
+        description: The glossary term naming one tenant, such as term/workspace.
+        type: string
+        pattern: '^term/[a-z0-9][a-z0-9.-]*$'
   selectedExtensions:
     description: Extensions active for this project. Each entry records the criterion that was met.
     type: array

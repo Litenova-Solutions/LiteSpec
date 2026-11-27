@@ -35,7 +35,7 @@ stackConfig:
     webapi:
     - apps/api/src/Hosts/Claimwick.WebApi
     templateStore: apps/api/src/Modules/Claimwick.Spending/Application/Notifications/ApprovalReminder/MessageTemplates.cs
-generate:
+sync:
 - kind: refusal-codes
   stack: dotnet
   path: apps/api/src/Modules/Claimwick.{Module}

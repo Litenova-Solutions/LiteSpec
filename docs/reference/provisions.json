@@ -6900,24 +6900,6 @@
       "example": ""
     },
     {
-      "id": "litespec/core/model#generate-record-determined-code-from-the-records",
-      "heading": "Generate Record-Determined Code from the Records",
-      "page": "docs/core/model.md",
-      "anchor": "generate-record-determined-code-from-the-records",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060generated-drift\u0060 for each file \u0060litespec generate\u0060 writes that is missing or differs from what the records render now.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Code that the records fully determine MUST come from \u0060litespec generate\u0060, written again in the same change as the record and never typed by hand.",
-      "rationale": "A typed copy of a record fact drifts the first time the record changes and the copy does not: a refusal code typed into an exception and into the web, a permission name typed into a policy, an event decision typed into startup code. A generator removes the typing, and the drift check removes the drift. The records stay the one source, and the generated files carry no fact of their own. Split into two commands by [decision/0120-scaffold-explicit-files-and-sync-pure-data](../intent/decisions/0120-scaffold-explicit-files-and-sync-pure-data/0120-scaffold-explicit-files-and-sync-pure-data.md): \u0060litespec scaffold\u0060 writes the explicit files a person owns, and \u0060litespec sync\u0060 writes the pure data a tool rewrites.",
-      "example": "The spending refusal codes live in a generated class, with one constant per refusal holding its code. When the receipt rule gains a refusal, the same change runs \u0060litespec generate\u0060 and the exceptions read the new constant."
-    },
-    {
       "id": "litespec/core/model#give-every-record-one-parent",
       "heading": "Give Every Record One Parent",
       "page": "docs/core/model.md",
@@ -7636,6 +7618,24 @@
       "statement": "A rule statement, scenario step, result meaning, and result sentence SHOULD avoid words that hide behavior.",
       "rationale": "The vague words are handle, handles, handled, process, processes, manage, manages, various, etc., appropriate, appropriately, properly, as needed, and so on: each says that something happens without saying what. A reader cannot check a statement that hides its behavior, so each statement names the act in words a test could assert.",
       "example": "A scenario step reads \u0022The member borrows the copy\u0022 rather than \u0022The member handles the copy\u0022."
+    },
+    {
+      "id": "litespec/core/model#sync-record-determined-code-from-the-records",
+      "heading": "Sync Record-Determined Code from the Records",
+      "page": "docs/core/model.md",
+      "anchor": "sync-record-determined-code-from-the-records",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060sync-drift\u0060 for each file \u0060litespec sync\u0060 writes that is missing or differs from what the records render now.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Code that the records fully determine MUST come from \u0060litespec sync\u0060, written again in the same change as the record and never typed by hand.",
+      "rationale": "A typed copy of a record fact drifts the first time the record changes and the copy does not: a refusal code typed into an exception and into the web, a permission name typed into a policy, an event decision typed into startup code. A generator removes the typing, and the drift check removes the drift. The records stay the one source, and the generated files carry no fact of their own. Split into two commands by [decision/0120-scaffold-explicit-files-and-sync-pure-data](../intent/decisions/0120-scaffold-explicit-files-and-sync-pure-data/0120-scaffold-explicit-files-and-sync-pure-data.md): \u0060litespec scaffold\u0060 writes the explicit files a person owns, and \u0060litespec sync\u0060 writes the pure data a tool rewrites.",
+      "example": "The spending refusal codes live in a generated class, with one constant per refusal holding its code. When the receipt rule gains a refusal, the same change runs \u0060litespec sync\u0060 and the exceptions read the new constant."
     },
     {
       "id": "litespec/core/model#take-decision-numbers-from-one-sequence",

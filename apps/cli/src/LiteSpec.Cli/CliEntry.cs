@@ -1,13 +1,20 @@
+using LiteSpec.Cli.Agent;
 using LiteSpec.Cli.Audit;
 using LiteSpec.Cli.Book;
 using LiteSpec.Cli.Context;
 using LiteSpec.Cli.Explore;
-using LiteSpec.Cli.Generate;
+using LiteSpec.Cli.Hook;
 using LiteSpec.Cli.Init;
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.PlanWaves;
 using LiteSpec.Cli.RecordEditing;
+using LiteSpec.Cli.Review;
 using LiteSpec.Cli.Rules;
+using LiteSpec.Cli.Scaffold;
+using LiteSpec.Cli.Serve;
 using LiteSpec.Cli.Skill;
+using LiteSpec.Cli.Upgrade;
+using LiteSpec.Cli.Sync;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli;
@@ -25,13 +32,20 @@ static class CliEntry
           new           Scaffold a record page and reserve its identifier.
           rename        Rename a record identifier and rewrite every link.
           model         Check, review, format, render or query the project model.
-          generate      Write the code the records fully determine.
+          scaffold      Scaffold the code files of one use case from its record.
+          sync          Write the pure data the records determine.
+          serve         Serve the warm project model over MCP on standard input and output.
+          agent         Write the agent context and path-scoped rule files.
+          hook          Run the agent harness hooks for one edit or the stop.
+          docs          Review changed docs or render changed book pages.
           book          Generate the project book from the records.
           context       Write the specification as one compact text file.
           rules         List the provisions that govern a path or record.
           skill         Install or remove the litespec skill.
           ui            Audit the rendered pages in a browser.
           api           Walk a running API from its OpenAPI document and report server faults.
+          plan-waves    List conflict-free parallel slices from the module graph.
+          upgrade       Report the release changes a project has not applied.
 
         Run 'litespec <command> --help' for a command's options.
         'litespec --version' prints the LiteSpec release this tool ships in.
@@ -59,7 +73,14 @@ static class CliEntry
                 "new" => NewCommand.Run(rest),
                 "rename" => RenameCommand.Run(rest),
                 "model" => ModelCommand.Run(rest),
-                "generate" => GenerateCommand.Run(rest),
+                "scaffold" => ScaffoldCommand.Run(rest),
+                "sync" => SyncCommand.Run(rest),
+                "serve" => ServeCommand.Run(rest),
+                "agent" => AgentSyncCommand.Run(rest),
+                "hook" => HookCommand.Run(rest),
+                "docs" => DocsCommand.Run(rest),
+                "plan-waves" => PlanWavesCommand.Run(rest),
+                "upgrade" => UpgradeCommand.Run(rest),
                 "book" => BookCommand.Run(rest),
                 "context" => ContextCommand.Run(rest),
                 "rules" => RulesCommand.Run(rest),

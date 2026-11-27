@@ -102,6 +102,8 @@
     <ItemGroup>
         <EmbeddedResource Include="Book/Assets/book-shell.html" LogicalName="LiteSpec.Book.Assets.%(Filename)%(Extension)" />
         <EmbeddedResource Include="Audit/audit.js" LogicalName="LiteSpec.Audit.audit.js" />
+        <!-- The structured release changes the upgrade check reports, read from the tool assembly. -->
+        <EmbeddedResource Include="../../../../migrations/*.yaml" LogicalName="LiteSpec.Migrations.%(Filename)%(Extension)" />
         <!-- The book client, built by Vite in apps/cli/book into one classic script and one stylesheet. -->
         <EmbeddedResource Include="../../book/dist/book.js;../../book/dist/book.css" LogicalName="LiteSpec.Book.Assets.%(Filename)%(Extension)" Condition="Exists('../../book/dist/book.js')" />
     </ItemGroup>

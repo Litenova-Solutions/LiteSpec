@@ -10,9 +10,9 @@ One deployment serves independent customer organizations, and each organization 
 
 ### When These Rules Apply
 
-These rules apply where independent customer organizations share one deployment with isolated data or policy. One organization with many users is outside them: tenants are separate customers rather than separate logins. A project with messages carrying the tenant identifier names the glossary term for the tenant in the `tenant` field of the project record, such as `tenant: term/workspace`.
+These rules apply where independent customer organizations share one deployment with isolated data or policy. One organization with many users is outside them: tenants are separate customers rather than separate logins. A project serving many customers states it in the `tenancy` block of `.litespec/project.yaml`: the `criterion` saying why one deployment serves many separate customers, and the `tenant` naming the glossary term for one tenant, such as `tenant: term/workspace`.
 
-Where that field is set and a use case declares `access.tenant` of `own`, the message property carrying the tenant is implied: `Workspace` or `WorkspaceId` for `term/workspace`. The use case leaves the property out of `input`. A `tenant` value no record holds is reported as `reference-unknown`, and with the field absent no tenant property is implied.
+Where the block names a tenant and a use case declares `access.tenant` of `own`, the message property carrying the tenant is implied: `Workspace` or `WorkspaceId` for `term/workspace`. The use case leaves the property out of `input`. A `tenant` value no record holds is reported as `reference-unknown`, and with the block absent no tenant property is implied.
 
 ### How Tenant Identity Is Resolved
 

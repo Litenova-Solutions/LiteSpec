@@ -65,9 +65,13 @@ The schema states the files of the workspace's one shared UI package. `litespec 
 
 The schema states every field of a frontend entry. The model builder reads each frontend directory, route suite, and visual goldens from it, and `litespec model check` checks the platform value, the shared package a controlled frontend uses, and the stylesheet path.
 
+### The `tenancy` Object
+
+The schema states the `criterion` saying why one deployment serves many separate customers and the `tenant` glossary term naming one tenant. A product serving one customer omits the object. `litespec model check` reports a `tenant` term no record holds, and treats the tenant identity on each command and query of a use case with `access.tenant` of `own` as implied rather than as an undeclared input.
+
 ### A `selectedExtensions` Entry
 
-The schema states the extension id, the criterion that was met, and the `releaseStage`, `decision`, and `tenant` a selection carries. `litespec model check` refuses an id the pinned release does not ship, and lists the known ids.
+The schema states the extension id, the criterion that was met, and the `releaseStage` and `decision` a selection carries. `litespec model check` refuses an id the pinned release does not ship, and lists the known ids.
 
 ### Placeholders and the Init Fill
 

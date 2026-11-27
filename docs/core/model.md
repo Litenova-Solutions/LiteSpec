@@ -1699,21 +1699,21 @@ The figures below render from the retention schedule at build time.
 
 **Checked by:** `litespec rename` leaves no citation of the old identifier, and `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
 
-### Generate Record-Determined Code from the Records
+### Sync Record-Determined Code from the Records
 
-**ID:** `litespec/core/model#generate-record-determined-code-from-the-records`
+**ID:** `litespec/core/model#sync-record-determined-code-from-the-records`
 
 **Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** Code that the records fully determine MUST come from `litespec generate`, written again in the same change as the record and never typed by hand.
+**Statement:** Code that the records fully determine MUST come from `litespec sync`, written again in the same change as the record and never typed by hand.
 
 **Rationale:** A typed copy of a record fact drifts the first time the record changes and the copy does not: a refusal code typed into an exception and into the web, a permission name typed into a policy, an event decision typed into startup code. A generator removes the typing, and the drift check removes the drift. The records stay the one source, and the generated files carry no fact of their own. Split into two commands by [decision/0120-scaffold-explicit-files-and-sync-pure-data](../intent/decisions/0120-scaffold-explicit-files-and-sync-pure-data/0120-scaffold-explicit-files-and-sync-pure-data.md): `litespec scaffold` writes the explicit files a person owns, and `litespec sync` writes the pure data a tool rewrites.
 
-**Example:** The spending refusal codes live in a generated class, with one constant per refusal holding its code. When the receipt rule gains a refusal, the same change runs `litespec generate` and the exceptions read the new constant.
+**Example:** The spending refusal codes live in a generated class, with one constant per refusal holding its code. When the receipt rule gains a refusal, the same change runs `litespec sync` and the exceptions read the new constant.
 
-**Checked by:** `litespec model check` reports `generated-drift` for each file `litespec generate` writes that is missing or differs from what the records render now.
+**Checked by:** `litespec model check` reports `sync-drift` for each file `litespec sync` writes that is missing or differs from what the records render now.
 
 ### State What Happens in Every Behavior Statement
 

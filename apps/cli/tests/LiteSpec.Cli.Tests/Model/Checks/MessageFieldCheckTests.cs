@@ -457,7 +457,7 @@ public sealed class MessageFieldCheckTests
         var unknown = Assert.Single(Run(model, "reference-unknown"));
 
         Assert.Equal("reference-unknown", unknown.Code);
-        Assert.Equal("The tenancy extension names tenant term 'term/workspace', which no record holds.", unknown.Message);
+        Assert.Equal("The tenancy block of project.yaml names tenant term 'term/workspace', which no record holds.", unknown.Message);
         Assert.Equal(Path.Combine(".litespec", "project.yaml"), Path.GetRelativePath(temp.Path, unknown.Path));
         Assert.Equal(1, unknown.Line);
         Assert.Null(unknown.Subject);
@@ -522,14 +522,14 @@ public sealed class MessageFieldCheckTests
 
     /// <summary>Writes a project file selecting tenancy with the tenant term.</summary>
     /// <param name="root">The fixture root folder.</param>
-    /// <param name="tenant">The tenant term id the tenancy selection names.</param>
+    /// <param name="tenant">The tenant term id the tenancy block names.</param>
     static void WriteProject(string root, string tenant)
     {
         var folder = Path.Combine(root, ".litespec");
         Directory.CreateDirectory(folder);
         File.WriteAllText(
             Path.Combine(folder, "project.yaml"),
-            "selectedExtensions:\n- id: tenancy\n  criterion: Independent customers share one deployment.\n  tenant: " + tenant + "\n");
+            "tenancy:\n  criterion: Independent customers share one deployment.\n  tenant: " + tenant + "\n");
     }
 
     /// <summary>Adds the workspace tenant term to the model.</summary>

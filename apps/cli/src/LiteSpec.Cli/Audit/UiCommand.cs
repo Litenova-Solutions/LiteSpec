@@ -1,12 +1,15 @@
+using LiteSpec.Cli.Review;
+
 namespace LiteSpec.Cli.Audit;
 
-/// <summary>The <c>litespec ui</c> command: the rendered-page audit.</summary>
+/// <summary>The <c>litespec ui</c> command: the rendered-page audit and the review packet of changed routes.</summary>
 /// <follows>litespec/core/release#report-verification-exactly</follows>
 static class UiCommand
 {
     /// <summary>The usage text for the ui command, printed on help and on usage errors.</summary>
     public const string Usage = """
         Usage: litespec ui audit --base-url <url> [--root <folder>] [--routes <file>] [--widths <list>] [--schemes <list>] [--storage-state <file>] [--out <dir>] [--fail-on blocking|none] [--primary-selector <css>] [--browser <path>] [--help]
+               litespec ui review --since <base> [--root <folder>]
                litespec ui --help
 
         Audits the rendered pages in a browser: visits each route at each
@@ -44,6 +47,11 @@ static class UiCommand
         {
             CliHost.Out.WriteLine(Usage);
             return 0;
+        }
+
+        if (args[0] == "review")
+        {
+            return UiReviewCommand.Run(args[1..]);
         }
 
         if (args[0] != "audit")

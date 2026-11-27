@@ -299,7 +299,7 @@ internal static class MessageFieldChecks
         }
     }
 
-    /// <summary>The tenant term the tenancy selection names, or empty when the selection names none or no record holds it.</summary>
+    /// <summary>The tenant term the tenancy block of project.yaml names, or empty when the project declares none or no record holds it.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>The tenant term id, or empty.</returns>
@@ -316,7 +316,7 @@ internal static class MessageFieldChecks
         {
             findings.Add(new Finding(
                 "reference-unknown",
-                $"The tenancy extension names tenant term '{tenant}', which no record holds.",
+                $"The tenancy block of project.yaml names tenant term '{tenant}', which no record holds.",
                 ConsumerRoot.ProjectFile(model.Config.Root),
                 1,
                 null));
@@ -329,7 +329,7 @@ internal static class MessageFieldChecks
 
     /// <summary>Reports the message carrying a property its use case input neither names nor implies, or lacking one the input names.</summary>
     /// <param name="source">The backend source the message type is read from.</param>
-    /// <param name="tenant">The tenant term id the tenancy selection names, or empty.</param>
+    /// <param name="tenant">The tenant term id the tenancy block names, or empty.</param>
     /// <param name="handler">The handler whose message is compared.</param>
     /// <param name="useCase">The use case record holding the input.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>

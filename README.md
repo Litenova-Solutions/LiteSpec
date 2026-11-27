@@ -49,13 +49,11 @@ The part of the tool that reads one stack's code and tests and follows their mar
 
 ## How Agents Use It
 
-An agent asks the tool which provisions apply instead of loading standard pages. Before it edits a file, it asks which provisions govern that file: `litespec rules <path>` lists them grouped by strength, each with the reason it was retrieved, after the decisions and waivers the file follows. If a statement alone does not settle the question, `litespec rules <provision-id>` prints the full provision.
+An agent asks the tool which provisions apply instead of loading standard pages. Before it edits a file, it asks which provisions govern that file: `litespec rules <path>` lists them grouped by strength, with the reason for each, after the decisions and waivers the file follows. If a statement alone does not settle the question, `litespec rules <provision-id>` prints the full provision.
 
-Before the agent reports done, it runs `litespec rules --since <base>`, answers the Reviewed for question of every provision the change set returns, and names each judged provision with its outcome in the completion report.
+To learn what the specification says, the agent queries the model: `litespec model query <record-id>` returns a single record with its computed links, while `litespec model query --search <text>` and `litespec model query --list <type>` find records. For a whole session, `litespec serve` keeps the model warm and answers four tools: the task packet, the open findings, the impact of a record, and the slice check of one use case. The agent builds only what the specification states, and when something looks missing, it asks the owner or files a backlog item; it never writes code for what the specification does not state.
 
-To learn what the specification says, the agent queries the model: `litespec model query <record-id>` returns a single record with its computed links, while `litespec model query --search <text>` and `litespec model query --list <type>` find records. The agent builds only what the specification states, and when something looks missing, it asks the owner or files a backlog item; it never writes code for what the specification does not state.
-
-The project's `AGENTS.md` carries the agent protocol as a region the tool generates and keeps current. `litespec skill add` installs a LiteSpec skill for Claude Code and OpenCode that leads an agent through this order.
+The project's `AGENTS.md` carries the agent protocol the tool keeps current through `litespec agent sync`, with one path-scoped rule file per selected stack and hook settings that remind each edit and gate the stop. `litespec skill add` installs a LiteSpec skill for Claude Code and OpenCode that leads an agent through this order.
 
 ## Installation
 
@@ -64,7 +62,7 @@ Install the `litespec` command line in one of two ways. A repository with the .N
 ```bash
 dotnet new tool-manifest
 dotnet tool install LiteSpec.Cli --version 7.0.0
-dotnet litespec init --preset dotnet-react --size small
+dotnet litespec init --preset dotnet-svelte --size small
 ```
 
 Run `dotnet new tool-manifest` only when the repository has no `.config/dotnet-tools.json` yet. The `dotnet tool install` step records `LiteSpec.Cli` in that manifest at the named release.
@@ -93,7 +91,7 @@ The command validates the project file, the record files, and the language of th
 
 ## Commands
 
-These are the CLI commands, with each `model` subcommand on its own row:
+These are the CLI commands, with each `model` and `docs` subcommand on its own row:
 
 | Command | What It Does |
 |:---|:---|
@@ -104,11 +102,21 @@ These are the CLI commands, with each `model` subcommand on its own row:
 | `litespec model format` | Rewrites record files into canonical form. |
 | `litespec model query` | Returns one record with its computed links, or finds records with `--search` and `--list`. |
 | `litespec model edges` | Prints each module's links to other modules. |
-| `litespec book` | Serves the project book live, or writes it with `--out`. |
 | `litespec model render` | Rewrites the generated regions: the agent protocol in `AGENTS.md`, the project skill copies, and the indexes. |
-| `litespec context` | Writes the specification as one plain-text file for an AI chat. |
-| `litespec rules <path>` | Lists the provisions that apply to a file, grouped by strength, or to a change set with `--since`. |
+| `litespec scaffold` | Writes the code files of one use case from its record, and never overwrites a file. |
+| `litespec sync` | Writes the pure data the records determine into the configured targets. |
+| `litespec serve` | Keeps the project model warm and answers the four MCP tools an agent calls. |
+| `litespec agent sync` | Writes the thin root agent context, the path-scoped rule files, and the hook settings. |
+| `litespec hook` | Reminds one edit with its provisions, or gates the stop on the blocking findings. |
+| `litespec plan-waves` | Lists conflict-free parallel slices with their exclusive paths from the module graph. |
+| `litespec upgrade` | Reports the release changes the project has not applied yet. |
+| `litespec docs review` | Lints changed docs and records and writes a review packet. |
+| `litespec docs render` | Re-renders the book pages of only the records whose hash changed. |
+| `litespec ui review` | Lists the changed routes with their golden baselines and writes a review packet. |
+| `litespec book` | Serves the project book live on localhost, or writes the static book with `--out`. |
+| `litespec rules <path>` | Lists the provisions that apply to a file, grouped by strength. |
 | `litespec skill add` | Installs the LiteSpec skill for Claude Code, OpenCode and the shared `.agents` folder. |
+| `litespec context` | Writes the specification as one plain-text file for an AI chat. |
 
 See the [command index](docs/tools/README.md) for every option.
 
@@ -118,11 +126,9 @@ A project names one size (`small` or `large`), one shape (`server` or `client-on
 
 | Stack | Folder | Role |
 |:---|:---|:---|
-| `dotnet` | `docs/backend/dotnet/` | Backend |
-| `react` | `docs/frontend/web/react/` | Web frontend |
-| `svelte` | `docs/frontend/web/svelte/` | Web frontend |
-| `blazor` | `docs/frontend/blazor/` | Client frontend |
-| `android` | `docs/frontend/mobile/android/` | Mobile frontend |
+| `dotnet` | `docs/packs/dotnet/` | Backend |
+| `svelte` | `docs/packs/svelte/` | Web frontend |
+| `android` | `docs/packs/android/` | Mobile frontend |
 
 Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. The [release manifest](litespec.manifest.yaml) lists the stacks, shapes, extensions, and pinned versions for the release.
 
