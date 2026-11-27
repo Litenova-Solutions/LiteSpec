@@ -114,7 +114,7 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
     /// <summary>The first identifier, with any '#' operation part dropped.</summary>
     /// <param name="ids">The identifiers in declared order.</param>
     /// <returns>The first identifier without its operation part, or null when no identifier names one.</returns>
-    private static string? FirstIdOf(IReadOnlyList<string> ids)
+    internal static string? FirstIdOf(IReadOnlyList<string> ids)
     {
         foreach (var id in ids)
         {

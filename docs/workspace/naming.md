@@ -118,7 +118,7 @@ A polymorphic transport model mirrors a Domain discriminated union. Its abstract
 
 **Applies to:** artifact: reaction, job
 
-**Statement:** Each event handler and job class MUST live in the `Application/` folder of the use case its record runs, or, when it runs none, in the `Application/Notifications/` folder named for the notification it sends or the `Application/ExternalSystems/` folder named for the system it calls, with an event handler named `{Action}On{Fact}Handler`.
+**Statement:** Each event handler and job class MUST live in the `Application/` folder of the use case its record runs, or, when it runs none, in the `Application/Notifications/` folder named for the notification it sends or the `Application/ExternalSystems/` folder named for the system it calls, with an event handler named `{Action}On{Fact}Handler`, and a handler whose record runs another module's use case stays in its own module, in the aggregate and use case folders of the use case it runs.
 
 **Rationale:** A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names the command of that use case from inside the folder of the use case, so no command leaves its folder for a caller to reach it, and the folder shows each way the use case starts. A folder named for a fact gathers the commands of several use cases under one name instead, and those reactions span modules, so the question of what happens when a fact gets recorded gets answered by the model query on the event and by the handler names, which carry the fact.
 

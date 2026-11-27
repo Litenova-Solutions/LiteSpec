@@ -54,6 +54,11 @@ internal static partial class ClosedFolderChecks
                 continue;
             }
 
+            if (CheckCrossModuleTriggerFolder(config, child, moduleName, homes, findings))
+            {
+                continue;
+            }
+
             findings.Add(new Finding(
                 "code-placement-drift",
                 $"Folder '{PathText.Relative(config.Root, child)}' names no declared use case.",
@@ -69,6 +74,59 @@ internal static partial class ClosedFolderChecks
                 findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Application/, which holds only one folder per aggregate and use case, Notifications, ExternalSystems, ReadModels and Settings.", file, 1, null));
             }
         }
+    }
+
+    /// <summary>
+    ///     Checks one folder under a module Application folder against the homes of the module's reactions and jobs that run
+    ///     another module's use case: a module-level home is a use case folder holding files only, and an aggregate home holds
+    ///     only the use case folders its triggers run, each holding files only.
+    /// </summary>
+    /// <param name="config">The project configuration that holds the consumer root for relative paths.</param>
+    /// <param name="child">The absolute folder directly under Application.</param>
+    /// <param name="moduleName">The module folder name as written on disk.</param>
+    /// <param name="homes">The declared trigger and read model folders by module, container and folder name.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the folder is a cross-module trigger home, so the caller reports nothing more for it.</returns>
+    /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
+    private static bool CheckCrossModuleTriggerFolder(ConsumerConfig config, string child, string moduleName, IReadOnlyList<(string Module, string Container, string Folder)> homes, List<Finding> findings)
+    {
+        var name = Path.GetFileName(child);
+        var mine = homes.Where(home => SameName(moduleName, home.Module)).ToList();
+
+        if (mine.Any(home => home.Container == "Application" && string.Equals(home.Folder, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            CheckUseCaseFilesOnly(config, child, "use case", findings);
+            return true;
+        }
+
+        var useCases = mine
+            .Where(home => string.Equals(home.Container, $"Application/{name}", StringComparison.OrdinalIgnoreCase))
+            .Select(home => home.Folder)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (useCases.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (var folder in ChildFolders(child))
+        {
+            if (useCases.Contains(Path.GetFileName(folder)))
+            {
+                CheckUseCaseFilesOnly(config, folder, "use case", findings);
+            }
+            else
+            {
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, folder)}' names no declared use case.", folder, 1, null));
+            }
+        }
+
+        foreach (var file in ChildFiles(child))
+        {
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in an aggregate folder, which holds only use case folders.", file, 1, null));
+        }
+
+        return true;
     }
 
     /// <summary>Reports every folder under a module WebApi folder that names no declared aggregate or module-level use case of the module.</summary>

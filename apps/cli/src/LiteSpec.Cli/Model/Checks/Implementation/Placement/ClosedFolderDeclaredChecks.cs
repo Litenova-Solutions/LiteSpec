@@ -156,7 +156,9 @@ internal static partial class ClosedFolderChecks
 
     /// <summary>
     ///     The declared trigger and read model folders by module, container and folder name. A reaction or job that runs a use
-    ///     case takes no folder here, since its code sits in that use case's folder under Application. A trigger that only sends
+    ///     case of its own module takes no folder here, since its code sits in that use case's folder under Application. One that
+    ///     runs another module's use case takes the folder of that use case inside its own module: container
+    ///     <c>Application/{Aggregates}</c>, or <c>Application</c> for a module-level use case. A trigger that only sends
     ///     takes a Notifications folder, and one that only calls takes an ExternalSystems folder, each named for its first
     ///     effect. Each read model takes a ReadModels folder, named for its plural.
     /// </summary>
@@ -179,9 +181,21 @@ internal static partial class ClosedFolderChecks
 
             if (record.Type is RecordTypes.Reaction or RecordTypes.Job)
             {
-                if (TriggerHomeOf(model, record) is { } home && home.Container != "Application")
+                if (TriggerHomeOf(model, record) is not { } home)
+                {
+                    continue;
+                }
+
+                if (home.Container != "Application")
                 {
                     homes.Add((path.Module, home.Container, home.Name));
+                }
+                else if (FirstIdOf(record.EdgeIds(RecordFields.Runs)) is { } run
+                    && model.ById.TryGetValue(run, out var useCase)
+                    && PathOf(useCase).Module is { } runModule
+                    && !SameName(runModule, path.Module))
+                {
+                    homes.Add((path.Module, home.Aggregate is null ? "Application" : $"Application/{home.Aggregate}", home.Name));
                 }
             }
             else if (record.Type == "read-model" && path.Name is not null)

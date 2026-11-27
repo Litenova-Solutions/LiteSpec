@@ -379,6 +379,43 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Empty(FolderDrift(model));
     }
 
+    /// <summary>
+    ///     A reaction that runs another module's use case sits in its own module, under the aggregate and use case
+    ///     folders of the use case it runs, and neither the handler nor the folder check reports it.
+    /// </summary>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
+    [Fact]
+    public void ReactionRunningAnotherModulesUseCaseInItsMirrorFolderReportsNothing()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.Reaction, "reaction/cancellations.borrow-copy-on-event-change", "cancellations/reaction/borrow-copy-on-event-change", temp.Path,
+            """{"status": "reviewed", "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
+        var file = ProductFile(temp.Path, "Cancellations", "Application", "Loans", "BorrowCopy", "BorrowCopyOnEventChangeHandler.cs");
+        WriteCode(file, "Library.Cancellations.Application.Loans.BorrowCopy", "BorrowCopyOnEventChangeHandler");
+        model.Code.Elements.Add(Element(CodeKind.EventHandler, "BorrowCopyOnEventChangeHandler", file, "reaction/cancellations.borrow-copy-on-event-change"));
+
+        Assert.Empty(Run(model));
+    }
+
+    /// <summary>A folder beside a cross-module trigger home that no reaction or job of the module runs still reports.</summary>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
+    [Fact]
+    public void StrayFolderBesideCrossModuleTriggerHomeReports()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        model.Records.Add(Rec(RecordTypes.Reaction, "reaction/cancellations.borrow-copy-on-event-change", "cancellations/reaction/borrow-copy-on-event-change", temp.Path,
+            """{"status": "reviewed", "effects": [{"runs": "use-case/lending.borrow-copy"}]}"""));
+        var file = ProductFile(temp.Path, "Cancellations", "Application", "Loans", "BorrowCopy", "BorrowCopyOnEventChangeHandler.cs");
+        WriteCode(file, "Library.Cancellations.Application.Loans.BorrowCopy", "BorrowCopyOnEventChangeHandler");
+        model.Code.Elements.Add(Element(CodeKind.EventHandler, "BorrowCopyOnEventChangeHandler", file, "reaction/cancellations.borrow-copy-on-event-change"));
+        WriteCode(ProductFile(temp.Path, "Cancellations", "Application", "Loans", "ReturnCopy", "ReturnCopyHelper.cs"), "Library.Cancellations.Application.Loans.ReturnCopy", "ReturnCopyHelper");
+
+        var finding = Assert.Single(Run(model));
+        Assert.EndsWith("Loans/ReturnCopy' names no declared use case.", finding.Message, StringComparison.Ordinal);
+    }
+
     /// <summary>A reaction in an Application On fact folder reports the use case folder its effects name, and the folder that names no use case.</summary>
     /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
